@@ -1,14 +1,14 @@
 import serial
-
+from . import constants
 def connection(ipaddress,port):
 	serport = serial.serial_for_url("socket://"+ipaddress+":"+port+"/logging=debug")
 	serport.close()
-	#serport.port = heatmiserV3.constants.COM_PORT
-	serport.baudrate = heatmiserV3.constants.COM_BAUD
-	serport.bytesize = heatmiserV3.constants.COM_SIZE
-	serport.parity = heatmiserV3.constants.COM_PARITY
-	serport.stopbits = heatmiserV3.constants.COM_STOP
-	serport.timeout = heatmiserV3.constants.COM_TIMEOUT
+	#serport.port = constants.COM_PORT
+	serport.baudrate = constants.COM_BAUD
+	serport.bytesize = constants.COM_SIZE
+	serport.parity = constants.COM_PARITY
+	serport.stopbits = constants.COM_STOP
+	serport.timeout = constants.COM_TIMEOUT
 	try:
 	    serport.open()
 	except serial.SerialException as e:
