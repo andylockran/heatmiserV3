@@ -192,19 +192,19 @@ def hmSendMsg(serport, message) :
     datal = list(byteread)
     return datal
 
-def hmSendAddress(destination, address, state, serport) :
+def hmSendAddress(destination, address, state, rw, serport) :
     """bla bla"""
     protocol = constants.HMV3_ID # TODO should look this up in statlist
     if protocol == constants.HMV3_ID:
         payload = [state]
-        msg = hmFormMsgCRC(destination, protocol, constants.MY_MASTER_ADDR, constants.FUNC_WRITE, address, payload)
+        msg = hmFormMsgCRC(destination, protocol, constants.MY_MASTER_ADDR, rw, address, payload)
     else:
         "Un-supported protocol found %s" % protocol
         assert 0, "Un-supported protocol found %s" % protocol
     string = bytes(msg)
     datal = hmSendMsg(serport, string)
 
-    if (hmVerifyMsgCRCOK(constants.MY_MASTER_ADDR, protocol, destination, constants.FUNC_WRITE, constants.DONT_CARE_LENGTH, datal) == False):
+    if (hmVerifyMsgCRCOK(constants.MY_MASTER_ADDR, protocol, destination, rw, constants.DONT_CARE_LENGTH, datal) == False):
         print("OH DEAR BAD RESPONSE")
     return 1
 

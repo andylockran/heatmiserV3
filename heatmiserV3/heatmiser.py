@@ -10,6 +10,7 @@ import os
 import shutil
 from datetime import datetime
 from heatmiserV3 import constants
+from heatmiserV3 import connection
 
 
 # Believe this is known as CCITT (0xFFFF)
