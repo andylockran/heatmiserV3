@@ -10,4 +10,5 @@ setup(
   download_url = 'https://github.com/andylockran/heatmiserV3/tarball/0.5', # I'll explain this in a second
   keywords = ['v3', 'thermostat', 'heatmiser'], # arbitrary keywords
   classifiers = [],
+  install_requires = ['pyserial']
 )
