@@ -1,6 +1,6 @@
 #
 # Neil Trimboy 2011
-# Assume Pyhton 2.7.x
+# Assume Python 2.7.x +
 #
 
 import serial
@@ -272,6 +272,7 @@ def hmReadAddress(
         ):
     datal = hmSendAddress(destination, 0, 0, 0, serport)
     DATAOFFSET = 9
+    response = {}
     if type == 'prt':
         response = {
             'vendor': datal[2 + DATAOFFSET],
