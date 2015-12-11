@@ -1,7 +1,7 @@
 import serial
 from . import constants
 def connection(ipaddress,port):
-	serport = serial.serial_for_url("socket://"+ipaddress+":"+port+"/logging=debug")
+	serport = serial.serial_for_url("socket://"+ipaddress+":"+port)
 	serport.close()
 	#serport.port = constants.COM_PORT
 	serport.baudrate = constants.COM_BAUD
