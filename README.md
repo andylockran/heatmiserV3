@@ -1,5 +1,7 @@
 #HeatmiserV3
 
+[![Build Status](https://travis-ci.org/andylockran/heatmiserV3.svg?branch=master)](https://travis-ci.org/andylockran/heatmiserV3)
+
 This library has been created from the work carried out by 
 Neil Trimboy in 2011 here:
 [https://code.google.com/p/heatmiser-monitor-control/]
