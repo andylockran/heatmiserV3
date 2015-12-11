@@ -1,1 +1,2 @@
-from heatmiserV3 import heatmiser
+from . import heatmiser
+from . import connection
