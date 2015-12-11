@@ -4,3 +4,7 @@ venv27/
 venv/
 test.py
 .idea/
+*egg/
+.coverage
+*.egg
+.eggs/

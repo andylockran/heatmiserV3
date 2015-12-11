@@ -1,4 +1,4 @@
-Metadata-Version: 1.1
+Metadata-Version: 1.0
 Name: heatmiserV3
 Version: 0.9.3
 Summary: A library to interact with Heatmiser Themostats using the v3 protocol

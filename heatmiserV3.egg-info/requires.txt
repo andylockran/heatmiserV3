@@ -1,1 +1,4 @@
 pyserial
+
+[testing]
+pytest

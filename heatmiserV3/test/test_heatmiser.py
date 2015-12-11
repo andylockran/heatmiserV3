@@ -1,5 +1,5 @@
 import unittest
-import heatmiser
+from heatmiserV3 import heatmiser
 
 class TestCRCMethods(unittest.TestCase):
   def test_crc16(self):
