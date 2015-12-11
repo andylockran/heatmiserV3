@@ -9,8 +9,8 @@ import sys
 import os
 import shutil
 from datetime import datetime
-from heatmiserV3 import constants
-from heatmiserV3 import connection
+from . import constants
+from . import connection
 
 
 # Believe this is known as CCITT (0xFFFF)
@@ -348,7 +348,7 @@ def hmReadAddress(destination,type,serport):
       '51': datal[51+DATAOFFSET],
 #      '52': datal[52+DATAOFFSET],
 #      '53': datal[53+DATAOFFSET]
-#      """'54': datal[54+DATAOFFSET],
+#      '54': datal[54+DATAOFFSET],
 #      '55': datal[55+DATAOFFSET],
 #      '56': datal[56+DATAOFFSET],
 #      '57': datal[57+DATAOFFSET],
@@ -357,7 +357,7 @@ def hmReadAddress(destination,type,serport):
 #      '60': datal[60+DATAOFFSET],
 #      '61': datal[61+DATAOFFSET],
 #      '62': datal[62+DATAOFFSET],
-#      '63': datal[63+DATAOFFSET], """
+#      '63': datal[63+DATAOFFSET], 
     }
 
   return response

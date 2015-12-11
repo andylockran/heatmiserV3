@@ -1,0 +1,12 @@
+Metadata-Version: 1.1
+Name: heatmiserV3
+Version: 0.9.1
+Summary: A library to interact with Heatmiser Themostats using the v3 protocol
+Home-page: https://github.com/andylockran/heatmiserV3
+Author: Andy Loughran
+Author-email: andy@zrmt.com
+License: UNKNOWN
+Download-URL: https://github.com/andylockran/heatmiserV3/tarball/0.9.1
+Description: UNKNOWN
+Keywords: v3,thermostat,heatmiser
+Platform: UNKNOWN

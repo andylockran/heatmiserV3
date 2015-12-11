@@ -1,0 +1,11 @@
+setup.cfg
+setup.py
+heatmiserV3/__init__.py
+heatmiserV3/connection.py
+heatmiserV3/constants.py
+heatmiserV3/heatmiser.py
+heatmiserV3.egg-info/PKG-INFO
+heatmiserV3.egg-info/SOURCES.txt
+heatmiserV3.egg-info/dependency_links.txt
+heatmiserV3.egg-info/requires.txt
+heatmiserV3.egg-info/top_level.txt
