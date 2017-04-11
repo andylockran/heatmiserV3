@@ -1,5 +1,7 @@
 from .exceptions import HeatmiserException
 from .constants import Constants
+import datetime
+
 
 class HeatmiserV3Protocol(object):
 
@@ -57,12 +59,12 @@ class HeatmiserV3Protocol(object):
         return bytes(msg)
 
     """ Construct an arbitrary thermostat command over TCP """
-    def tcp_command(self, op, data):
+    def tcp_command(self, op, data, pin):
         # Construct the command
         length = 7 + len(data)
         cmd = [op, ]
         cmd.extend(self.w2b(length))
-        cmd.extend(self.w2b(self.pin))
+        cmd.extend(self.w2b(pin))
         cmd.extend(data)
         cmd.extend(self.w2b(self.crc16(cmd)))
 
@@ -121,11 +123,11 @@ class HeatmiserV3Protocol(object):
         #     return rsp
         return data
 
-    def read_dcb_tcp(self, start=0x0000, octets=Constants.RW_LENGTH_ALL):
+    def read_dcb_tcp(self, pin, start=0x0000, octets=Constants.RW_LENGTH_ALL):
         # Construct and issue the inquiry command
         data = HeatmiserV3Protocol.w2b(start)
         data.extend(HeatmiserV3Protocol.w2b(octets))
-        return self.tcp_command(0x93, data)
+        return self.tcp_command(0x93, data, pin)
 
     def parse_tcp_response(self, rsp):
         # Read the response
@@ -143,12 +145,13 @@ class HeatmiserV3Protocol(object):
             raise HeatmiserException("Incorrect length of thermostat response")
 
         # Return the DCB portion of the response
-        return data[4:]
+        return data[Constants.DCB_OFFSET_TCP:]
 
     def parse_serial_response(self, rsp, function):
         # Read the response
         data = self.serial_response(rsp, function)
-        return data[9:]
+        # Return the DCB portion of the response
+        return data[Constants.DCB_OFFSET_SERIAL:] # Omit trailing CRC bytes
 
     def read_dcb_serial(self, destination, source, start=0x0000, octets=Constants.RW_LENGTH_ALL):
         # Construct and issue the inquiry command
@@ -181,14 +184,21 @@ class HeatmiserV3Protocol(object):
             raise HeatmiserException("Incorrect length of thermostat response")
 
         # Return the DCB portion of the response
-        return data[4:]
+        return data[Constants.DCB_OFFSET_TCP:]
 
     def dcb_to_status(self, dcb):
         # Sanity check the DCB length field
         status = {}
-        status['dcblength'] = self.b2w(dcb[0], dcb[1])
+        is_serial = self.conn_type[0] == Constants.CONNECTION_TYPES[0][0]
+        if is_serial:
+            # Serial protocol is big-endian
+            status['dcblength'] = self.b2w(dcb[1], dcb[0])
+        else:
+            status['dcblength'] = self.b2w(dcb[0], dcb[1])
+
         if len(dcb) != status['dcblength']:
-            raise HeatmiserException("DCB length mismatch")
+            raise HeatmiserException("DCB length mismatch: {} != {}".format(
+            len(dcb), status['dcblength']))
 
         # Device type and version
         lookup = lambda value, names: names.get(value, value)
@@ -198,24 +208,49 @@ class HeatmiserV3Protocol(object):
             'model': lookup(dcb[4], {0: 'DT', 1: 'DT-E', 2: 'PRT', 3: 'PRT-E', 4: 'PRTHW', 5: 'TM1'})
         }
 
-        # Current date and time
-        timebase = 41
-        if status['product']['model'] in ('PRTHW', 'TM1'):
-            timebase = 44
+        if is_serial:
+            dcb_offsets = Constants.DCB_OFFSETS['serial'][status['product']['model']]
+        else:
+            if status['product']['model'] == 'PRTHW':
+                dcb_offsets = Constants.DCB_OFFSETS['WiFi']['PRTHW']
+            elif status['product']['model'] == 'TM1':
+                dcb_offsets = Constants.DCB_OFFSETS['WiFi']['TM1']
+            else:
+                dcb_offsets = Constants.DCB_OFFSETS['WiFi']['DT']
 
-        status['time'] = datetime.datetime(2000 + dcb[timebase], dcb[timebase+1], dcb[timebase+2], dcb[timebase+4], dcb[timebase+5], dcb[timebase+6])
+        # Current date and time
+        timebase = dcb_offsets['timebase']
+
+        # Serial DCBs only have time
+        if is_serial:
+            now = datetime.datetime.now()
+            year = now.year
+            month = now.month
+            day = now.day
+            status['time'] = datetime.datetime(year, month, day, dcb[timebase], dcb[timebase+1], dcb[timebase+2])
+        else:
+            status['time'] = datetime.datetime(2000 + dcb[timebase], dcb[timebase+1], dcb[timebase+2], dcb[timebase+4], dcb[timebase+5], dcb[timebase+6])
 
         # General operating status
-        status['enabled'] = dcb[21]
-        status['keylock'] = dcb[22]
+        status['enabled'] = dcb[dcb_offsets['onoff']]
+        status['keylock'] = dcb[dcb_offsets['keylock']]
 
         # Holiday mode
-        holiday = dcb[25:30+1]
-        status['holiday'] = {
-            'time': datetime.datetime(2000 + holiday[0], holiday[1], holiday[2], holiday[3], holiday[4]),
-            'enabled': holiday[5]
-        }
+        if is_serial:
+            holiday_hours = self.b2w(dcb[dcb_offsets['holiday_hours_low']], dcb[dcb_offsets['holiday_hours_high']])
+            delta = datetime.timedelta(holiday_hours)
+            status['holiday'] = {
+                'time': status['time'] + delta,
+                'enabled': holiday_hours > 0
+            }
+        else:
+            holiday = dcb[dcb_offsets['holiday_start']:dcb_offsets['holiday_end']+1]
+            status['holiday'] = {
+                'time': datetime.datetime(2000 + holiday[0], holiday[1], holiday[2], holiday[3], holiday[4]),
+                'enabled': holiday[5]
+            }
 
+        status['config'] = {}
         # Fields that only apply to models with thermometers
         if status['product']['model'] != 'TM1':
             # Temperature configuration
@@ -229,63 +264,65 @@ class HeatmiserV3Protocol(object):
                 'optimumstart': dcb[14]
             }
 
-        # Run mode
-        status['runmode'] = lookup(dcb[23], {0: 'heating', 1: 'frost'})
+            # Run mode
+            status['runmode'] = lookup(dcb[23], {0: 'heating', 1: 'frost'})
 
-        # Frost protection
-        status['frostprotect'] = {
-            'enabled': dcb[7],
-            'target': dcb[17]
-        }
-
-        # Floor limit
-        if status['product']['model'].endswith('-E'):
-            status['floorlimit'] = {
-                'limiting': dcb[3] >> 7,
-                'floormax': dcb[20]
+            # Frost protection
+            status['frostprotect'] = {
+                'enabled': dcb[7],
+                'target': dcb[17]
             }
 
-        # Current temperature(s)
-        temps = dcb[33:38+1]
-        temperature = lambda ts: None if self.b2w(ts[0], ts[1]) == 0xffff else float(self.b2w(ts[0], ts[1])) / 10
-        status['temperature'] = {
-            'remote': temperature(temps[0:1+1]),
-            'floor': temperature(temps[2:3+1]),
-            'internal': temperature(temps[4:5+1])
-        }
+            # Floor limit
+            if status['product']['model'].endswith('-E'):
+                status['floorlimit'] = {
+                    'limiting': dcb[3] >> 7,
+                    'floormax': dcb[20]
+                }
 
-        # Status of heating
-        status['heating'] = {
-            'on': dcb[40],
-            'target': dcb[18],
-            'hold': self.b2w(dcb[31], dcb[32])
-        }
+            # Current temperature(s)
+            temps = dcb[33:38+1]
+            temperature = lambda ts: None if self.b2w(ts[0], ts[1]) == 0xffff else float(self.b2w(ts[0], ts[1])) / 10
+            status['temperature'] = {
+                'remote': temperature(temps[0:1+1]),
+                'floor': temperature(temps[2:3+1]),
+                'internal': temperature(temps[4:5+1])
+            }
 
-        # Learnt rate of temperature rise
-        status['rateofchange'] = dcb[15]
+            # Status of heating
+            status['heating'] = {
+                'on': dcb[40],
+                'target': dcb[18],
+                'hold': self.b2w(dcb[31], dcb[32])
+            }
 
-        # Error code
-        status['errorcode'] = lookup(dcb[39], {0: None, 0xe0: 'internal', 0xe1: 'floor', 0xe2: 'remote'})
+            # Learnt rate of temperature rise
+            status['rateofchange'] = dcb[15]
+
+            # Error code
+            status['errorcode'] = lookup(dcb[39], {0: None, 0xe0: 'internal', 0xe1: 'floor', 0xe2: 'remote'})
 
         # Fields that only apply to models with hot water control
-        if status['product']['model'] in ('PRTHW', 'TM1'):
+        if status['product']['model'] in ('PRTHW',):
             # Status of hot water
             status['hotwater'] = {
-                'on': dcb[43],
-                'boost': self.b2w(dcb[31], dcb[32])
+                'on': dcb[dcb_offsets['hotwater']],
+                'boost': self.b2w(dcb[dcb_offsets['boostbase']], dcb[dcb_offsets['boostbase']+1])
             }
-            # Away mode
-            status['awaymode'] = lookup(dcb[16], {0: 'home', 1: 'away'})
+            if not is_serial:
+                # Away mode
+                status['awaymode'] = lookup(dcb[dcb_offsets['away']], {0: 'home', 1: 'away'})
 
         # Program mode
-        status['config']['progmode'] = lookup(dcb[16], {0: '5/2', 1: '7'})
+        status['config']['progmode'] = lookup(dcb[dcb_offsets['program_mode']], {0: '5/2', 1: '7', 2: 'Countdown Timer'})
 
         # Program entries - does not apply to non-programmable thermostats
-        if not 'DT' in status['product']['model']:
+        if not 'DT' in status['product']['model'] and status['config']['progmode'] != 'Countdown Timer':
             # Find the start of the program data
             # Weekday/Weekend or Mon/Tue/Wed/Thu/Fri/Sat/Sun
             days = 2 if status['config']['progmode'] == '5/2' else 7
-            progbase = 51 if status['product']['model'] in ('PRTHW', 'TM1') else 48
+            #progbase = 51 if status['product']['model'] in ('PRTHW', 'TM1') else 48
+            progbase = dcb_offsets['progbase']
             if days == 7:
                 if 'PRT' in status['product']['model']:
                     progbase += 24
@@ -316,7 +353,7 @@ class HeatmiserV3Protocol(object):
                     status['timer'].append(daydata)
 
         # TODO rest of dcb
-
+        print(status)
         # Return the decoded status
         return status
 

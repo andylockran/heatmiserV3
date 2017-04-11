@@ -31,6 +31,8 @@ class Constants(object):
 
     BROADCAST_ADDR = 0xff
     RW_LENGTH_ALL = 0xffff
+    DCB_OFFSET_SERIAL = 9
+    DCB_OFFSET_TCP = 4
 
     SET_TEMP_ADDR = 18
     KEY_LOCK_ADDR = 22
@@ -64,4 +66,52 @@ class Constants(object):
         'host': 'heatmiser',
         'port': 8068,
         'pin': 0000
+    }
+
+    DCB_OFFSETS = {
+        'serial': {
+            'TM1': {
+                'program_mode': 6,
+                'timebase': 16,
+                'onoff': 8,
+                'keylock': 9,
+                'holiday_hours_high': 10,
+                'holiday_hours_low': 11,
+                'progbase': 19,
+            },
+        },
+        'WiFi': {
+            'DT':{
+                'program_mode': 16,
+                'away': 24,
+                'timebase': 41,
+                'onoff': 21,
+                'keylock': 22,
+                'holiday_start': 25,
+                'holiday_end': 30,
+                'progbase': 48, # Check
+            },
+            'PRTHW': {
+                'program_mode': 16,
+                'away': 24,
+                'timebase': 44,
+                'onoff': 21,
+                'keylock': 22,
+                'holiday_start': 25,
+                'holiday_end': 30,
+                'progbase': 51,
+                'hotwater': 43,
+                'boostbase': 31
+            },
+            'TM1': {
+                'program_mode': 6,
+                'timebase': 19,
+                'away': 7,
+                'onoff': 8,
+                'keylock': 9,
+                'holiday_start': 10,
+                'holiday_end': 15,
+                'progbase': 51,
+            },
+        }
     }

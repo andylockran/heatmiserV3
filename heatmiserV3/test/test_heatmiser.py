@@ -69,3 +69,16 @@ class TestProtocolSerial(unittest.TestCase):
     def test_get_status_cmd(self):
         cmd = self.protocol.read_dcb_serial(5, 42)
         assert len(cmd) == 8
+
+    def test_parse_response(self):
+        resp = [129, 62, 0, 5, 0, 0, 0, 51, 0, 0, 51, 0, 16, 5, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 22, 42, 45, 6, 0, 9, 0, 16, 0, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 6, 30, 9, 0, 15, 30, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 180, 24]
+        dcb = self.protocol.parse_serial_response(resp, constants.Constants.FUNC_READ)
+        status = self.protocol.dcb_to_status(dcb)
+
+class TestProtocolTCP(unittest.TestCase):
+    def setUp(self):
+        self.protocol = protocol.HeatmiserV3Protocol(constants.Constants.CONNECTION_TYPES[1])
+
+    def test_get_status_cmd(self):
+        cmd = self.protocol.read_dcb_tcp(1234)
+        assert len(cmd) == 11
