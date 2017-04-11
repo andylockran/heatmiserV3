@@ -1,25 +1,10 @@
-import datetime
-import socket
+from .exceptions import HeatmiserException
+from .constants import Constants
 
-__author__ = 'Robin Elvin'
+class HeatmiserV3Protocol(object):
 
-
-"""
-    Class to handle Heatmiser WiFi thermostats that use the
-    modified V3 protocol
-"""
-class HeatmiserWiFi(object):
-    DEFAULT_OPTIONS = {
-        'host': 'heatmiser',
-        'port': 8068,
-        'pin': 0000
-    }
-
-    def __init__(self, host=DEFAULT_OPTIONS['host'], pin=DEFAULT_OPTIONS['pin']):
-        self.host = host
-        self.pin = pin
-        self.socket = None
-        self.port = HeatmiserWiFi.DEFAULT_OPTIONS['port']
+    def __init__(self, conn_type):
+        self.conn_type = conn_type
 
     @staticmethod
     def w2b(word):
@@ -45,25 +30,34 @@ class HeatmiserWiFi(object):
 
         return crc
 
-    def open(self):
-        if self.socket is not None:
-            return
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, self.port))
-        self.socket = s
+    """ Construct an arbitrary thermostat command over serial """
+    def serial_frame(self, destination, source, function, start, data):
+        if function == Constants.FUNC_READ:
+            payloadLength = 0
+            length = Constants.RW_LENGTH_ALL
+        else:
+            payloadLength = len(data)
+            length = payloadLength
 
-    def close(self):
-        self.socket.close()
-        self.socket = None
+        # Construct the command
+        payloadLength = 10 + payloadLength
 
-    """ Construct an arbitrary thermostat command """
-    def command(self, op, data):
-        # Ensure socket is open
-        try:
-            self.open()
-        except Exception as ex:
-            raise HeatmiserException(str(ex))
+        msg = [
+            destination,
+            payloadLength,
+            source,
+            function
+            ]
+        msg.extend(self.w2b(start))
+        msg.extend(self.w2b(length))
 
+        if function == Constants.FUNC_WRITE:
+            msg = msg + payload
+            # type(msg)
+        return bytes(msg)
+
+    """ Construct an arbitrary thermostat command over TCP """
+    def tcp_command(self, op, data):
         # Construct the command
         length = 7 + len(data)
         cmd = [op, ]
@@ -75,22 +69,10 @@ class HeatmiserWiFi(object):
         # Convert the command to binary
         cmd = bytes(cmd)
 
-        # Send the command to the thermostat
-        try:
-            self.socket.send(cmd)
-        except Exception as ex:
-            self.close()
-            raise HeatmiserException('Failed to send command to thermostat: %s' % str(ex))
+        return cmd
 
     """ Deconstruct an arbitrary thermostat response """
-    def response(self):
-        # Receive a response from the thermostat
-        try:
-            rsp = self.socket.recv(0x10000)
-        except Exception as ex:
-            self.close()
-            raise HeatmiserException('No response from thermostat: %s' % str(ex))
-
+    def tcp_response(self, rsp):
         # Split the response into octets
         rsp = list(rsp)
 
@@ -103,20 +85,51 @@ class HeatmiserWiFi(object):
         # Error checking
         if length != len(rsp):
             raise HeatmiserException("Length field mismatch in thermostat response")
+
         crc_actual = self.crc16(rsp[:-2])
         if crc != crc_actual:
             raise HeatmiserException("CRC incorrect in thermostat response")
 
         return op, data
 
-    def read_dcb(self, start=0x0000, octets=0xffff):
-        # Construct and issue the inquiry command
-        data = HeatmiserWiFi.w2b(start)
-        data.extend(HeatmiserWiFi.w2b(octets))
-        self.command(0x93, data)
+    def serial_response(self, rsp, function):
+        # Split the response into octets
+        rsp = list(rsp)
 
+        data = rsp[:-2]
+        length = self.b2w(rsp[1], rsp[2])
+        crc = self.b2w(rsp[-2], rsp[-1])
+
+        # Error checking
+        if length != len(rsp):
+            raise HeatmiserException("Length field mismatch in thermostat response")
+
+        crc_actual = self.crc16(rsp[:-2])
+        if crc != crc_actual:
+            raise HeatmiserException("CRC incorrect in thermostat response")
+
+        #     TODO
+        # if function == Constants.FUNC_WRITE:
+        #     verification = hmVerifyMsgCRCOK(0x81, pro, destination, function, 1, rsp)
+        #     if verification is False:
+        #         print("OH DEAR BAD RESPONSE")
+        #     return rsp
+        # else:
+        #     verification = hmVerifyMsgCRCOK(0x81, pro, destination, function, 75, rsp)
+        #     if verification is False:
+        #         print("OH DEAR BAD RESPONSE")
+        #     return rsp
+        return data
+
+    def read_dcb_tcp(self, start=0x0000, octets=Constants.RW_LENGTH_ALL):
+        # Construct and issue the inquiry command
+        data = HeatmiserV3Protocol.w2b(start)
+        data.extend(HeatmiserV3Protocol.w2b(octets))
+        return self.tcp_command(0x93, data)
+
+    def parse_tcp_response(self, rsp):
         # Read the response
-        op, data = self.response()
+        op, data = self.tcp_response(rsp)
 
         #  Perform some basic sanity checks on the response
         if op != 0x94:
@@ -132,10 +145,20 @@ class HeatmiserWiFi(object):
         # Return the DCB portion of the response
         return data[4:]
 
+    def parse_serial_response(self, rsp, function):
+        # Read the response
+        data = self.serial_response(rsp, function)
+        return data[9:]
+
+    def read_dcb_serial(self, destination, source, start=0x0000, octets=Constants.RW_LENGTH_ALL):
+        # Construct and issue the inquiry command
+        return self.serial_frame(destination, source, Constants.FUNC_READ, start, octets)
+
+
     def write_dcb(self, items):
         itemdata = [len(items) & 0xff] # Total number of writing items
         for item in items:
-            itemdata.extend(HeatmiserWiFi.w2b(item[0])) # Item address
+            itemdata.extend(HeatmiserV3Protocol.w2b(item[0])) # Item address
             itemdata.extend(bytes([len(item[1])])) # Number of bytes to be written
             itemdata.extend(item[1]) # Content bytes
 

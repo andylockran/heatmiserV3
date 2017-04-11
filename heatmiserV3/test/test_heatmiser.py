@@ -1,5 +1,5 @@
 import unittest
-from heatmiserV3 import heatmiser
+from heatmiserV3 import heatmiser, protocol, constants
 from mock import Mock
 
 
@@ -38,7 +38,7 @@ class TestCRCMethods(unittest.TestCase):
         serport = Mock(name="serport",spec=serspec)
         serport.read.return_value = [129, 62, 0, 5, 0, 0, 0, 51, 0, 0, 51, 0, 16, 5, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 22, 42, 45, 6, 0, 9, 0, 16, 0, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 6, 30, 9, 0, 15, 30, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 180, 24]
         request = heatmiser.hmSendAddress(5,42,1,0,serport)
-        
+
 
     def hmFormMsg(self):
         pass
@@ -54,3 +54,18 @@ class TestCRCMethods(unittest.TestCase):
 
     def hmReadAddress(self):
         pass
+
+class TestProtocolSerial(unittest.TestCase):
+    def setUp(self):
+        self.protocol = protocol.HeatmiserV3Protocol(constants.Constants.CONNECTION_TYPES[0])
+
+    def test_crc16(self):
+        crc = self.protocol.crc16([4])
+        assert crc == 41332
+        # As defined in original test
+        assert crc & 0xff == 116
+        assert crc >> 8 == 161
+
+    def test_get_status_cmd(self):
+        cmd = self.protocol.read_dcb_serial(5, 42)
+        assert len(cmd) == 8
