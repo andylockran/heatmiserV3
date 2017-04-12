@@ -129,7 +129,7 @@ class HeatmiserV3Protocol(object):
         data.extend(HeatmiserV3Protocol.w2b(octets))
         return self.tcp_command(0x93, data, pin)
 
-    def parse_tcp_response(self, rsp):
+    def parse_tcp_response(self, rsp, start=0x0000):
         # Read the response
         op, data = self.tcp_response(rsp)
 
@@ -232,7 +232,7 @@ class HeatmiserV3Protocol(object):
             status['time'] = datetime.datetime(2000 + dcb[timebase], dcb[timebase+1], dcb[timebase+2], dcb[timebase+4], dcb[timebase+5], dcb[timebase+6])
 
         # General operating status
-        status['enabled'] = lookup(dcb[dcb_offsets['onoff']], {0: False, 1: True})
+        status['enabled'] = dcb[dcb_offsets['onoff']] == 1,
         status['keylock'] = lookup(dcb[dcb_offsets['keylock']], {0: 'off', 1: 'on'})
 
         # Holiday mode
@@ -247,7 +247,7 @@ class HeatmiserV3Protocol(object):
             holiday = dcb[dcb_offsets['holiday_start']:dcb_offsets['holiday_end']+1]
             status['holiday'] = {
                 'time': datetime.datetime(2000 + holiday[0], holiday[1], holiday[2], holiday[3], holiday[4]),
-                'enabled': holiday[5]
+                'enabled': holiday[5] == 1
             }
 
         status['config'] = {}

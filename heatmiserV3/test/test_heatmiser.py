@@ -89,3 +89,16 @@ class TestProtocolTCP(unittest.TestCase):
     def test_get_status_cmd(self):
         cmd = self.protocol.read_dcb_tcp(1234)
         assert len(cmd) == 11
+
+    def test_parse_response(self):
+        resp = [148, 81, 0, 0, 0, 72, 0, 72, 0, 0, 15, 3, 0, 2, 0, 0, 0, 0, 0, 0, 3, 3, 32, 0, 14, 16, 28, 0, 1, 0, 0, 0, 17, 4, 12, 11, 14, 0, 0, 0, 255, 255, 146, 0, 168, 0, 0, 0, 17, 4, 12, 3, 11, 14, 56, 9, 0, 15, 9, 30, 16, 17, 30, 16, 21, 0, 13, 11, 0, 17, 22, 0, 16, 24, 0, 16, 21, 0, 13, 208, 18]
+        dcb = self.protocol.parse_tcp_response(resp, 0x0000)
+        status = self.protocol.dcb_to_status(dcb)
+        assert status['product']['model'] == 'PRT-E'
+        assert status['product']['version'] == 1.5
+        print(status)
+        assert len(status['comfort']) == 2
+        assert len(status['comfort'][0]) == 4
+        assert len(status['comfort'][1]) == 3
+        assert status['comfort'][0][0].get('time', None) == time(9, 0)
+        assert status['comfort'][0][0].get('target', None) == 15
