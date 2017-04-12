@@ -232,15 +232,15 @@ class HeatmiserV3Protocol(object):
             status['time'] = datetime.datetime(2000 + dcb[timebase], dcb[timebase+1], dcb[timebase+2], dcb[timebase+4], dcb[timebase+5], dcb[timebase+6])
 
         # General operating status
-        status['enabled'] = dcb[dcb_offsets['onoff']]
-        status['keylock'] = dcb[dcb_offsets['keylock']]
+        status['enabled'] = lookup(dcb[dcb_offsets['onoff']], {0: False, 1: True})
+        status['keylock'] = lookup(dcb[dcb_offsets['keylock']], {0: 'off', 1: 'on'})
 
         # Holiday mode
         if is_serial:
             holiday_hours = self.b2w(dcb[dcb_offsets['holiday_hours_low']], dcb[dcb_offsets['holiday_hours_high']])
             delta = datetime.timedelta(holiday_hours)
             status['holiday'] = {
-                'time': status['time'] + delta,
+                'time': status['time'] + delta if holiday_hours > 0 else None,
                 'enabled': holiday_hours > 0
             }
         else:
@@ -353,7 +353,7 @@ class HeatmiserV3Protocol(object):
                     status['timer'].append(daydata)
 
         # TODO rest of dcb
-        print(status)
+        #print(status)
         # Return the decoded status
         return status
 

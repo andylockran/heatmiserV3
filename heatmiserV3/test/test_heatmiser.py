@@ -1,7 +1,7 @@
 import unittest
 from heatmiserV3 import heatmiser, protocol, constants
 from mock import Mock
-
+from datetime import datetime, time
 
 class TestCRCMethods(unittest.TestCase):
 
@@ -74,6 +74,13 @@ class TestProtocolSerial(unittest.TestCase):
         resp = [129, 62, 0, 5, 0, 0, 0, 51, 0, 0, 51, 0, 16, 5, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 22, 42, 45, 6, 0, 9, 0, 16, 0, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 6, 30, 9, 0, 15, 30, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 180, 24]
         dcb = self.protocol.parse_serial_response(resp, constants.Constants.FUNC_READ)
         status = self.protocol.dcb_to_status(dcb)
+        assert status['product']['model'] == 'TM1'
+        assert status['product']['version'] == 1.6
+        assert len(status['timer']) == 2
+        assert len(status['timer'][0]) == 2 # a pair of on, off times
+        assert len(status['timer'][1]) == 2 # a pair of on, off times
+        assert status['timer'][0][0].get('on', None) == time(6, 0)
+        assert status['timer'][0][0].get('off', None) == time(9, 0)
 
 class TestProtocolTCP(unittest.TestCase):
     def setUp(self):

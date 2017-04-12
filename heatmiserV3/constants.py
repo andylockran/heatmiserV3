@@ -89,7 +89,7 @@ class Constants(object):
                 'keylock': 22,
                 'holiday_start': 25,
                 'holiday_end': 30,
-                'progbase': 48, # Check
+                'progbase': 48,
             },
             'PRTHW': {
                 'program_mode': 16,
