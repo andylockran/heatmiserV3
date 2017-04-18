@@ -31,8 +31,8 @@ class crc16:
     ]
 
     def __init__(self):
-        self.high = constants.BYTEMASK
-        self.low = constants.BYTEMASK
+        self.high = constants.Constants.BYTEMASK
+        self.low = constants.Constants.BYTEMASK
 
     def Update4Bits(self, val):
         # Step one, extract the Most significant 4 bits of the CRC register
@@ -41,14 +41,14 @@ class crc16:
         thisval = thisval ^ val
         # Shift the CRC Register left 4 bits
         self.high = (self.high << 4) | (self.low >> 4)
-        self.high = self.high & constants.BYTEMASK    # force char
+        self.high = self.high & constants.Constants.BYTEMASK    # force char
         self.low = self.low << 4
-        self.low = self.low & constants.BYTEMASK      # force char
+        self.low = self.low & constants.Constants.BYTEMASK      # force char
         # Do the table lookups and XOR the result into the CRC tables
         self.high = self.high ^ self.LookupHigh[thisval]
-        self.high = self.high & constants.BYTEMASK    # force char
+        self.high = self.high & constants.Constants.BYTEMASK    # force char
         self.low = self.low ^ self.LookupLow[thisval]
-        self.low = self.low & constants.BYTEMASK      # force char
+        self.low = self.low & constants.Constants.BYTEMASK      # force char
 
     def CRC16_Update(self, val):
         self.Update4Bits(val >> 4)    # High nibble first
@@ -70,17 +70,17 @@ def hmFormMsg(
         payload
         ):
     """Forms a message payload, excluding CRC"""
-    if protocol == constants.HMV3_ID:
-        start_low = (start & constants.BYTEMASK)
-        start_high = (start >> 8) & constants.BYTEMASK
-        if function == constants.FUNC_READ:
+    if protocol == constants.Constants.HMV3_ID:
+        start_low = (start & constants.Constants.BYTEMASK)
+        start_high = (start >> 8) & constants.Constants.BYTEMASK
+        if function == constants.Constants.FUNC_READ:
             payloadLength = 0
-            length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
-            length_high = (constants.RW_LENGTH_ALL >> 8) & constants.BYTEMASK
+            length_low = (constants.Constants.RW_LENGTH_ALL & constants.Constants.BYTEMASK)
+            length_high = (constants.Constants.RW_LENGTH_ALL >> 8) & constants.Constants.BYTEMASK
         else:
             payloadLength = len(payload)
-            length_low = (payloadLength & constants.BYTEMASK)
-            length_high = (payloadLength >> 8) & constants.BYTEMASK
+            length_low = (payloadLength & constants.Constants.BYTEMASK)
+            length_high = (payloadLength >> 8) & constants.Constants.BYTEMASK
         msg = [
             destination,
             10+payloadLength,
@@ -91,7 +91,7 @@ def hmFormMsg(
             length_low,
             length_high
             ]
-        if function == constants.FUNC_WRITE:
+        if function == constants.Constants.FUNC_WRITE:
             msg = msg + payload
             type(msg)
         return msg
@@ -125,7 +125,7 @@ def hmVerifyMsgCRCOK(
     """Verifies message appears legal"""
     # expectedLength only used for read msgs as always 7 for write
     badresponse = 0
-    if protocol == constants.HMV3_ID:
+    if protocol == constants.Constants.HMV3_ID:
         checksum = datal[len(datal)-2:]
         rxmsg = datal[:len(datal)-2]
         crc = crc16()   # Initialises the CRC
@@ -169,8 +169,8 @@ def hmVerifyMsgCRCOK(
             badresponse += 1
 
         if (
-            func_code != constants.FUNC_WRITE and
-                func_code != constants.FUNC_READ
+            func_code != constants.Constants.FUNC_WRITE and
+                func_code != constants.Constants.FUNC_READ
                 ):
             print("Func Code is UNKNWON")
             serror = "Unknown Func Code: %s\n" % (func_code)
@@ -183,7 +183,7 @@ def hmVerifyMsgCRCOK(
             sys.stderr.write(serror)
             badresponse += 1
 
-        if (func_code == constants.FUNC_WRITE and frame_len != 7):
+        if (func_code == constants.Constants.FUNC_WRITE and frame_len != 7):
             # Reply to Write is always 7 long
             print("response length is INCORRECT")
             serror = "%Incorrect length: %s\n" % (frame_len)
@@ -196,7 +196,7 @@ def hmVerifyMsgCRCOK(
             sys.stderr.write(serror)
             badresponse += 1
 
-        """if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
+        """if (func_code == constants.Constants.FUNC_READ and expectedLength !=len(datal) ):
           # Read response length is wrong
           print("response length not EXPECTED value")
           print(len(datal))
@@ -236,13 +236,13 @@ def hmSendAddress(
         rw,
         serport,
         ):
-    protocol = constants.HMV3_ID
-    if protocol == constants.HMV3_ID:
+    protocol = constants.Constants.HMV3_ID
+    if protocol == constants.Constants.HMV3_ID:
         payload = [state]
         msg = hmFormMsgCRC(
             destination,
             protocol,
-            constants.MY_MASTER_ADDR,
+            constants.Constants.MY_MASTER_ADDR,
             rw,
             address,
             payload
