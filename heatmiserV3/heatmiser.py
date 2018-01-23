@@ -345,6 +345,7 @@ def hmReadAddress(
             'wend_t4_mins': datal[62 + DATAOFFSET],
             'wend_t4_temp': datal[63 + DATAOFFSET],
         }
+        return response
     elif type == 'tm1':
         response = {
             '0': datal[0 + DATAOFFSET],
