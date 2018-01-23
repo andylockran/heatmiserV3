@@ -1,16 +1,16 @@
 from setuptools import setup
-# from setuptools.command.test import test as TestCommand
-#
-# class PyTest(TestCommand):
-#     def finalize_options(self):
-#         TestCommand.finalize_options(self)
-#         self.test_args = []
-#         self.test_suite = True
-#
-#     def run_tests(self):
-#         import pytest
-#         errcode = pytest.main(self.test_args)
-#         sys.exit(errcode)
+from setuptools.command.test import test as TestCommand
+
+class PyTest(TestCommand):
+    def finalize_options(self):
+        TestCommand.finalize_options(self)
+        self.test_args = []
+        self.test_suite = True
+
+    def run_tests(self):
+        import pytest
+        errcode = pytest.main(self.test_args)
+        sys.exit(errcode)
 
 setup(
   name = 'heatmiserV3',
@@ -19,12 +19,12 @@ setup(
   description = 'A library to interact with Heatmiser Themostats using the v3 protocol',
   author = 'Andy Loughran',
   author_email = 'andy@zrmt.com',
-  tests_require=['pytest'],
+  tests_require=['pytest test'],
   setup_requires = ['pytest-runner'],
   url = 'https://github.com/andylockran/heatmiserV3', # use the URL to the github repo
   download_url = 'https://github.com/andylockran/heatmiserV3/tarball/1.0.0',
   keywords = ['v3', 'thermostat', 'heatmiser'], # arbitrary keywords
-  test_suite='heatmiserV3.test',
+  test_suite='heatmiserV3.tests',
   license = 'Apache 2 License',
   classifiers = [
     # How mature is this project? Common values are

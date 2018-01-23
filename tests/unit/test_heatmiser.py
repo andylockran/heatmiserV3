@@ -62,7 +62,7 @@ class TestProtocolSerial(unittest.TestCase):
     def test_crc16(self):
         crc = self.protocol.crc16([4])
         assert crc == 41332
-        # As defined in original test
+        # As defined in original tests
         assert crc & 0xff == 116
         assert crc >> 8 == 161
 
