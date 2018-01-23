@@ -6,6 +6,6 @@ python:
 install:
   - "pip install -r requirements.txt"
 script:
-  - "coverage run --source=heatmiserV3 setup.py test"
+  - "coverage run --source=heatmiserV3 setup.py tests"
 after_success:
   converalls

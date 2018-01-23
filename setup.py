@@ -23,7 +23,7 @@ setup(
   url = 'https://github.com/andylockran/heatmiserV3', # use the URL to the github repo
   download_url = 'https://github.com/andylockran/heatmiserV3/tarball/0.9.3', 
   keywords = ['v3', 'thermostat', 'heatmiser'], # arbitrary keywords
-  test_suite='heatmiserV3.test.test_heatmiser',
+  test_suite='tests.test_heatmiser',
   classifiers = [],
   install_requires = ['pyserial'],
   extras_require= {
