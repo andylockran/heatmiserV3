@@ -1,11 +1,9 @@
 language: python
-python: 
-  - "2.7"
+python:
   - "3.4"
   - "3.5"
-install:
-  - "pip install -r requirements.txt"
-script:
-  - "pytest tests"
-after_success:
-  converalls
+  - "3.6"
+install: pip install -U tox coveralls
+language: python
+script: travis_wait 30 tox --develop
+after_success:  coveralls

@@ -412,5 +412,6 @@ def hmReadAddress(
             '61': datal[61 + DATAOFFSET],
             '62': datal[62 + DATAOFFSET]
         }
-
-    return response
+        return response
+    elif type == 'raw':
+        return datal

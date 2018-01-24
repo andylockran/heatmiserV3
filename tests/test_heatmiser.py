@@ -1,7 +1,7 @@
 import unittest
 from heatmiserV3 import heatmiser
 from mock import Mock
-
+import yaml
 
 class TestCRCMethods(unittest.TestCase):
 
@@ -34,11 +34,92 @@ class TestCRCMethods(unittest.TestCase):
         state = 1
         rw = 1
         assert rw == 1
-        serspec = ['read','write']
-        serport = Mock(name="serport",spec=serspec)
-        serport.read.return_value = [129, 62, 0, 5, 0, 0, 0, 51, 0, 0, 51, 0, 16, 5, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5, 22, 42, 45, 6, 0, 9, 0, 16, 0, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 6, 30, 9, 0, 15, 30, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 180, 24]
-        request = heatmiser.hmSendAddress(5,42,1,0,serport)
-        
+        serspec = ['read', 'write']
+        serport = Mock(name="serport", spec=serspec)
+        serport.read.return_value = [129, 62, 0, 5, 0, 0, 0, 51, 0, 0, 51, 0, 16, 5, 5, 0, 0, 1, 0, 0, 0, 0, 0, 0, 5,
+                                     22, 42, 45, 6, 0, 9, 0, 16, 0, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 6, 30, 9, 0, 15,
+                                     30, 20, 0, 24, 0, 24, 0, 24, 0, 24, 0, 180, 24]
+        request = heatmiser.hmSendAddress(5, 42, 1, 0, serport)
+
+    def test_readDCB(self):
+        """This test makes sure that the values map correctly"""
+        serspec = ['read', 'write']
+        serport = Mock(name="serport", spec=serspec)
+        serport.read.return_value = [129,
+                                     75,
+                                     0,
+                                     1,
+                                     0,
+                                     0,
+                                     0,
+                                     64,
+                                     0,
+                                     0,
+                                     64,
+                                     0,
+                                     19,
+                                     3,
+                                     0,
+                                     1,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     1,
+                                     0,
+                                     0,
+                                     0,
+                                     20,
+                                     0,
+                                     12,
+                                     22,
+                                     28,
+                                     1,
+                                     1,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     0,
+                                     255,
+                                     255,
+                                     255,
+                                     255,
+                                     0,
+                                     170,
+                                     0,
+                                     1,
+                                     3,
+                                     22,
+                                     22,
+                                     22,
+                                     8,
+                                     0,
+                                     21,
+                                     9,
+                                     30,
+                                     16,
+                                     16,
+                                     30,
+                                     22,
+                                     23,
+                                     0,
+                                     17,
+                                     9,
+                                     0,
+                                     21,
+                                     22,
+                                     0,
+                                     16,
+                                     24,
+                                     0,
+                                     16,
+                                     24,
+                                     0,
+                                     16,
+                                     127,
+                                     117]
 
     def hmFormMsg(self):
         pass

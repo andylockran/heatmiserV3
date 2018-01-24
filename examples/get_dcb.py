@@ -1,13 +1,11 @@
-from heatmiserV3 import heatmiser, connection
+from heatmiserV3 import heatmiser
 
 IP_ADDRESS="192.168.1.57"
 PORT="100"
 
-con = connection.connection(IP_ADDRESS, PORT)
+con = heatmiser.HeatmiserSerialConnection(IP_ADDRESS, PORT).conn.port
 
-con.open()
-
-andy = heatmiser.hmReadAddress(1,'prt',con)
+andy = heatmiser.hmReadAddress(1,'raw',con)
 
 print(andy)
 
