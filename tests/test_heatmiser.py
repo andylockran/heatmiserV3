@@ -1,7 +1,7 @@
 import unittest
 from heatmiserV3 import heatmiser
 from mock import Mock
-import yaml
+import json
 
 class TestCRCMethods(unittest.TestCase):
 
@@ -120,6 +120,9 @@ class TestCRCMethods(unittest.TestCase):
                                      16,
                                      127,
                                      117]
+        data = heatmiser.hmReadAddress(1, 'prt', serport)
+        print(json.dumps(data, indent=2))
+        assert(data == 0)
 
     def hmFormMsg(self):
         pass
