@@ -32,8 +32,10 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
 
     def test_readDCB(self):
         """This test makes sure that the values map correctly"""
-        serspec = ['read', 'write']
+        serspec = ['read', 'write', 'open','close']
         serport = Mock(name="serport", spec=serspec)
+        serport.open.return_value = True
+        serport.close.return_value = True
         serport.read.return_value = [129,
                                      75,
                                      0,
