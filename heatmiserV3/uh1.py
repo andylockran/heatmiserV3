@@ -23,7 +23,7 @@ class Worker(threading.Thread):
             #time.sleep(random.randint(10, 100) / 1000.0)
             if item['rw'] == 'r':
               self.__serport.open()
-              dcb = heatmiser.hmReadAddress(item['thermid'],item['type'],self.__serport)
+              dcb = heatmiser._hm_read_address(item['thermid'], item['type'], self.__serport)
               print(dcb)
               self.__serport.close()
             print("task", item['i'], "finished")
