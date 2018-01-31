@@ -2,21 +2,11 @@
 # Neil Trimboy 2011
 # Assume Python 2.7.x +
 #
-
-import serial
-#
-# from struct import pack
-# import time
 import sys
-#
-# import os
-# import shutil
-# from datetime import datetime
-from . import constants
-
+import serial
 import yaml
-
 import logging
+from . import constants
 
 #
 # Believe this is known as CCITT (0xFFFF)
@@ -24,7 +14,8 @@ import logging
 # provided in their API
 
 
-class crc16:
+class CRC16:
+    """This is the CRC hashing mechanism used by the V3 protocol."""
     LookupHigh = [
         0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
         0x81, 0x91, 0xa1, 0xb1, 0xc1, 0xd1, 0xe1, 0xf1
@@ -38,7 +29,8 @@ class crc16:
         self.high = constants.BYTEMASK
         self.low = constants.BYTEMASK
 
-    def Update4Bits(self, val):
+    def extract_bits(self, val):
+        """Extras the 4 bits, XORS the message data, and does table lookups."""
         # Step one, extract the Most significant 4 bits of the CRC register
         thisval = self.high >> 4
         # XOR in the Message Data into the extracted bits
@@ -54,14 +46,15 @@ class crc16:
         self.low = self.low ^ self.LookupLow[thisval]
         self.low = self.low & constants.BYTEMASK      # force char
 
-    def CRC16_Update(self, val):
-        self.Update4Bits(val >> 4)    # High nibble first
-        self.Update4Bits(val & 0x0f)   # Low nibble
+    def update(self, val):
+        """Updates the CRC value using bitwise operations."""
+        self.extract_bits(val >> 4)    # High nibble first
+        self.extract_bits(val & 0x0f)   # Low nibble
 
     def run(self, message):
         """Calculates a CRC"""
         for value in message:
-            self.CRC16_Update(value)
+            self.update(value)
         return [self.low, self.high]
 
 
@@ -76,7 +69,7 @@ class HeatmiserThermostat(object):
             try:
                 self.config = yaml.load(stream)[model]
             except yaml.YAMLError as exc:
-                logging.error("The YAML file is invalid:" + str(exc))
+                logging.error("The YAML file is invalid: %s", exc)
 
     def _hm_form_message(
             self,
@@ -151,9 +144,9 @@ class HeatmiserThermostat(object):
             crc = crc16()   # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
-                print("CRC is correct")
+                logging.error("CRC is correct")
             else:
-                print("CRC is INCORRECT")
+                logging.error("CRC is INCORRECT")
                 serror = "Incorrect CRC"
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -165,25 +158,25 @@ class HeatmiserThermostat(object):
             func_code = datal[4]
 
             if (dest_addr != 129 and dest_addr != 160):
-                print("dest_addr is ILLEGAL")
+                logging.error("dest_addr is ILLEGAL")
                 serror = "Illegal Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if dest_addr != destination:
-                print("dest_addr is INCORRECT")
+                logging.error("dest_addr is INCORRECT")
                 serror = "Incorrect Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (source_addr < 1 or source_addr > 32):
-                print("source_addr is ILLEGAL")
+                logging.error("source_addr is ILLEGAL")
                 serror = "Illegal Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if source_addr != source:
-                print("source addr is INCORRECT")
+                logging.error("source addr is INCORRECT")
                 serror = "Incorrect Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -192,13 +185,13 @@ class HeatmiserThermostat(object):
                     func_code != constants.FUNC_WRITE and
                     func_code != constants.FUNC_READ
             ):
-                print("Func Code is UNKNWON")
+                logging.error("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code != expectedFunction:
-                print("Func Code is UNEXPECTED")
+                logging.error("Func Code is UNEXPECTED")
                 serror = "Unexpected Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -208,22 +201,22 @@ class HeatmiserThermostat(object):
                     frame_len != 7
             ):
                 # Reply to Write is always 7 long
-                print("response length is INCORRECT")
+                logging.error("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if len(datal) != frame_len:
-                print("response length MISMATCHES header")
+                logging.error("response length MISMATCHES header")
                 serror = "Mismatch length: %s %s\n" % (len(datal), frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             """if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
               # Read response length is wrong
-              print("response length not EXPECTED value")
-              print(len(datal))
-              print(datal)
+              logging.error("response length not EXPECTED value")
+              logging.error(len(datal))
+              logging.error(datal)
               s = "Incorrect length: %s\n" % (frame_len)
               sys.stderr.write(s)
               badresponse += 1
@@ -271,13 +264,13 @@ class HeatmiserThermostat(object):
             verification = self._hm_verify_message_crc_uk(
                 0x81, protocol, destination, readwrite, 1, datal)
             if verification is False:
-                print("OH DEAR BAD RESPONSE")
+                logging.error("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
                 0x81, protocol, destination, readwrite, 75, datal)
             if verification is False:
-                print("OH DEAR BAD RESPONSE")
+                logging.error("OH DEAR BAD RESPONSE")
             return datal
 
     def _hm_read_address(self):
@@ -295,7 +288,7 @@ class HeatmiserThermostat(object):
                     'value': ddata
                 }
             except IndexError:
-                print("Finished processing at %d" % i)
+                logging.error("Finished processing at %d", i)
         return keydata
 
     def get_dcb(self):
