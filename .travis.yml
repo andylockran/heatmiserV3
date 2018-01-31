@@ -3,6 +3,7 @@ python:
   - "3.4"
   - "3.5"
   - "3.6"
-install: pip install -U tox
+install: pip install -U tox coveralls
 language: python
 script: travis_wait 30 tox --develop
+after_sucess: coveralls
