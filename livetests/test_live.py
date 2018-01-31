@@ -1,18 +1,23 @@
+"""Live tests"""
 import unittest
-from heatmiserV3 import heatmiser, connection
 import json
+from heatmiserV3 import heatmiser, connection
 
-class TestCRCMethods(unittest.TestCase):
 
+class TestLiveHeatmiserThermostat(unittest.TestCase):
+    """Testing an actual thermostat"""
     def setUp(self):
-        self.con = connection.hmserial('192.168.1.57','100')
+        """Creates serial con and thermostat"""
+        self.con = connection.hmserial('192.168.1.57', '100')
         self.con.open()
+        self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.con)
 
-    def test_readDCB(self):
+    def test_read_dcb(self):
         """This test makes sure that the values map correctly"""
-        data = heatmiser._hm_read_address(1, 'prt', self.con)
+        data = self.thermostat1.get_dcb()
         print(json.dumps(data, indent=2))
-        assert(data == 0)
+        assert data[11]['value'] == 1
 
     def tearDown(self):
+        """Shutdown serial conn"""
         self.con.close()
