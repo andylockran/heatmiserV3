@@ -1,6 +1,6 @@
 """This module is effectively a singleton for serial comms"""
-import serial
 import sys
+import serial
 from . import constants
 
 
