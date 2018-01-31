@@ -4,7 +4,7 @@
 
 import serial
 
-readwrite = 0x81
+MY_MASTER_ADDR = 0x81
 
 # Protocol for each controller
 HMV2_ID = 2
