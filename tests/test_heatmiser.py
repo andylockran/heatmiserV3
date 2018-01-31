@@ -34,9 +34,10 @@ class TestCRCMethods(unittest.TestCase):
         assert crc.low == 116
 
 
-class TestHeatmiserInternalThermostatMethods(unittest.TestCase):
-    """Tests for the Heatmiser Internal functions"""
-
+class TestHeatmiserThermostatMethods(unittest.TestCase):
+    """
+    Tests for the Heatmiser functions.
+    """
     def setUp(self):
         serspec = ['read', 'write', 'open', 'close']
         serport = Mock(name="serport", spec=serspec)
@@ -52,12 +53,19 @@ class TestHeatmiserInternalThermostatMethods(unittest.TestCase):
         self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.con)
 
     def test_get_dcb(self):
-        """This test makes sure that the values map correctly"""
+        """
+        Checks that the dcb returns full length.
+        Either 64 bits for 5/2 mode, or 159 for 7 day mode.
+        """
         data = self.thermostat1.get_dcb()
         print(json.dumps(data, indent=2))
         assert(data[11]['value'] == 1)
+        assert(len(data) == 64 or len(data) == 159)
 
     def test_get_target_temperature(self):
+        """
+        Checks the target temperature is set to 22*C.
+        """
         response = self.thermostat1.get_target_temperature()
         assert(response == 22)
         
