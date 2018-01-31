@@ -299,9 +299,13 @@ class HeatmiserThermostat(object):
         return keydata
 
     def get_dcb(self):
-        """Returns the full DCB"""
+        """
+        Returns the full DCB
+        """
         return self._hm_read_address()
 
     def get_target_temperature(self):
-        """Returns the temperature"""
+        """
+        Returns the temperature
+        """
         return self._hm_read_address()[18]['value']
