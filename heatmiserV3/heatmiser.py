@@ -93,8 +93,8 @@ class HeatmiserThermostat(object):
             start_high = (start >> 8) & constants.BYTEMASK
             if function == constants.FUNC_READ:
                 payloadLength = 0
-                length_low = (constants.readwrite_LENGTH_ALL & constants.BYTEMASK)
-                length_high = (constants.readwrite_LENGTH_ALL >>
+                length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
+                length_high = (constants.RW_LENGTH_ALL >>
                                8) & constants.BYTEMASK
             else:
                 payloadLength = len(payload)
