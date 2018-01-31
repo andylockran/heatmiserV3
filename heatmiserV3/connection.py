@@ -1,6 +1,8 @@
+"""This module is effectively a singleton for serial comms"""
 import serial
-
+import sys
 from . import constants
+
 
 def hmserial(ipaddress, port):
     """Imported as a module so that it's only ever created once."""
@@ -13,11 +15,11 @@ def hmserial(ipaddress, port):
     serport.timeout = constants.COM_TIMEOUT
     try:
         serport.open()
-    except serial.SerialException as e:
-        s = "%s : Could not open serial port %s: %s\n" % (localtime, serport.portstr, e)
-        sys.stderr.write(s)
+    except serial.SerialException as e_message:
+        s_message = "Could not open serial port %s: %s\n" % (
+            serport.portstr,
+            e_message
+        )
+        sys.stderr.write(s_message)
     serport.close()
     return serport
-
-
-
