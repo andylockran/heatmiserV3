@@ -251,7 +251,7 @@ class HeatmiserThermostat(object):
             msg = self._hm_form_message_crc(
                 destination,
                 protocol,
-                constants.readwrite,
+                constants.RW_MASTER_ADDRESS,
                 readwrite,
                 self.address,
                 payload
