@@ -10,3 +10,5 @@ test.py
 .eggs/
 .cache/
 .tox/
+.vscode/
+.mypy_cache/
