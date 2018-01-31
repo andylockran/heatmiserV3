@@ -27,7 +27,7 @@ pyflakes==1.6.0
 pyparsing==2.2.0
 pyreadline==2.1
 pyserial==2.7
-pytest==2.8.4
+pytest==3.0.7
 pytest-cov==2.2.0
 PyYAML==3.12
 simplegeneric==0.8.1
