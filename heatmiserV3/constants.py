@@ -2,9 +2,9 @@
 # Neil Trimboy 2011
 #
 
-RW_MASTER_ADDRESS serial
+import serial
 
-readwrite = 0x81
+RW_MASTER_ADDRESS = 0x81
 
 # Protocol for each controller
 HMV2_ID = 2
