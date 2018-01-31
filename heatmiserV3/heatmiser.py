@@ -67,6 +67,7 @@ class crc16:
 
 class HeatmiserThermostat(object):
     """Initialises a heatmiser thermostat, by taking an address and model."""
+
     def __init__(self, address, model, conn):
         self.address = address
         self.model = model
@@ -85,7 +86,7 @@ class HeatmiserThermostat(object):
             function,
             start,
             payload
-            ):
+    ):
         """Forms a message payload, excluding CRC"""
         if protocol == constants.HMV3_ID:
             start_low = (start & constants.BYTEMASK)
@@ -93,28 +94,28 @@ class HeatmiserThermostat(object):
             if function == constants.FUNC_READ:
                 payloadLength = 0
                 length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
-                length_high = (constants.RW_LENGTH_ALL >> 8) & constants.BYTEMASK
+                length_high = (constants.RW_LENGTH_ALL >>
+                               8) & constants.BYTEMASK
             else:
                 payloadLength = len(payload)
                 length_low = (payloadLength & constants.BYTEMASK)
                 length_high = (payloadLength >> 8) & constants.BYTEMASK
             msg = [
                 destination,
-                10+payloadLength,
+                10 + payloadLength,
                 source,
                 function,
                 start_low,
                 start_high,
                 length_low,
                 length_high
-                ]
+            ]
             if function == constants.FUNC_WRITE:
                 msg = msg + payload
                 type(msg)
             return msg
         else:
             assert 0, "Un-supported protocol found %s" % protocol
-
 
     def _hm_form_message_crc(
             self,
@@ -124,13 +125,13 @@ class HeatmiserThermostat(object):
             function,
             start,
             payload
-            ):
+    ):
         """Forms a message payload, including CRC"""
-        data = self._hm_form_message(destination, protocol, source, function, start, payload)
+        data = self._hm_form_message(
+            destination, protocol, source, function, start, payload)
         crc = crc16()
         data = data + crc.run(data)
         return data
-
 
     def _hm_verify_message_crc_uk(
             self,
@@ -140,13 +141,13 @@ class HeatmiserThermostat(object):
             expectedFunction,
             expectedLength,
             datal
-            ):
+    ):
         """Verifies message appears legal"""
         # expectedLength only used for read msgs as always 7 for write
         badresponse = 0
         if protocol == constants.HMV3_ID:
-            checksum = datal[len(datal)-2:]
-            rxmsg = datal[:len(datal)-2]
+            checksum = datal[len(datal) - 2:]
+            rxmsg = datal[:len(datal) - 2]
             crc = crc16()   # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
@@ -190,7 +191,7 @@ class HeatmiserThermostat(object):
             if (
                 func_code != constants.FUNC_WRITE and
                     func_code != constants.FUNC_READ
-                    ):
+            ):
                 print("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
@@ -232,7 +233,6 @@ class HeatmiserThermostat(object):
         else:
             assert 0, "Un-supported protocol found %s" % protocol
 
-
     def _hm_send_msg(self, message):
         self.conn.open()
         try:
@@ -247,13 +247,12 @@ class HeatmiserThermostat(object):
         datal = list(byteread)
         return datal
 
-
     def _hm_send_address(
             self,
             destination,
             state,
             rw
-            ):
+    ):
         protocol = constants.HMV3_ID
         if protocol == constants.HMV3_ID:
             payload = [state]
@@ -264,37 +263,46 @@ class HeatmiserThermostat(object):
                 rw,
                 self.address,
                 payload
-                )
+            )
         else:
             "Un-supported protocol found %s" % protocol
             assert 0, "Un-supported protocol found %s" % protocol
         string = bytes(msg)
         datal = self._hm_send_msg(string)
         if rw == 1:
-            verification = self._hm_verify_message_crc_uk(0x81, protocol, destination, rw, 1, datal)
+            verification = self._hm_verify_message_crc_uk(
+                0x81, protocol, destination, rw, 1, datal)
             if verification is False:
                 print("OH DEAR BAD RESPONSE")
             return datal
         else:
-            verification = self._hm_verify_message_crc_uk(0x81, protocol, destination, rw, 75, datal)
+            verification = self._hm_verify_message_crc_uk(
+                0x81, protocol, destination, rw, 75, datal)
             if verification is False:
                 print("OH DEAR BAD RESPONSE")
             return datal
 
-
     def _hm_read_address(self):
-        response =  self._hm_send_address(0, 0, 0)
+        response = self._hm_send_address(0, 0, 0)
         lookup = self.config['keys']
         offset = self.config['offset']
         keydata = {}
         for i in lookup:
             try:
                 kdata = lookup[i]
-                ddata = response[i+offset]
+                ddata = response[i + offset]
                 keydata[i] = {
-                    'label' : kdata,
+                    'label': kdata,
                     'value': ddata
                 }
             except IndexError:
                 print("Finished processing at %d" % i)
         return keydata
+
+    def get_dcb(self):
+        """Returns the full DCB"""
+        return self._hm_read_address()
+
+    def get_target_temperature(self):
+        """Returns the temperature"""
+        return self._hm_read_address()[18]['value']
