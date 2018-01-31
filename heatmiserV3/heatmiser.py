@@ -206,7 +206,7 @@ class HeatmiserThermostat(object):
             if (func_code == constants.FUNC_WRITE and frame_len != 7):
                 # Reply to Write is always 7 long
                 print("response length is INCORRECT")
-                serror = "%Incorrect length: %s\n" % (frame_len)
+                serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
