@@ -93,8 +93,8 @@ class HeatmiserThermostat(object):
             start_high = (start >> 8) & constants.BYTEMASK
             if function == constants.FUNC_READ:
                 payloadLength = 0
-                length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
-                length_high = (constants.RW_LENGTH_ALL >>
+                length_low = (constants.readwrite_LENGTH_ALL & constants.BYTEMASK)
+                length_high = (constants.readwrite_LENGTH_ALL >>
                                8) & constants.BYTEMASK
             else:
                 payloadLength = len(payload)
@@ -170,7 +170,7 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (dest_addr != destination):
+            if dest_addr != destination:
                 print("dest_addr is INCORRECT")
                 serror = "Incorrect Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
@@ -182,14 +182,14 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (source_addr != source):
+            if source_addr != source:
                 print("source addr is INCORRECT")
                 serror = "Incorrect Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (
-                func_code != constants.FUNC_WRITE and
+                    func_code != constants.FUNC_WRITE and
                     func_code != constants.FUNC_READ
             ):
                 print("Func Code is UNKNWON")
@@ -197,20 +197,23 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (func_code != expectedFunction):
+            if func_code != expectedFunction:
                 print("Func Code is UNEXPECTED")
                 serror = "Unexpected Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (func_code == constants.FUNC_WRITE and frame_len != 7):
+            if (
+                    func_code == constants.FUNC_WRITE and
+                    frame_len != 7
+            ):
                 # Reply to Write is always 7 long
                 print("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (len(datal) != frame_len):
+            if len(datal) != frame_len:
                 print("response length MISMATCHES header")
                 serror = "Mismatch length: %s %s\n" % (len(datal), frame_len)
                 sys.stderr.write(serror)
@@ -225,7 +228,7 @@ class HeatmiserThermostat(object):
               sys.stderr.write(s)
               badresponse += 1
             """
-            if (badresponse == 0):
+            if badresponse == 0:
                 return True
             else:
                 return False
@@ -234,6 +237,7 @@ class HeatmiserThermostat(object):
             assert 0, "Un-supported protocol found %s" % protocol
 
     def _hm_send_msg(self, message):
+        """This is the only interface to the serial connection."""
         self.conn.open()
         try:
             self.conn.write(message)   # Write a string
@@ -247,42 +251,37 @@ class HeatmiserThermostat(object):
         datal = list(byteread)
         return datal
 
-    def _hm_send_address(
-            self,
-            destination,
-            state,
-            rw
-    ):
+    def _hm_send_address(self, destination, state, readwrite):
         protocol = constants.HMV3_ID
         if protocol == constants.HMV3_ID:
             payload = [state]
             msg = self._hm_form_message_crc(
                 destination,
                 protocol,
-                constants.MY_MASTER_ADDR,
-                rw,
+                constants.readwrite,
+                readwrite,
                 self.address,
                 payload
             )
         else:
-            "Un-supported protocol found %s" % protocol
             assert 0, "Un-supported protocol found %s" % protocol
         string = bytes(msg)
         datal = self._hm_send_msg(string)
-        if rw == 1:
+        if readwrite == 1:
             verification = self._hm_verify_message_crc_uk(
-                0x81, protocol, destination, rw, 1, datal)
+                0x81, protocol, destination, readwrite, 1, datal)
             if verification is False:
                 print("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
-                0x81, protocol, destination, rw, 75, datal)
+                0x81, protocol, destination, readwrite, 75, datal)
             if verification is False:
                 print("OH DEAR BAD RESPONSE")
             return datal
 
     def _hm_read_address(self):
+        """Reads from the DCB and maps to yaml config file."""
         response = self._hm_send_address(0, 0, 0)
         lookup = self.config['keys']
         offset = self.config['offset']
