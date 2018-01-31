@@ -1,3 +1,4 @@
+"""Setuptools file for the repo"""
 from setuptools import setup
 
 setup(
