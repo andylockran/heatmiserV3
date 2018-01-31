@@ -122,7 +122,7 @@ class HeatmiserThermostat(object):
         """Forms a message payload, including CRC"""
         data = self._hm_form_message(
             destination, protocol, source, function, start, payload)
-        crc = crc16()
+        crc = CRC16()
         data = data + crc.run(data)
         return data
 
@@ -141,7 +141,7 @@ class HeatmiserThermostat(object):
         if protocol == constants.HMV3_ID:
             checksum = datal[len(datal) - 2:]
             rxmsg = datal[:len(datal) - 2]
-            crc = crc16()   # Initialises the CRC
+            crc = CRC16()   # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
                 logging.error("CRC is correct")
