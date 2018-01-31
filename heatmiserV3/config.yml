@@ -1,0 +1,68 @@
+prt:
+  offset: 9
+  keys:
+    0: High 8 bit
+    1: Low 8 bit
+    2: Vendor ID
+    3: 0-6 bits = Version, bit 7 = floor limit state.
+    4: Model
+    5: Temperature format
+    6: Switch Differential
+    7: Frost Protection Mode
+    8: Calibration - high 8 bit
+    9: Calibration - low 8 bit
+    10: Output delay
+    11: Address
+    12: Up down key limit
+    13: Sensor Selection
+    14: Optimum start
+    15: Rate of change
+    16: Program mode
+    17: Frost protect temp
+    18: Set room temp
+    19: Floor max limit
+    20: Floor max limit enable/disable
+    21: On/off
+    22: Key lock
+    23: Run mode
+    24: Holiday hours
+    25: Holiday hours
+    26: Temp hold mins
+    27: Temp hold mins
+    28: Remote air temp
+    29: Remote air temp
+    30: Floor temp
+    31: Floor temp
+    32: Built in air temp
+    33: Built in air temp
+    34: Error code
+    35: Current state
+    36: Week 1~7
+    37: Hour
+    38: Min
+    39: Sec
+    40: Weekday
+    41: Weekday
+    42: Weekday
+    43: Weekday
+    44: Weekday
+    45: Weekday
+    46: Weekday
+    47: Weekday
+    48: Weekday
+    49: Weekday
+    50: Weekday
+    51: Weekday
+    52: Weekend
+    53: Weekend
+    54: Weekend
+    55: Weekend
+    56: Weekend
+    57: Weekend
+    58: Weekend
+    59: Weekend
+    60: Weekend
+    61: Weekend
+    62: Weekend
+    63: Weekend
+  Responses:

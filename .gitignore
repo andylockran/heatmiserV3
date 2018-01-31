@@ -9,3 +9,6 @@ test.py
 *.egg
 .eggs/
 .cache/
+.tox/
+.vscode/
+.mypy_cache/

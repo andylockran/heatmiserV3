@@ -1,21 +1,12 @@
 Metadata-Version: 1.1
 Name: heatmiserV3
-Version: 1.0.0
-Summary: A library to interact with Heatmiser Themostats using the v3 protocol
+Version: 0.9.4
+Summary: A library to interact with Heatmiser Themostats using V3
 Home-page: https://github.com/andylockran/heatmiserV3
 Author: Andy Loughran
 Author-email: andy@zrmt.com
-License: Apache 2 License
-Download-URL: https://github.com/andylockran/heatmiserV3/tarball/1.0.0
-Description-Content-Type: UNKNOWN
+License: UNKNOWN
+Download-URL: https://github.com/andylockran/heatmiserV3/tarball/0.9.3
 Description: UNKNOWN
-Keywords: v3,thermostat,heatmiser
+Keywords: v3,thermostat,heatmiser,prt,serial,uh1
 Platform: UNKNOWN
-Classifier: Development Status :: 4 - Beta
-Classifier: Intended Audience :: Developers
-Classifier: Topic :: System :: Hardware :: Hardware Drivers
-Classifier: License :: OSI Approved :: Apache Software License
-Classifier: Programming Language :: Python :: 3
-Classifier: Programming Language :: Python :: 3.4
-Classifier: Programming Language :: Python :: 3.5
-Classifier: Programming Language :: Python :: 3.6
