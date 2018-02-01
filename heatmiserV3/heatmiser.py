@@ -6,7 +6,7 @@ import sys
 import serial
 import yaml
 import logging
-import constants
+from . import constants
 
 #
 # Believe this is known as CCITT (0xFFFF)
