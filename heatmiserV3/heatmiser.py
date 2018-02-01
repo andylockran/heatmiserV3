@@ -231,7 +231,6 @@ class HeatmiserThermostat(object):
 
     def _hm_send_msg(self, message):
         """This is the only interface to the serial connection."""
-        self.conn.open()
         try:
             self.conn.write(message)   # Write a string
         except serial.SerialTimeoutException:
@@ -239,7 +238,6 @@ class HeatmiserThermostat(object):
             sys.stderr.write(serror)
         # Now wait for reply
         byteread = self.conn.read(159)
-        self.conn.close()
         # NB max return is 75 in 5/2 mode or 159 in 7day mode
         datal = list(byteread)
         return datal
