@@ -69,7 +69,7 @@ class HeatmiserThermostat(object):
             try:
                 self.config = yaml.load(stream)[model]
             except yaml.YAMLError as exc:
-                logging.error("The YAML file is invalid: %s", exc)
+                print("The YAML file is invalid: %s", exc)
 
     def _hm_form_message(
             self,
@@ -87,8 +87,7 @@ class HeatmiserThermostat(object):
             if function == constants.FUNC_READ:
                 payload_length = 0
                 length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
-                length_high = (constants.RW_LENGTH_ALL >>
-                               8) & constants.BYTEMASK
+                length_high = (constants.RW_LENGTH_ALL >> 8) & constants.BYTEMASK
             else:
                 payload_length = len(payload)
                 length_low = (payload_length & constants.BYTEMASK)
@@ -144,9 +143,9 @@ class HeatmiserThermostat(object):
             crc = CRC16()   # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
-                logging.error("CRC is correct")
+                print("CRC is correct")
             else:
-                logging.error("CRC is INCORRECT")
+                print("CRC is INCORRECT")
                 serror = "Incorrect CRC"
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -158,40 +157,40 @@ class HeatmiserThermostat(object):
             func_code = datal[4]
 
             if (dest_addr != 129 and dest_addr != 160):
-                logging.error("dest_addr is ILLEGAL")
+                print("dest_addr is ILLEGAL")
                 serror = "Illegal Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if dest_addr != destination:
-                logging.error("dest_addr is INCORRECT")
+                print("dest_addr is INCORRECT")
                 serror = "Incorrect Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (source_addr < 1 or source_addr > 32):
-                logging.error("source_addr is ILLEGAL")
+                print("source_addr is ILLEGAL")
                 serror = "Illegal Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if source_addr != source:
-                logging.error("source addr is INCORRECT")
+                print("source addr is INCORRECT")
                 serror = "Incorrect Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (
-                    func_code != constants.FUNC_WRITE and
+                func_code != constants.FUNC_WRITE and
                     func_code != constants.FUNC_READ
             ):
-                logging.error("Func Code is UNKNWON")
+                print("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code != expectedFunction:
-                logging.error("Func Code is UNEXPECTED")
+                print("Func Code is UNEXPECTED")
                 serror = "Unexpected Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -201,27 +200,27 @@ class HeatmiserThermostat(object):
                     frame_len != 7
             ):
                 # Reply to Write is always 7 long
-                logging.error("response length is INCORRECT")
+                print("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if len(datal) != frame_len:
-                logging.error("response length MISMATCHES header")
+                print("response length MISMATCHES header")
                 serror = "Mismatch length: %s %s\n" % (len(datal), frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             """if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
               # Read response length is wrong
-              logging.error("response length not EXPECTED value")
-              logging.error(len(datal))
-              logging.error(datal)
+              print("response length not EXPECTED value")
+              print(len(datal))
+              print(datal)
               s = "Incorrect length: %s\n" % (frame_len)
               sys.stderr.write(s)
               badresponse += 1
             """
-            if badresponse == 0:
+            if (badresponse == 0):
                 return True
             else:
                 return False
@@ -232,7 +231,8 @@ class HeatmiserThermostat(object):
     def _hm_send_msg(self, message):
         """This is the only interface to the serial connection."""
         try:
-            self.conn.write(message)   # Write a string
+            serial_message = message
+            self.conn.write(serial_message)   # Write a string
         except serial.SerialTimeoutException:
             serror = "Write timeout error: \n"
             sys.stderr.write(serror)
@@ -242,7 +242,7 @@ class HeatmiserThermostat(object):
         datal = list(byteread)
         return datal
 
-    def _hm_send_address(self, destination, state, readwrite):
+    def _hm_send_address(self, destination, address, state, readwrite):
         protocol = constants.HMV3_ID
         if protocol == constants.HMV3_ID:
             payload = [state]
@@ -251,29 +251,30 @@ class HeatmiserThermostat(object):
                 protocol,
                 constants.RW_MASTER_ADDRESS,
                 readwrite,
-                self.address,
+                address,
                 payload
             )
         else:
             assert 0, "Un-supported protocol found %s" % protocol
         string = bytes(msg)
         datal = self._hm_send_msg(string)
+        pro = protocol
         if readwrite == 1:
             verification = self._hm_verify_message_crc_uk(
-                0x81, protocol, destination, readwrite, 1, datal)
+                0x81, pro, destination, readwrite, 1, datal)
             if verification is False:
-                logging.error("OH DEAR BAD RESPONSE")
+                print("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
-                0x81, protocol, destination, readwrite, 75, datal)
+                0x81, pro, destination, readwrite, 75, datal)
             if verification is False:
-                logging.error("OH DEAR BAD RESPONSE")
+                print("OH DEAR BAD RESPONSE")
             return datal
 
     def _hm_read_address(self):
         """Reads from the DCB and maps to yaml config file."""
-        response = self._hm_send_address(0, 0, 0)
+        response = self._hm_send_address(self.address, 0, 0, 0)
         lookup = self.config['keys']
         offset = self.config['offset']
         keydata = {}
@@ -286,7 +287,7 @@ class HeatmiserThermostat(object):
                     'value': ddata
                 }
             except IndexError:
-                logging.error("Finished processing at %d", i)
+                print("Finished processing at %d", i)
         return keydata
 
     def get_dcb(self):
