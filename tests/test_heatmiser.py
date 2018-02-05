@@ -53,6 +53,11 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
         self.con = serport
         self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.con)
 
+    def test__hm_send_message(self):
+        """This is an example message that returns the stuff above"""
+        message = b'\x01\n\x81\x00\x00\x00\xff\xff,\t'
+        pass
+
     def test_get_dcb(self):
         """
         Checks that the dcb returns full length.
