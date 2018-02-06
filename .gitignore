@@ -12,3 +12,5 @@ test.py
 .tox/
 .vscode/
 .mypy_cache/
+build/
+dist/
