@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: heatmiserV3
-Version: 0.9.4
+Version: 0.9.5
 Summary: A library to interact with Heatmiser Themostats using V3
 Home-page: https://github.com/andylockran/heatmiserV3
 Author: Andy Loughran
