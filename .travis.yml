@@ -1,7 +1,8 @@
 language: python
 python:
   - "3.6"
-install: pip install -U tox coveralls
-language: python
-script: travis_wait 30 tox --develop
+install: 
+  - pip install setuptools>=39 --upgrade
+  - pip install -U tox coveralls
+script: travis_wait 5 tox --develop
 after_sucess: coveralls
