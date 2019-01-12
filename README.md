@@ -34,3 +34,7 @@ Heatmiser have used their V3 protocol in a number of sensors.
 Your mileage may vary in attempting to use this library
 to communicate with them, but please open a pull request if 
 you get something working.
+
+# Requirements
+
+Python needs to be version 3.
