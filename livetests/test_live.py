@@ -8,7 +8,7 @@ class TestLiveHeatmiserThermostat(unittest.TestCase):
     """Testing an actual thermostat"""
     def setUp(self):
         """Creates serial con and thermostat"""
-        self.con = connection.hmserial('192.168.1.57', '100')
+        self.con = connection.hmserial('192.168.1.57', '102')
         self.con.open()
         self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.con)
 

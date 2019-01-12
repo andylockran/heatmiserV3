@@ -182,8 +182,8 @@ class HeatmiserThermostat(object):
                 badresponse += 1
 
             if (
-                func_code != constants.FUNC_WRITE and
-                    func_code != constants.FUNC_READ
+                func_code != constants.FUNC_WRITE
+                and func_code != constants.FUNC_READ
             ):
                 print("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
