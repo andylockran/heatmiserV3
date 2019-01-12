@@ -8,6 +8,8 @@ import yaml
 import logging
 from . import constants
 
+logging.basicConfig(level=logging.INFO)
+
 #
 # Believe this is known as CCITT (0xFFFF)
 # This is the CRC function converted directly from the Heatmiser C code
@@ -69,7 +71,7 @@ class HeatmiserThermostat(object):
             try:
                 self.config = yaml.load(stream)[model]
             except yaml.YAMLError as exc:
-                print("The YAML file is invalid: %s", exc)
+                logging.info("The YAML file is invalid: %s", exc)
 
     def _hm_form_message(
             self,
@@ -144,9 +146,9 @@ class HeatmiserThermostat(object):
             crc = CRC16()   # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
-                print("CRC is correct")
+                logging.info("CRC is correct")
             else:
-                print("CRC is INCORRECT")
+                logging.info("CRC is INCORRECT")
                 serror = "Incorrect CRC"
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -158,25 +160,25 @@ class HeatmiserThermostat(object):
             func_code = datal[4]
 
             if (dest_addr != 129 and dest_addr != 160):
-                print("dest_addr is ILLEGAL")
+                logging.info("dest_addr is ILLEGAL")
                 serror = "Illegal Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if dest_addr != destination:
-                print("dest_addr is INCORRECT")
+                logging.info("dest_addr is INCORRECT")
                 serror = "Incorrect Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (source_addr < 1 or source_addr > 32):
-                print("source_addr is ILLEGAL")
+                logging.info("source_addr is ILLEGAL")
                 serror = "Illegal Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if source_addr != source:
-                print("source addr is INCORRECT")
+                logging.info("source addr is INCORRECT")
                 serror = "Incorrect Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -185,38 +187,37 @@ class HeatmiserThermostat(object):
                 func_code != constants.FUNC_WRITE
                 and func_code != constants.FUNC_READ
             ):
-                print("Func Code is UNKNWON")
+                logging.info("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code != expectedFunction:
-                print("Func Code is UNEXPECTED")
+                logging.info("Func Code is UNEXPECTED")
                 serror = "Unexpected Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if (
-                    func_code == constants.FUNC_WRITE and
-                    frame_len != 7
+                    func_code == constants.FUNC_WRITE and frame_len != 7
             ):
                 # Reply to Write is always 7 long
-                print("response length is INCORRECT")
+                logging.info("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if len(datal) != frame_len:
-                print("response length MISMATCHES header")
+                logging.info("response length MISMATCHES header")
                 serror = "Mismatch length: %s %s\n" % (len(datal), frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             """if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
               # Read response length is wrong
-              print("response length not EXPECTED value")
-              print(len(datal))
-              print(datal)
+              logging.info("response length not EXPECTED value")
+              logging.info(len(datal))
+              logging.info(datal)
               s = "Incorrect length: %s\n" % (frame_len)
               sys.stderr.write(s)
               badresponse += 1
@@ -264,13 +265,13 @@ class HeatmiserThermostat(object):
             verification = self._hm_verify_message_crc_uk(
                 0x81, pro, destination, readwrite, 1, datal)
             if verification is False:
-                print("OH DEAR BAD RESPONSE")
+                logging.info("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
                 0x81, pro, destination, readwrite, 75, datal)
             if verification is False:
-                print("OH DEAR BAD RESPONSE")
+                logging.info("OH DEAR BAD RESPONSE")
             return datal
 
     def _hm_read_address(self):
@@ -288,7 +289,7 @@ class HeatmiserThermostat(object):
                     'value': ddata
                 }
             except IndexError:
-                print("Finished processing at %d", i)
+                logging.info("Finished processing at %d", i)
         return keydata
 
     def get_dcb(self):

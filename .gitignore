@@ -2,6 +2,7 @@
 venv35/
 venv27/
 venv/
+venv3/
 test.py
 .idea/
 *egg/
