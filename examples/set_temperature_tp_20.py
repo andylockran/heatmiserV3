@@ -1,6 +1,15 @@
 from heatmiserV3 import heatmiser, connection
 import logging
 
+"""
+This examples shows a simple setup of a single UH1 Heatmiser Wiring Centre, and the addition of 4 'prt' thermostats.
+
+The script below then iterates through, setting the target temp on them all to 20.
+
+"""
+
+
+
 IP_ADDRESS='192.168.1.57'
 PORT='102'
 
