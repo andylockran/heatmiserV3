@@ -10,16 +10,19 @@ class ExmapleThermostat():
         """Creates serial con and thermostat"""
         self.con = connection.hmserial(IP_ADDRESS, PORT)
         self.con.open()
-        self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.con)
+        self.thermostat1 = heatmiser.HeatmiserThermostat(2, 'prt', self.con)
 
     def test_read_dcb(self):
         """This test makes sure that the values map correctly"""
-        data = self.thermostat1.get_dcb()
+        data = self.thermostat1.get_status()
         print(json.dumps(data, indent=2))
-        assert data[11]['value'] == 1
 
 
 
 example = ExmapleThermostat()
-print(example.test_read_dcb())
-example.con.close()
+ example.test_read_dcb()
+ example.con.close()
+
+# HeatmiserUH1 = connection.HeatmiserUH1(IP_ADDRESS, PORT)
+# Thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', HeatmiserUH1)
+# print(Thermostat1.get_thermostat_id())

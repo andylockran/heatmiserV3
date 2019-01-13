@@ -63,10 +63,11 @@ class CRC16:
 class HeatmiserThermostat(object):
     """Initialises a heatmiser thermostat, by taking an address and model."""
 
-    def __init__(self, address, model, conn):
+    def __init__(self, address, model, uh1):
         self.address = address
         self.model = model
-        self.conn = conn
+        self.conn = uh1.connection()
+        print(self.conn)
         with open("heatmiserV3/config.yml", "r") as stream:
             try:
                 self.config = yaml.load(stream)[model]
@@ -213,15 +214,15 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            """if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
+            if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
               # Read response length is wrong
               logging.info("response length not EXPECTED value")
-              logging.info(len(datal))
-              logging.info(datal)
+              logging.info("Got %s when expecting %s", len(datal), expectedLength)
+              logging.info("Data is:\n %s", datal)
               s = "Incorrect length: %s\n" % (frame_len)
               sys.stderr.write(s)
               badresponse += 1
-            """
+
             if (badresponse == 0):
                 return True
             else:
@@ -303,3 +304,20 @@ class HeatmiserThermostat(object):
         Returns the temperature
         """
         return self._hm_read_address()[18]['value']
+
+    def get_status(self):
+        return self._hm_read_address()[21]['value']
+
+    def get_thermostat_id(self):
+        return self._hm_read_address([])
+
+    def set_target_temperature(self, temperature):
+        """
+        Sets the target temperature, to the requested int
+        """
+        if 25 < temperature < 16:
+            return "Setting temp outside of sensible range"
+        else:
+            self._hm_send_address()
+            return
+

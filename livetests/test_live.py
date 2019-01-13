@@ -14,7 +14,7 @@ class TestLiveHeatmiserThermostat(unittest.TestCase):
 
     def test_read_dcb(self):
         """This test makes sure that the values map correctly"""
-        data = self.thermostat1.get_dcb()
+        data = self.thermostat1.get_target_temperature()
         print(json.dumps(data, indent=2))
         assert data[11]['value'] == 1
 
