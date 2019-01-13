@@ -12,7 +12,7 @@ class HeatmiserUH1(object):
     """Represents the UH1 interface that holds the serial connection, and can have multiple thermostats"""
 
     def __init__(self, ipaddress, port):
-        self.thermostats = []
+        self.thermostats = {}
         self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
         # Ensures that the serial port has not been left hanging around by a previous process.
         serport_response = self._serport.close()
@@ -42,13 +42,17 @@ class HeatmiserUH1(object):
     def registerThermostat(self, thermostat):
         """Registers a thermostat with the UH1"""
         try:
-            therm = heatmiser.HeatmiserThermostat(thermostat.id, thermostat.type, self.con)
-            id = therm.get_thermostat_id()
-            logging.info("%s should be equal to %s", thermostat.id, id)
-            thermostat.id == id
+            type(thermostat) == heatmiser.HeatmiserThermostat
+            if thermostat.address in self.thermostats.keys():
+                raise ValueError("Key already present")
+            else:
+                self.thermostats[thermostat.address] = thermostat
+        except ValueError:
+            pass
         except Exception as e:
+            logging.info("You're not adding a HeatmiiserThermostat Object")
             logging.info(e.message)
-        self.con.close()
+        return self._serport
 
     def connection(self):
         print(self.status)
