@@ -27,3 +27,9 @@ thermo4 = heatmiser.HeatmiserThermostat(4, 'prt', HeatmiserUH1)
 # Show them registeresd against the UH1
 for tstat in HeatmiserUH1.thermostats:
     logging.info(HeatmiserUH1.thermostats[tstat].set_target_temp(20))
+
+
+# You can also just hit the themos directly:
+
+thermo1.get_target_temp()
+thermo1.get_floor_temp()

@@ -1,5 +1,4 @@
 """This module is effectively a singleton for serial comms"""
-import sys
 import serial
 import logging
 from . import constants
@@ -9,12 +8,18 @@ logging.basicConfig(level=logging.INFO)
 
 
 class HeatmiserUH1(object):
-    """Represents the UH1 interface that holds the serial connection, and can have multiple thermostats"""
+    """
+    Represents the UH1 interface that holds the serial
+    connection, and can have multiple thermostats
+    """
 
     def __init__(self, ipaddress, port):
         self.thermostats = {}
-        self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
-        # Ensures that the serial port has not been left hanging around by a previous process.
+        self._serport = serial.serial_for_url(
+            "socket://" + ipaddress + ":" + port
+        )
+        # Ensures that the serial port has not
+        # been left hanging around by a previous process.
         serport_response = self._serport.close()
         logging.info("SerialPortResponse: %s", serport_response)
         self._serport.baudrate = constants.COM_BAUD
@@ -38,7 +43,7 @@ class HeatmiserUH1(object):
     def __del__(self):
         logging.info("Closing serial port.")
         self._serport.close()
-    
+
     def registerThermostat(self, thermostat):
         """Registers a thermostat with the UH1"""
         try:
@@ -53,11 +58,3 @@ class HeatmiserUH1(object):
             logging.info("You're not adding a HeatmiiserThermostat Object")
             logging.info(e.message)
         return self._serport
-
-    def connection(self):
-        print(self.status)
-        if not self.status:
-            raise Exception("Object in unknown state")
-        else:
-            return self._serport
-

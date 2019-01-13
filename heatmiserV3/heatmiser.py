@@ -74,7 +74,6 @@ class HeatmiserThermostat(object):
         self.conn = uh1.registerThermostat(self)
         self.dcb = ""
         self.read_dcb()
-        
 
     def _hm_form_message(
             self,
@@ -216,10 +215,13 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            # if (func_code == constants.FUNC_READ and expectedLength !=len(datal) ):
+            # if (func_code == constants.FUNC_READ and
+            #   expectedLength !=len(datal) ):
             #   # Read response length is wrong
-            #   logging.info("response length not EXPECTED value")
-            #   logging.info("Got %s when expecting %s", len(datal), expectedLength)
+            #   logging.info("response length
+            #    not EXPECTED value")
+            #   logging.info("Got %s when expecting %s",
+            #   len(datal), expectedLength)
             #   logging.info("Data is:\n %s", datal)
             #   s = "Incorrect length: %s\n" % (frame_len)
             #   sys.stderr.write(s)
@@ -304,7 +306,6 @@ class HeatmiserThermostat(object):
         self.dcb = self._hm_read_address()
         return self.dcb
 
-
     def get_frost_temp(self):
         """
         Returns the temperature
@@ -338,7 +339,7 @@ class HeatmiserThermostat(object):
             return "Celsius"
         else:
             return "Farenheit"
-    
+
     def get_sensor_selection(self):
         sensor = self.dcb[13]['value']
         answers = {
@@ -360,7 +361,7 @@ class HeatmiserThermostat(object):
 
     def get_frost_protection(self):
         pass
-    
+
     def get_floor_temp(self):
         return self.dcb[31]['value'] / 10
 
@@ -396,5 +397,3 @@ class HeatmiserThermostat(object):
         else:
             self._hm_send_address(self.address, 19, floor_max, 1)
             return True
-
-    
