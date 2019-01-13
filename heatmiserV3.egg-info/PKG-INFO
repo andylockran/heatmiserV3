@@ -1,4 +1,4 @@
-Metadata-Version: 1.1
+Metadata-Version: 2.1
 Name: heatmiserV3
 Version: 0.9.5
 Summary: A library to interact with Heatmiser Themostats using V3
@@ -10,3 +10,4 @@ Download-URL: https://github.com/andylockran/heatmiserV3/tarball/0.9.3
 Description: UNKNOWN
 Keywords: v3,thermostat,heatmiser,prt,serial,uh1
 Platform: UNKNOWN
+Provides-Extra: testing
