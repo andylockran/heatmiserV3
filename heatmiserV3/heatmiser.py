@@ -7,6 +7,9 @@ import serial
 import yaml
 import logging
 from . import constants
+import pkg_resources
+config_yml = pkg_resources.resource_string(__name__, "config.yml")
+
 
 logging.basicConfig(level=logging.INFO)
 
