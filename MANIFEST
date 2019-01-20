@@ -5,3 +5,4 @@ heatmiserV3/__init__.py
 heatmiserV3/connection.py
 heatmiserV3/constants.py
 heatmiserV3/heatmiser.py
+config/config.yml
