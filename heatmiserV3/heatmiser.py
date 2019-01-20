@@ -69,11 +69,10 @@ class HeatmiserThermostat(object):
     def __init__(self, address, model, uh1):
         self.address = address
         self.model = model
-        with open("./config.yml", "r") as stream:
-            try:
-                self.config = yaml.load(stream)[model]
-            except yaml.YAMLError as exc:
-                logging.info("The YAML file is invalid: %s", exc)
+        try:
+            self.config = yaml.safe_load(config_yml)[model]
+        except yaml.YAMLError as exc:
+            logging.info("The YAML file is invalid: %s", exc)
         self.conn = uh1.registerThermostat(self)
         self.dcb = ""
         self.read_dcb()
