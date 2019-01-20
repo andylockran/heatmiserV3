@@ -3,6 +3,8 @@ import serial
 import logging
 from . import constants
 from heatmiserV3 import heatmiser
+import asyncio
+import serial_asyncio
 
 logging.basicConfig(level=logging.INFO)
 

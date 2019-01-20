@@ -1,6 +1,7 @@
 appdirs==1.4.3
 appnope==0.1.0
 astroid==2.1.0
+asyncio==3.4.3
 atomicwrites==1.2.1
 attrs==18.2.0
 backcall==0.1.0
@@ -9,7 +10,7 @@ coverage==4.5.2
 decorator==4.3.0
 filelock==3.0.10
 flake8==3.6.0
--e git+git@github.com:andylockran/heatmiserV3.git@4a208e22fc90a6ed3832c0862b540c4e75dda5fe#egg=heatmiserV3
+-e git+git@github.com:andylockran/heatmiserV3.git@5e92d3d1139ac3dd15aac9902de70a767acdbe2f#egg=heatmiserV3
 hypothesis==3.88.3
 importlib-metadata==0.8
 ipython==7.2.0
@@ -42,6 +43,7 @@ pylint==2.2.2
 pyparsing==2.3.0
 pyreadline==2.1
 pyserial==3.4
+pyserial-asyncio==0.4
 pytest==4.1.1
 pytest-cov==2.6.1
 PyYAML==4.2b4
