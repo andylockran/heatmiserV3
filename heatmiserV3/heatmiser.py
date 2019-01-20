@@ -69,7 +69,7 @@ class HeatmiserThermostat(object):
     def __init__(self, address, model, uh1):
         self.address = address
         self.model = model
-        with open("../config/config.yml", "r") as stream:
+        with open("./config.yml", "r") as stream:
             try:
                 self.config = yaml.load(stream)[model]
             except yaml.YAMLError as exc:
