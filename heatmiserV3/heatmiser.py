@@ -372,7 +372,11 @@ class HeatmiserThermostat(object):
 
     def get_current_state(self):
         return self.dcb[35]['value']
-
+    
+    def set_frost_protect_mode(self, onoff):
+          self._hm_send_address(self.address, 23, onoff, 1)
+           return True
+    
     def set_frost_protect_temp(self, frost_temp):
         if 17 < frost_temp < 7:
             logging.info("Refusing to set temp outside of allowed range")
