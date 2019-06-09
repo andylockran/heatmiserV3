@@ -93,8 +93,8 @@ class HeatmiserThermostat(object):
             if function == constants.FUNC_READ:
                 payload_length = 0
                 length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
-                length_high = (constants.RW_LENGTH_ALL
-                               >> 8) & constants.BYTEMASK
+                length_high = (constants.RW_LENGTH_ALL >> 8)
+                & constants.BYTEMASK
             else:
                 payload_length = len(payload)
                 length_low = (payload_length & constants.BYTEMASK)
@@ -188,8 +188,8 @@ class HeatmiserThermostat(object):
                 badresponse += 1
 
             if (
-                func_code != constants.FUNC_WRITE
-                and func_code != constants.FUNC_READ
+                func_code != constants.FUNC_WRITE and
+                func_code != constants.FUNC_READ
             ):
                 logging.info("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
@@ -372,6 +372,10 @@ class HeatmiserThermostat(object):
 
     def get_current_state(self):
         return self.dcb[35]['value']
+
+    def set_frost_protect_mode(self, onoff):
+        self._hm_send_address(self.address, 23, onoff, 1)
+        return True
 
     def set_frost_protect_temp(self, frost_temp):
         if 17 < frost_temp < 7:
