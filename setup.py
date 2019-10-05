@@ -21,7 +21,7 @@ setup(
     ],
     test_suite='tests.test_heatmiser',
     classifiers=[],
-    install_requires=['pyserial'],
+    install_requires=['pyserial', 'pyyaml', 'mock'],
     extras_require={
         'testing': ['pytest'],
     }
