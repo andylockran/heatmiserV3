@@ -3,6 +3,5 @@ python:
   - "3.6"
   - "3.7"
 install: python setup.py install
-language: python
 script: pytest tests
 after_sucess: coveralls
