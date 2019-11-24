@@ -5,5 +5,6 @@ python:
 install: 
   - pip install setuptools>=39 --upgrade
   - pip install -U tox coveralls pyserial pyserial-asyncio
+  - pip install -r requirements.txt
 script: travis_wait 30 pytest tests
 after_sucess: coveralls
