@@ -334,12 +334,12 @@ class HeatmiserThermostat(object):
     def get_thermostat_id(self):
         return self.dcb[11]['value']
 
-    def get_termperature_format(self):
+    def get_temperature_format(self):
         temp_format = self.dcb[5]['value']
         if temp_format == 00:
-            return "Celsius"
+            return "C"
         else:
-            return "Farenheit"
+            return "F"
 
     def get_sensor_selection(self):
         sensor = self.dcb[13]['value']
