@@ -1,3 +1,0 @@
-#!/bin/bash
-
-tox --develop || { echo 'Tests failed.' ; exit 1; }

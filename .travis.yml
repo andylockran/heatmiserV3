@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
   - "3.7"
-install: python setup.py install
-script: pytest tests
+install: 
+  - pip install setuptools>=39 --upgrade
+  - pip install -U tox coveralls
+script: travis_wait 30 pytest tests
 after_sucess: coveralls
