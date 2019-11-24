@@ -3,6 +3,6 @@ python:
   - "3.6"
 install: 
   - pip install setuptools>=39 --upgrade
-  - pip install -U tox coveralls
+  - pip install -U tox coveralls pyserial pyserial-async
 script: travis_wait 30 tox --develop
 after_sucess: coveralls
