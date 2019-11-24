@@ -60,3 +60,9 @@ class HeatmiserUH1(object):
             logging.info("You're not adding a HeatmiiserThermostat Object")
             logging.info(e.message)
         return self._serport
+
+    def listThermostats(self):
+        if self.thermostats:
+            return self.thermostats
+        else: 
+            return None
