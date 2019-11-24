@@ -23,7 +23,7 @@ setup(
     ],
     test_suite='tests.test_heatmiser',
     classifiers=[],
-    install_requires=['pyserial', 'pyserial-asyncio'],
+    install_requires=['pyserial', 'pyserial-asyncio', 'pyyaml', 'mock'],
     extras_require={
         'testing': ['pytest'],
     }
