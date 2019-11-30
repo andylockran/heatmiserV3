@@ -17,9 +17,7 @@ class HeatmiserUH1(object):
 
     def __init__(self, ipaddress, port):
         self.thermostats = {}
-        self._serport = serial.serial_for_url(
-            "socket://" + ipaddress + ":" + port
-        )
+        self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
         # Ensures that the serial port has not
         # been left hanging around by a previous process.
         serport_response = self._serport.close()
@@ -41,6 +39,14 @@ class HeatmiserUH1(object):
         else:
             logging.info("Attempting to access already open port")
             return False
+
+    def reopen(self):
+        if not set.status:
+            self._serport.open()
+            self.status = True
+            return self.status
+        else:
+            logger.error("Cannot open serial port")
 
     def __del__(self):
         logging.info("Closing serial port.")
@@ -64,5 +70,5 @@ class HeatmiserUH1(object):
     def listThermostats(self):
         if self.thermostats:
             return self.thermostats
-        else: 
+        else:
             return None
