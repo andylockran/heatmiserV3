@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name='heatmiserV3',
     packages=['heatmiserV3'],  # this must be the same as the name above
-    version='1.1.11',
+    version='1.1.13',
     description='A library to interact with Heatmiser Themostats using V3',
     author='Andy Loughran',
     author_email='andy@zrmt.com',
