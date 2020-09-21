@@ -364,7 +364,16 @@ class HeatmiserThermostat(object):
         pass
 
     def get_floor_temp(self):
-        return self.dcb[31]['value'] / 10
+        if self.dcb[30]['value']==1:
+            return (self.dcb[31]['value'] + 255) / 10
+        else:
+            return self.dcb[31]['value'] / 10
+
+    def get_air_temp(self):
+        if self.dcb[32]['value']==1:
+            return (self.dcb[33]['value'] + 255) / 10
+        else:
+            return self.dcb[33]['value'] / 10
 
     def get_sensor_error(self):
         return self.dcb[34]['value']
