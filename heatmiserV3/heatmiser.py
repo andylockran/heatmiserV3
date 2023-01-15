@@ -8,6 +8,7 @@ import yaml
 import logging
 from . import constants
 import pkg_resources
+
 config_yml = pkg_resources.resource_string(__name__, "config.yml")
 
 
@@ -21,13 +22,42 @@ logging.basicConfig(level=logging.INFO)
 
 class CRC16:
     """This is the CRC hashing mechanism used by the V3 protocol."""
+
     LookupHigh = [
-        0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
-        0x81, 0x91, 0xa1, 0xb1, 0xc1, 0xd1, 0xe1, 0xf1
+        0x00,
+        0x10,
+        0x20,
+        0x30,
+        0x40,
+        0x50,
+        0x60,
+        0x70,
+        0x81,
+        0x91,
+        0xA1,
+        0xB1,
+        0xC1,
+        0xD1,
+        0xE1,
+        0xF1,
     ]
     LookupLow = [
-        0x00, 0x21, 0x42, 0x63, 0x84, 0xa5, 0xc6, 0xe7,
-        0x08, 0x29, 0x4a, 0x6b, 0x8c, 0xad, 0xce, 0xef
+        0x00,
+        0x21,
+        0x42,
+        0x63,
+        0x84,
+        0xA5,
+        0xC6,
+        0xE7,
+        0x08,
+        0x29,
+        0x4A,
+        0x6B,
+        0x8C,
+        0xAD,
+        0xCE,
+        0xEF,
     ]
 
     def __init__(self):
@@ -42,19 +72,19 @@ class CRC16:
         thisval = thisval ^ val
         # Shift the CRC Register left 4 bits
         self.high = (self.high << 4) | (self.low >> 4)
-        self.high = self.high & constants.BYTEMASK    # force char
+        self.high = self.high & constants.BYTEMASK  # force char
         self.low = self.low << 4
-        self.low = self.low & constants.BYTEMASK      # force char
+        self.low = self.low & constants.BYTEMASK  # force char
         # Do the table lookups and XOR the result into the CRC tables
         self.high = self.high ^ self.LookupHigh[thisval]
-        self.high = self.high & constants.BYTEMASK    # force char
+        self.high = self.high & constants.BYTEMASK  # force char
         self.low = self.low ^ self.LookupLow[thisval]
-        self.low = self.low & constants.BYTEMASK      # force char
+        self.low = self.low & constants.BYTEMASK  # force char
 
     def update(self, val):
         """Updates the CRC value using bitwise operations."""
-        self.extract_bits(val >> 4)    # High nibble first
-        self.extract_bits(val & 0x0f)   # Low nibble
+        self.extract_bits(val >> 4)  # High nibble first
+        self.extract_bits(val & 0x0F)  # Low nibble
 
     def run(self, message):
         """Calculates a CRC"""
@@ -78,25 +108,19 @@ class HeatmiserThermostat(object):
         self.read_dcb()
 
     def _hm_form_message(
-            self,
-            thermostat_id,
-            protocol,
-            source,
-            function,
-            start,
-            payload
+        self, thermostat_id, protocol, source, function, start, payload
     ):
         """Forms a message payload, excluding CRC"""
         if protocol == constants.HMV3_ID:
-            start_low = (start & constants.BYTEMASK)
+            start_low = start & constants.BYTEMASK
             start_high = (start >> 8) & constants.BYTEMASK
             if function == constants.FUNC_READ:
                 payload_length = 0
-                length_low = (constants.RW_LENGTH_ALL & constants.BYTEMASK)
+                length_low = constants.RW_LENGTH_ALL & constants.BYTEMASK
                 length_high = (constants.RW_LENGTH_ALL >> 8) & constants.BYTEMASK
             else:
                 payload_length = len(payload)
-                length_low = (payload_length & constants.BYTEMASK)
+                length_low = payload_length & constants.BYTEMASK
                 length_high = (payload_length >> 8) & constants.BYTEMASK
             msg = [
                 thermostat_id,
@@ -106,7 +130,7 @@ class HeatmiserThermostat(object):
                 start_low,
                 start_high,
                 length_low,
-                length_high
+                length_high,
             ]
             if function == constants.FUNC_WRITE:
                 msg = msg + payload
@@ -116,37 +140,27 @@ class HeatmiserThermostat(object):
             assert 0, "Un-supported protocol found %s" % protocol
 
     def _hm_form_message_crc(
-            self,
-            thermostat_id,
-            protocol,
-            source,
-            function,
-            start,
-            payload
+        self, thermostat_id, protocol, source, function, start, payload
     ):
         """Forms a message payload, including CRC"""
         data = self._hm_form_message(
-            thermostat_id, protocol, source, function, start, payload)
+            thermostat_id, protocol, source, function, start, payload
+        )
         crc = CRC16()
         data = data + crc.run(data)
         return data
 
     def _hm_verify_message_crc_uk(
-            self,
-            thermostat_id,
-            protocol,
-            source,
-            expectedFunction,
-            expectedLength,
-            datal
+        self, thermostat_id, protocol, source, expectedFunction, expectedLength, datal
     ):
         """Verifies message appears legal"""
         # expectedLength only used for read msgs as always 7 for write
+        assert expectedLength == expectedLength
         badresponse = 0
         if protocol == constants.HMV3_ID:
             checksum = datal[len(datal) - 2:]
-            rxmsg = datal[:len(datal) - 2]
-            crc = CRC16()   # Initialises the CRC
+            rxmsg = datal[: len(datal) - 2]
+            crc = CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
                 logging.info("CRC is correct")
@@ -162,7 +176,7 @@ class HeatmiserThermostat(object):
             source_addr = datal[3]
             func_code = datal[4]
 
-            if (dest_addr != 129 and dest_addr != 160):
+            if dest_addr != 129 and dest_addr != 160:
                 logging.info("dest_addr is ILLEGAL")
                 serror = "Illegal Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
@@ -174,7 +188,7 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (source_addr < 1 or source_addr > 32):
+            if source_addr < 1 or source_addr > 32:
                 logging.info("source_addr is ILLEGAL")
                 serror = "Illegal Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
@@ -186,10 +200,7 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (
-                func_code != constants.FUNC_WRITE and
-                func_code != constants.FUNC_READ
-            ):
+            if func_code != constants.FUNC_WRITE and func_code != constants.FUNC_READ:
                 logging.info("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
@@ -201,9 +212,7 @@ class HeatmiserThermostat(object):
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if (
-                    func_code == constants.FUNC_WRITE and frame_len != 7
-            ):
+            if func_code == constants.FUNC_WRITE and frame_len != 7:
                 # Reply to Write is always 7 long
                 logging.info("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
@@ -228,7 +237,7 @@ class HeatmiserThermostat(object):
             #   sys.stderr.write(s)
             #   badresponse += 1
 
-            if (badresponse == 0):
+            if badresponse == 0:
                 return True
             else:
                 return False
@@ -240,7 +249,7 @@ class HeatmiserThermostat(object):
         """This is the only interface to the serial connection."""
         try:
             serial_message = message
-            self.conn.write(serial_message)   # Write a string
+            self.conn.write(serial_message)  # Write a string
         except serial.SerialTimeoutException:
             serror = "Write timeout error: \n"
             sys.stderr.write(serror)
@@ -260,7 +269,7 @@ class HeatmiserThermostat(object):
                 constants.RW_MASTER_ADDRESS,
                 readwrite,
                 address,
-                payload
+                payload,
             )
         else:
             assert 0, "Un-supported protocol found %s" % protocol
@@ -269,13 +278,15 @@ class HeatmiserThermostat(object):
         pro = protocol
         if readwrite == 1:
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 1, datal)
+                0x81, pro, thermostat_id, readwrite, 1, datal
+            )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 75, datal)
+                0x81, pro, thermostat_id, readwrite, 75, datal
+            )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
             return datal
@@ -283,17 +294,14 @@ class HeatmiserThermostat(object):
     def _hm_read_address(self):
         """Reads from the DCB and maps to yaml config file."""
         response = self._hm_send_address(self.address, 0, 0, 0)
-        lookup = self.config['keys']
-        offset = self.config['offset']
+        lookup = self.config["keys"]
+        offset = self.config["offset"]
         keydata = {}
         for i in lookup:
             try:
                 kdata = lookup[i]
                 ddata = response[i + offset]
-                keydata[i] = {
-                    'label': kdata,
-                    'value': ddata
-                }
+                keydata[i] = {"label": kdata, "value": ddata}
             except IndexError:
                 logging.info("Finished processing at %d", i)
         return keydata
@@ -311,53 +319,50 @@ class HeatmiserThermostat(object):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[17]['value']
+        return self._hm_read_address()[17]["value"]
 
     def get_target_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[18]['value']
+        return self._hm_read_address()[18]["value"]
 
     def get_floormax_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[19]['value']
+        return self._hm_read_address()[19]["value"]
 
     def get_status(self):
-        return self._hm_read_address()[21]['value']
+        return self._hm_read_address()[21]["value"]
 
     def get_heating(self):
-        return self._hm_read_address()[23]['value']
+        return self._hm_read_address()[23]["value"]
 
     def get_thermostat_id(self):
-        return self.dcb[11]['value']
+        return self.dcb[11]["value"]
 
     def get_temperature_format(self):
-        temp_format = self.dcb[5]['value']
+        temp_format = self.dcb[5]["value"]
         if temp_format == 00:
             return "C"
         else:
             return "F"
 
     def get_sensor_selection(self):
-        sensor = self.dcb[13]['value']
+        sensor = self.dcb[13]["value"]
         answers = {
             0: "Built in air sensor",
             1: "Remote air sensor",
             2: "Floor sensor",
             3: "Built in + floor",
-            4: "Remote + floor"
+            4: "Remote + floor",
         }
         return answers[sensor]
 
     def get_program_mode(self):
-        mode = self.dcb[16]['value']
-        modes = {
-            0: "5/2 mode",
-            1: "7 day mode"
-        }
+        mode = self.dcb[16]["value"]
+        modes = {0: "5/2 mode", 1: "7 day mode"}
         return modes[mode]
 
     def get_frost_protection(self):
@@ -371,10 +376,10 @@ class HeatmiserThermostat(object):
         )
 
     def get_sensor_error(self):
-        return self.dcb[34]['value']
+        return self.dcb[34]["value"]
 
     def get_current_state(self):
-        return self.dcb[35]['value']
+        return self.dcb[35]["value"]
 
     def set_frost_protect_mode(self, onoff):
         self._hm_send_address(self.address, 23, onoff, 1)

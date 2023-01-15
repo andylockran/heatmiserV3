@@ -3,8 +3,6 @@ import serial
 import logging
 from . import constants
 from heatmiserV3 import heatmiser
-import asyncio
-import serial_asyncio
 
 logging.basicConfig(level=logging.INFO)
 
@@ -46,7 +44,7 @@ class HeatmiserUH1(object):
             self.status = True
             return self.status
         else:
-            logger.error("Cannot open serial port")
+            logging.error("Cannot open serial port")
 
     def __del__(self):
         logging.info("Closing serial port.")

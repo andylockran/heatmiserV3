@@ -1,8 +1,6 @@
 """Tests for HeatmiserThermostat and CRC Methods"""
 import unittest
-import json
-from mock import Mock
-from heatmiserV3 import heatmiser, connection
+from heatmiserV3 import heatmiser
 
 
 class TestCRCMethods(unittest.TestCase):
@@ -39,9 +37,9 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
     """
     Tests for the Heatmiser functions.
     """
+
     def setUp(self):
         # @TODO - Setup the mock interface for serial to write the tests.
         # self.uh1 = connection.HeatmiserUH1('192.168.1.57', '102')
         # self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.uh1)
         pass
-
