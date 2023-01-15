@@ -1,3 +1,5 @@
+
+# This is being deprecated in favour of Github Actions.
 language: python
 python:
   - "3.6"
