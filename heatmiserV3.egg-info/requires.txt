@@ -1,4 +1,7 @@
 pyserial
+pyserial-asyncio
+pyyaml
+mock
 
 [testing]
 pytest

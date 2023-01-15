@@ -1,7 +1,9 @@
+LICENSE.TXT
 README.md
 setup.cfg
 setup.py
 heatmiserV3/__init__.py
+heatmiserV3/config.yml
 heatmiserV3/connection.py
 heatmiserV3/constants.py
 heatmiserV3/heatmiser.py
