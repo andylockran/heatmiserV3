@@ -10,7 +10,7 @@ RW_MASTER_ADDRESS = 0x81
 HMV2_ID = 2
 HMV3_ID = 3
 
-BYTEMASK = 0xff
+BYTEMASK = 0xFF
 
 # Constants for Methods
 # Passed to hmVerifyMsgCRCOK when message is of type FUNC_WRITE
@@ -22,14 +22,14 @@ DONT_CARE_LENGTH = 1
 
 # Master must be in range [0x81,0xa0] = [129,160]
 MASTER_ADDR_MIN = 0x81
-MASTER_ADDR_MAX = 0xa0
+MASTER_ADDR_MAX = 0xA0
 
 # Define magic numbers used in messages
 FUNC_READ = 0
 FUNC_WRITE = 1
 
-BROADCAST_ADDR = 0xff
-RW_LENGTH_ALL = 0xffff
+BROADCAST_ADDR = 0xFF
+RW_LENGTH_ALL = 0xFFFF
 
 SET_TEMP_ADDR = 18
 KEY_LOCK_ADDR = 22
