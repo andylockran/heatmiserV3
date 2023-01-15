@@ -155,9 +155,10 @@ class HeatmiserThermostat(object):
     ):
         """Verifies message appears legal"""
         # expectedLength only used for read msgs as always 7 for write
+        assert expectedLength == expectedLength
         badresponse = 0
         if protocol == constants.HMV3_ID:
-            checksum = datal[len(datal) - 2 :]
+            checksum = datal[len(datal) - 2:]
             rxmsg = datal[: len(datal) - 2]
             crc = CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)

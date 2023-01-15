@@ -1,8 +1,6 @@
 """Tests for HeatmiserThermostat and CRC Methods"""
 import unittest
-import json
-from mock import Mock
-from heatmiserV3 import heatmiser, connection
+from heatmiserV3 import heatmiser
 
 
 class TestCRCMethods(unittest.TestCase):
