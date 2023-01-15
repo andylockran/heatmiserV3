@@ -1,7 +1,5 @@
 #HeatmiserV3
-
-[![Build Status](https://travis-ci.org/andylockran/heatmiserV3.svg?branch=master)](https://travis-ci.org/andylockran/heatmiserV3)
-[![Coverage Status](https://coveralls.io/repos/github/andylockran/heatmiserV3/badge.svg?branch=working)](https://coveralls.io/github/andylockran/heatmiserV3?branch=working)
+[![Build Status](https://github.com/andylockran/heatmiserV3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserV3/actions/workflows/python-package.yml)
 
 This library has been created from the work carried out by 
 Neil Trimboy in 2011 here:
