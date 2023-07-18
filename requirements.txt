@@ -1,4 +1,4 @@
 appdirs==1.4.3
 pyserial==3.5
 pyserial-asyncio==0.6
-PyYAML==6.0
+PyYAML==6.0.1
