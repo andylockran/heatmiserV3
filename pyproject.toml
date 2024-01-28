@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "heatmiserv3"
-version = "2.0.0"
+version = "2.0.1"
 description = "A library to interact with Heatmiser Themostats using V3 protocol."
 authors = ["Andy Loughran <andy@lockran.com>"]
 license = "Apache 2"
@@ -12,6 +12,7 @@ appdirs = "^1.4.4"
 pyserial = "^3.5"
 pyserial-asyncio = "^0.6"
 pyyaml = "^6.0.1"
+importlib-resources = "^6.1.1"
 
 
 [tool.poetry.group.test.dependencies]
