@@ -1,11 +1,16 @@
 Metadata-Version: 2.1
 Name: heatmiserV3
-Version: 1.1.14
+Version: 1.2.2
 Summary: A library to interact with Heatmiser Themostats using V3
 Home-page: https://github.com/andylockran/heatmiserV3
-Download-URL: https://github.com/andylockran/heatmiserV3/tarball/1.1.0
+Download-URL: https://github.com/andylockran/heatmiserV3/tarball/1.2.2
 Author: Andy Loughran
 Author-email: andy@zrmt.com
 Keywords: v3,thermostat,heatmiser,prt,serial,uh1
-Provides-Extra: testing
 License-File: LICENSE.TXT
+Requires-Dist: pyserial
+Requires-Dist: pyserial-asyncio
+Requires-Dist: pyyaml
+Requires-Dist: mock
+Provides-Extra: testing
+Requires-Dist: pytest; extra == "testing"
