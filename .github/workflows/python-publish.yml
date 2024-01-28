@@ -9,8 +9,9 @@
 name: Upload Python Package
 
 on:
-  release:
-    types: [published]
+  push:
+    tags:
+      - "*.*.*"
 
 permissions:
   contents: read
@@ -26,14 +27,7 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install poetry
-        poetry install
-    - name: Build package
-      run: poetry build
-    - name: Set poetry creds
-      run: poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
-    - name: Publish package
-      run: poetry publish
+    - name: Build and publish to pypi
+      uses: JRubics/poetry-publish@v1.17
+      with:
+        pypi_token: ${{ secrets.PYPI_TOKEN }}
