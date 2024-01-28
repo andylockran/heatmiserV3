@@ -39,7 +39,7 @@ class HeatmiserUH1(object):
             return False
 
     def reopen(self):
-        if not set.status:
+        if not self.status:
             self._serport.open()
             self.status = True
             return self.status
