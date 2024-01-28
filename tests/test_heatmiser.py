@@ -18,7 +18,8 @@ class TestCRCMethods(unittest.TestCase):
         crc.extract_bits(4)
         assert crc.high == 78
         assert crc.low == 155
-
+    
+    def test_update_8_bits(self):
         crc = heatmiser.CRC16()
         assert crc.high == crc.low
         crc.extract_bits(8)
