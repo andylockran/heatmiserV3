@@ -1,4 +1,4 @@
-from heatmiserV3 import heatmiser, connection
+from heatmiserv3 import heatmiser, connection
 import logging
 
 """

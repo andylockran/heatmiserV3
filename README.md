@@ -1,5 +1,5 @@
-#HeatmiserV3
-[![Build Status](https://github.com/andylockran/heatmiserV3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserV3/actions/workflows/python-package.yml)
+#heatmiserv3
+[![Build Status](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml)
 
 This library has been created from the work carried out by 
 Neil Trimboy in 2011 here:
