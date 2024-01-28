@@ -4,7 +4,7 @@ from setuptools import setup
 setup(
     name="heatmiserV3",
     packages=["heatmiserV3"],  # this must be the same as the name above
-    version="1.1.14",
+    version="1.2.2",
     description="A library to interact with Heatmiser Themostats using V3",
     author="Andy Loughran",
     author_email="andy@zrmt.com",
@@ -12,7 +12,7 @@ setup(
     data_files=[("config", ["heatmiserV3/config.yml"])],
     include_package_data=True,
     url="https://github.com/andylockran/heatmiserV3",
-    download_url="https://github.com/andylockran/heatmiserV3/tarball/1.1.0",
+    download_url="https://github.com/andylockran/heatmiserV3/tarball/1.2.2",
     keywords=["v3", "thermostat", "heatmiser", "prt", "serial", "uh1"],
     test_suite="tests.test_heatmiser",
     classifiers=[],
