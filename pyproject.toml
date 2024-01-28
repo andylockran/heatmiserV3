@@ -14,6 +14,12 @@ pyserial-asyncio = "^0.6"
 pyyaml = "^6.0.1"
 
 
+[tool.poetry.group.test.dependencies]
+flake8 = "^7.0.0"
+pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+mock = "^5.1.0"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
