@@ -9,7 +9,7 @@ import logging
 from . import constants
 import importlib_resources
 
-config_yml = importlib_resources.files('heatmiserv3').joinpath('config.yml')
+config_yml = importlib_resources.files('heatmiserv3').joinpath('config.yml').read_bytes()
 
 
 logging.basicConfig(level=logging.INFO)
@@ -95,7 +95,7 @@ class CRC16:
 
 class HeatmiserThermostat(object):
     """Initialises a heatmiser thermostat, by taking an address and model."""
-
+    
     def __init__(self, address, model, uh1):
         self.address = address
         self.model = model
@@ -135,6 +135,7 @@ class HeatmiserThermostat(object):
             ]
             if function == constants.FUNC_WRITE:
                 msg = msg + payload
+                logging.debug("msg is of type, %s", type(msg))
                 type(msg)
             return msg
         else:
@@ -163,6 +164,8 @@ class HeatmiserThermostat(object):
             rxmsg = datal[: len(datal) - 2]
             crc = CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
+            logging.debug("Expected CRC: %s", expectedchecksum)
+            logging.debug("Actual CRC: %s", checksum)
             if expectedchecksum == checksum:
                 logging.info("CRC is correct")
             else:

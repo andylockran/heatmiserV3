@@ -176,6 +176,17 @@ docs = ["sphinx"]
 test = ["pytest", "pytest-cov"]
 
 [[package]]
+name = "mock-serial"
+version = "0.0.1"
+description = "A mock utility for testing serial devices"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "mock_serial-0.0.1-py3-none-any.whl", hash = "sha256:b6b8cc10c302354bf3ca270a3d4d6bf199c4bbe41478c65046db8f30ea967675"},
+    {file = "mock_serial-0.0.1.tar.gz", hash = "sha256:9c92de7495ac375717bbbeb4993534079d2e634f3298d4c400420c4046add06e"},
+]
+
+[[package]]
 name = "packaging"
 version = "23.2"
 description = "Core utilities for Python packages"
@@ -380,4 +391,4 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "a26b0702e6fc941f339621ca4976a15af2c1e3616360030efdb289cc2194b724"
+content-hash = "bcf9e95ec981647b99a82a6baf43d5c89e6ab38c137a46847817db4896920e5b"

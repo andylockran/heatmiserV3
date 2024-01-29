@@ -3,7 +3,7 @@ import serial
 import logging
 from . import constants
 from heatmiserv3 import heatmiser
-
+from heatmiserv3.thermostat import MockSerialThermostat
 logging.basicConfig(level=logging.INFO)
 
 
@@ -15,7 +15,11 @@ class HeatmiserUH1(object):
 
     def __init__(self, ipaddress, port):
         self.thermostats = {}
-        self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
+        if ipaddress == "mock":
+            device = MockSerialThermostat
+            self._serport = serial.Serial(device.port)
+        else:
+            self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
         # Ensures that the serial port has not
         # been left hanging around by a previous process.
         serport_response = self._serport.close()

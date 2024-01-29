@@ -1,7 +1,14 @@
 """Tests for HeatmiserThermostat and CRC Methods"""
 import unittest
 from heatmiserv3 import heatmiser
-
+from heatmiserv3 import connection
+import logging, sys
+from heatmiserv3.formats import message
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    format="%(levelname)s - %(message)s"
+)
 
 class TestCRCMethods(unittest.TestCase):
     """Tests for the CRC Methods"""
@@ -34,13 +41,57 @@ class TestCRCMethods(unittest.TestCase):
         assert crc.low == 116
 
 
-class TestHeatmiserThermostatMethods(unittest.TestCase):
+class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
     """
-    Tests for the Heatmiser functions.
+    This test case tests the PRT Thermostat in 5/2 mode, where there are 64 bytes of information
     """
 
     def setUp(self):
         # @TODO - Setup the mock interface for serial to write the tests.
-        # self.uh1 = connection.HeatmiserUH1('192.168.1.57', '102')
-        # self.thermostat1 = heatmiser.HeatmiserThermostat(1, 'prt', self.uh1)
+        self.HeatmiserUH1 = connection.HeatmiserUH1("mock", "123")
+
+        self.crc = heatmiser.CRC16()
+
+        # self.thermo1 = heatmiser.HeatmiserThermostat(1,"prt", self.HeatmiserUH1)
+
+    def test_message_struct_thermo1(self):
+        default_message = b'\x01\x0a\x81\x00\x00\x00\xff\xff,\t'
+        data = list(default_message)
+        data = data + self.crc.run(data)
+        logging.debug(data)
+        assert data[0] == 1 ## Thermostat is 1
+        assert data[1] == 10 ## Read operations
+        assert data[2] == 129 ## Source address
+        assert data[3] == 0 ## Read functionCode
+        assert data[4] == 0 ## Start Address of DCB
+        assert data[5] == 0 ## Start Address of DCB
+        assert data[6] == 255 ## End Address of DCB
+        assert data[7] == 255 ## End Address of DCB
+        assert data[8] == 44 ## No idea what this is @TODO
+        assert data[9] == 9 ## No idea what this is @TODO
+        assert data[10] == 212 ## CRC low
+        assert data[11] == 141 ## CRC high
+
+    def test_message_struct_thermo2(self):
+        default_message = b'\x02\x0a\x81\x00\x00\x00\xff\xff,\t'
+        data = list(default_message)
+        data = data + self.crc.run(data)
+        logging.debug(data)
+        assert data[0] == 2 ## Thermostat is 2
+        assert data[1] == 10 ## Read operations
+        assert data[2] == 129 ## Source address
+        assert data[3] == 0 ## Read functionCode
+        assert data[4] == 0 ## Start Address of DCB
+        assert data[5] == 0 ## Start Address of DCB
+        assert data[6] == 255 ## End Address of DCB
+        assert data[7] == 255 ## End Address of DCB
+        assert data[8] == 44 ## No idea what this is @TODO
+        assert data[9] == 9 ## No idea what this is @TODO
+        assert data[10] == 27 ## CRC low
+        assert data[11] == 60 ## CRC high
+
+    # def test_thermo1(self):
+    #     self.thermo1.get_target_temp()
+
+    def tearDown(self):
         pass

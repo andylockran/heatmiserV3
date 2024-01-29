@@ -13,6 +13,7 @@ pyserial = "^3.5"
 pyserial-asyncio = "^0.6"
 pyyaml = "^6.0.1"
 importlib-resources = "^6.1.1"
+mock-serial = "^0.0.1"
 
 
 [tool.poetry.group.test.dependencies]
