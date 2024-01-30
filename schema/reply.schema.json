@@ -1,0 +1,80 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://github.com/andylockran/heatmiserv3/message.schema.json",
+    "title": "HeatmiserV3 - Reply schema",
+    "description": "Messaging schema for receiving messages via the heatmiserV3 protocol",
+    "type": "object",
+    "properties": {
+      "destinationAddress": {
+        "description": "Destination Address",
+        "type": "integer",
+        "minimum": 129,
+        "maximum": 160
+      },
+      "frameLengthLow": {
+        "description": "frameLength, crc included. 7 (when write) or 11+n (when read)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "frameLengthHigh": {
+        "description": "frameLength, crc included. 7 (when write) or 11+n (when read)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "sourceAddress": {
+        "description": "The sourceAddress the response is coming from.  Broadcast frame has no reply.",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 32
+      },
+      "functionCode": {
+        "description": "01 = write, 00 = read",
+        "type": "number",
+        "minimum": 00,
+        "maximum": 01
+      },
+      "startAddressLow": {
+        "description": "If function code is 1 (write), no these segments.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "startAddressHigh": {
+        "description": "If function code is 1 (write), no these segments.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "endAddressLow": {
+        "description": "If function code is 1 (write), no these segments.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "endAddressHigh": {
+        "description": "If function code is 1 (write), no these segments.",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "contents": {
+        "description": "Content for reading. ",
+        "type": "array"
+      },
+      "crcLow": {
+        "description": "CRC low bit (crc is not included)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "crcHigh": {
+        "description": "CRC high bit (crc is not included)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      }
+    }
+  }
+  
