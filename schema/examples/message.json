@@ -1,0 +1,10 @@
+{
+    "thermostat": 1,
+    "operation": 10,
+    "sourceAddress": 129,
+    "readFunctionCode": 0,
+    "startAddressLow": 0,
+    "startAddressHigh": 0,
+    "endAddressLow": 255,
+    "endAddressHigh": 255
+}

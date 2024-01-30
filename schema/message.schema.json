@@ -1,0 +1,49 @@
+{
+
+  "$id": "https://github.com/andylockran/heatmiserv3/message.schema.json",
+  "title": "Message",
+  "description": "Messaging schema for sending messages via the heatmiserV3 protocol",
+  "type": "object",
+  "properties": {
+    "thermostat": {
+      "description": "The id of the thermostat",
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 32
+    },
+    "operation": {
+      "description": "Whether read or write.  Read is 10",
+      "type": "integer"
+    },
+    "sourceAddress": {
+      "description": "The sourceAddress the query is coming from",
+      "type": "integer",
+      "minimum": 129,
+      "maximum": 160
+    },
+    "readFunctionCode": {
+      "description": "Not sure",
+      "type": "integer"
+    },
+    "startAddressLow": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "startAddressHigh": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "endAddressLow": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    },
+    "endAddressHigh": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 255
+    }
+  }
+}
