@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "heatmiserv3"
-version = "2.0.2"
+version = "2.0.3"
 description = "A library to interact with Heatmiser Themostats using V3 protocol."
 authors = ["Andy Loughran <andy@lockran.com>"]
 license = "MIT"
