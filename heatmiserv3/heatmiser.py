@@ -100,7 +100,8 @@ class HeatmiserThermostat(object):
         self.address = address
         self.model = model
         try:
-            self.config = yaml.safe_load(config_yml)[model]
+            with open(config_yml) as config_file:
+                self.config = yaml.safe_load(config_file)[model]
         except yaml.YAMLError as exc:
             logging.info("The YAML file is invalid: %s", exc)
         self.conn = uh1.registerThermostat(self)
