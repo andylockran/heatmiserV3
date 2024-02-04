@@ -161,7 +161,9 @@ class HeatmiserThermostat(object):
         badresponse = 0
         if protocol == constants.HMV3_ID:
             checksum = datal[len(datal) - 2:]
+            logging.info(f"Checksum value is: {checksum}")
             rxmsg = datal[: len(datal) - 2]
+            logging.info(f"RXmsg value is: {rxmsg}")
             crc = CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             logging.debug("Expected CRC: %s", expectedchecksum)
@@ -251,8 +253,10 @@ class HeatmiserThermostat(object):
 
     def _hm_send_msg(self, message):
         """This is the only interface to the serial connection."""
+        logging.debug("Sending serial message")
         try:
             serial_message = message
+            logging.debug(f"Writing {serial_message} to serial connection.")
             self.conn.write(serial_message)  # Write a string
         except serial.SerialTimeoutException:
             serror = "Write timeout error: \n"
@@ -261,10 +265,12 @@ class HeatmiserThermostat(object):
         byteread = self.conn.read(159)
         # NB max return is 75 in 5/2 mode or 159 in 7day mode
         datal = list(byteread)
+        logging.debug(f"Received message from serial {datal}")
         return datal
 
     def _hm_send_address(self, thermostat_id, address, state, readwrite):
         protocol = constants.HMV3_ID
+        logging.info("Sending data with protocol 3.")
         if protocol == constants.HMV3_ID:
             payload = [state]
             msg = self._hm_form_message_crc(
@@ -275,21 +281,23 @@ class HeatmiserThermostat(object):
                 address,
                 payload,
             )
+            logging.info(f"Formed payload {msg}")
         else:
             assert 0, "Un-supported protocol found %s" % protocol
         string = bytes(msg)
         datal = self._hm_send_msg(string)
-        pro = protocol
         if readwrite == 1:
+            logging.debug("Verifying write CRC")
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 1, datal
+                0x81, protocol, thermostat_id, readwrite, 1, datal
             )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
             return datal
         else:
+            logging.debug("Verifying read CRC")
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 75, datal
+                0x81, protocol, thermostat_id, readwrite, 75, datal
             )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
@@ -297,7 +305,9 @@ class HeatmiserThermostat(object):
 
     def _hm_read_address(self):
         """Reads from the DCB and maps to yaml config file."""
+        logging.info("Sending read frame")
         response = self._hm_send_address(self.address, 0, 0, 0)
+        logging.debug(response)
         lookup = self.config["keys"]
         offset = self.config["offset"]
         keydata = {}

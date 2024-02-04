@@ -4,6 +4,7 @@ from heatmiserv3 import heatmiser
 from heatmiserv3 import connection
 import logging, sys
 from heatmiserv3.formats import message
+
 logging.basicConfig(
     stream=sys.stdout,
     level=logging.DEBUG,
@@ -52,8 +53,6 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
 
         self.crc = heatmiser.CRC16()
 
-        # self.thermo1 = heatmiser.HeatmiserThermostat(1,"prt", self.HeatmiserUH1)
-
     def test_message_struct_thermo1(self):
         default_message = b'\x01\x0a\x81\x00\x00\x00\xff\xff,\t'
         data = list(default_message)
@@ -79,7 +78,7 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
         logging.debug(data)
         assert data[0] == 2 ## Thermostat is 2
         assert data[1] == 10 ## Read operations
-        assert data[2] == 129 ## Source address
+        assert data[2] == 129 ## Source address (master)
         assert data[3] == 0 ## Read functionCode
         assert data[4] == 0 ## Start Address of DCB
         assert data[5] == 0 ## Start Address of DCB
@@ -90,8 +89,17 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
         assert data[10] == 27 ## CRC low
         assert data[11] == 60 ## CRC high
 
-    # def test_thermo1(self):
-    #     self.thermo1.get_target_temp()
+    def test_response_struct_thermo3(self):
+        response_message = b'\x81K\x00\x03\x00\x00\x00@\x00\x00@\x00\x0f\x02\x00\x02\x01\x00\x00\x00\x01\x00\x00\x00\x14\x00\x0f\x15\x1c\x01\x01\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\xc9\x00\x00\x04\x10\x16\x12\x18\x00\x13\x18\x00\x05\x18\x00\x13\x18\x00\x05\x05\x1e\x17\x16\x00\x14\x18\x00\x10\x18\x00\x10\x84\x9d'
+        data = list(response_message)
+        crc = self.crc.run(data)
+        logging.debug(crc)
+        assert crc == [131,226]
+
+
+    def test_thermo3(self):
+        self.thermo3 = heatmiser.HeatmiserThermostat(3,"prt", self.HeatmiserUH1)
+        self.thermo3.get_target_temp()
 
     def tearDown(self):
         pass
