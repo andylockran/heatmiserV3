@@ -1,5 +1,6 @@
 
-from heatmiserv3 import crc16
+from heatmiserv3 import crc16, constants, connection
+import serial
 from mock_serial import MockSerial
 import logging, sys        
 
@@ -10,8 +11,18 @@ logging.basicConfig(
     format="%(levelname)s - %(message)s"
 )
 
+
 MockSerialThermostat = MockSerial()
 MockSerialThermostat.open()
+device = MockSerialThermostat
+serialport = serial.Serial(device.port)
+# self.serialport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
+### Serial Connection Settings
+serialport.baudrate = constants.COM_BAUD
+serialport.bytesize = constants.COM_SIZE
+serialport.parity = constants.COM_PARITY
+serialport.stopbits = constants.COM_STOP
+serialport.timeout = constants.COM_TIMEOUT
 
 
 
@@ -64,3 +75,5 @@ MockSerialThermostat.stub(
     receive_bytes=b'\x03\n\x81\x00\x00\x00\xff\xff\x8a\x86',
     send_bytes=interpret_message_generate_response(b'\x03\n\x81\x00\x00\x00\xff\xff,\t,\xd4\x8d')
 )
+
+MockUH1 = connection.HeatmiserUH1(serialport)

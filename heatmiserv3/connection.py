@@ -1,8 +1,5 @@
 """This module is effectively a singleton for serial comms"""
-import serial
 import logging
-from . import constants
-from heatmiserv3 import heatmiser
 logging.basicConfig(level=logging.INFO)
 
 

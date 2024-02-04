@@ -26,9 +26,8 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
 
     def test_thermo1_temperature(self):
         """ Initialises the thermo1 thermostat, and checks the temperature is at 21*C"""
-        thermo1 = heatmiser.HeatmiserThermostat(1, self.uh1)
-        assert thermo1.dcb[18]['label'] == 'Set room temp'
-        assert thermo1.dcb[18]['value'] == 21
+        thermo1 = heatmiser.HeatmiserThermostatPRT(1, self.uh1)
+        assert thermo1.get_target_temp() == 21
 
     def tearDown(self):
         pass

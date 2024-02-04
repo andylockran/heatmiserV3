@@ -19,11 +19,11 @@ logging.basicConfig(level=logging.INFO)
 class HeatmiserThermostat(object):
     """Initialises a heatmiser thermostat, by taking an address and model."""
     
-    def __init__(self, address, model, uh1):
+    def __init__(self, address, uh1):
         self.address = address
-        self.model = model
+        self.model = "prt" 
         try:
-            self.config = yaml.safe_load(config_yml)[model]
+            self.config = yaml.safe_load(config_yml)[self.model]
         except yaml.YAMLError as exc:
             logging.info("The YAML file is invalid: %s", exc)
         self.conn = uh1.serialport
@@ -340,6 +340,8 @@ class HeatmiserThermostatPRT(HeatmiserThermostat):
             return False
         else:
             self._hm_send_address(self.address, 18, temperature, 1)
+            self.read_dcb()
+            assert self.get_target_temp() == temperature
             return True
 
     def set_floormax_temp(self, floor_max):
