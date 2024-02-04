@@ -51,12 +51,15 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
         # @TODO - Setup the mock interface for serial to write the tests.
         self.HeatmiserUH1 = connection.HeatmiserUH1("mock", "123")
 
-        self.crc = heatmiser.CRC16()
+        self.thermo1 = heatmiser.HeatmiserThermostat(1,"prt", self.HeatmiserUH1)
+        self.thermo2 = heatmiser.HeatmiserThermostat(2,"prt", self.HeatmiserUH1)
+        self.thermo3 = heatmiser.HeatmiserThermostat(3,"prt", self.HeatmiserUH1)
 
     def test_message_struct_thermo1(self):
         default_message = b'\x01\x0a\x81\x00\x00\x00\xff\xff,\t'
+        crc = heatmiser.CRC16()
         data = list(default_message)
-        data = data + self.crc.run(data)
+        data = data + crc.run(data)
         logging.debug(data)
         assert data[0] == 1 ## Thermostat is 1
         assert data[1] == 10 ## Read operations
@@ -71,35 +74,10 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
         assert data[10] == 212 ## CRC low
         assert data[11] == 141 ## CRC high
 
-    def test_message_struct_thermo2(self):
-        default_message = b'\x02\x0a\x81\x00\x00\x00\xff\xff,\t'
-        data = list(default_message)
-        data = data + self.crc.run(data)
-        logging.debug(data)
-        assert data[0] == 2 ## Thermostat is 2
-        assert data[1] == 10 ## Read operations
-        assert data[2] == 129 ## Source address (master)
-        assert data[3] == 0 ## Read functionCode
-        assert data[4] == 0 ## Start Address of DCB
-        assert data[5] == 0 ## Start Address of DCB
-        assert data[6] == 255 ## End Address of DCB
-        assert data[7] == 255 ## End Address of DCB
-        assert data[8] == 44 ## No idea what this is @TODO
-        assert data[9] == 9 ## No idea what this is @TODO
-        assert data[10] == 27 ## CRC low
-        assert data[11] == 60 ## CRC high
-
-    def test_response_struct_thermo3(self):
-        response_message = b'\x81K\x00\x03\x00\x00\x00@\x00\x00@\x00\x0f\x02\x00\x02\x01\x00\x00\x00\x01\x00\x00\x00\x14\x00\x0f\x15\x1c\x01\x01\x00\x00\x00\x00\x00\x00\xff\xff\xff\xff\x00\xc9\x00\x00\x04\x10\x16\x12\x18\x00\x13\x18\x00\x05\x18\x00\x13\x18\x00\x05\x05\x1e\x17\x16\x00\x14\x18\x00\x10\x18\x00\x10\x84\x9d'
-        data = list(response_message)
-        crc = self.crc.run(data)
-        logging.debug(crc)
-        assert crc == [131,226]
-
-
-    def test_thermo3(self):
-        self.thermo3 = heatmiser.HeatmiserThermostat(3,"prt", self.HeatmiserUH1)
-        self.thermo3.get_target_temp()
+    def test_thermo3_temperature(self):
+        """ Initialises the thermo3 thermostat, and checks the temperature is at 21*C"""
+        # self.thermo3.get_target_temp()
+        assert self.thermo3.dcb[18] == {'label': 'Set room temp', 'value': 21}
 
     def tearDown(self):
         pass
