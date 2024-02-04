@@ -11,36 +11,6 @@ logging.basicConfig(
     format="%(levelname)s - %(message)s"
 )
 
-class TestCRCMethods(unittest.TestCase):
-    """Tests for the CRC Methods"""
-
-    def test_crc16(self):
-        """Test that CRC matches"""
-        crc = heatmiser.CRC16()
-        assert crc.high == crc.low
-
-    def test_update_4_bits(self):
-        """Updating 4 bits"""
-        crc = heatmiser.CRC16()
-        assert crc.high == crc.low
-        crc.extract_bits(4)
-        assert crc.high == 78
-        assert crc.low == 155
-    
-    def test_update_8_bits(self):
-        crc = heatmiser.CRC16()
-        assert crc.high == crc.low
-        crc.extract_bits(8)
-        assert crc.high == 143
-        assert crc.low == 23
-
-    def test_crc16_update(self):
-        """check that updates work with other numbers"""
-        crc = heatmiser.CRC16()
-        crc.update(4)
-        assert crc.high == 161
-        assert crc.low == 116
-
 
 class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
     """
@@ -57,7 +27,7 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
 
     def test_message_struct_thermo1(self):
         default_message = b'\x01\x0a\x81\x00\x00\x00\xff\xff,\t'
-        crc = heatmiser.CRC16()
+        crc = crc16.CRC16()
         data = list(default_message)
         data = data + crc.run(data)
         logging.debug(data)

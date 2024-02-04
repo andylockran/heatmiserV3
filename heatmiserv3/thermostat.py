@@ -1,8 +1,8 @@
 
-from heatmiserv3.heatmiser import CRC16
+from heatmiserv3 import crc16
 from mock_serial import MockSerial
 import logging, sys        
-from . import constants
+
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -20,7 +20,7 @@ def interpret_message_generate_response(message):
     Calculates the CRC of the message 
     """
     logging.info("Processing mock message.")
-    crc = CRC16()
+    crc = crc16.CRC16()
     logging.debug(f"Generating response to ${message}")
     response=bytearray(73)
     logging.debug(type(response))
