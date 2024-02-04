@@ -3,7 +3,6 @@ import serial
 import logging
 from . import constants
 from heatmiserv3 import heatmiser
-from heatmiserv3.thermostat import MockSerialThermostat
 logging.basicConfig(level=logging.INFO)
 
 
@@ -13,32 +12,23 @@ class HeatmiserUH1(object):
     connection, and can have multiple thermostats
     """
 
-    def __init__(self, ipaddress, port):
-        self.thermostats = {}
-        if ipaddress == "mock":
-            device = MockSerialThermostat
-            self.serialport = serial.Serial(device.port)
-        else:
-            self.serialport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
+    def __init__(self, serialport):
+        
+        self.serialport = serialport
         # Ensures that the serial port has not
         # been left hanging around by a previous process.
         self.serialport.close()
-        
-        ### Serial Connection Settings
-        self.serialport.baudrate = constants.COM_BAUD
-        self.serialport.bytesize = constants.COM_SIZE
-        self.serialport.parity = constants.COM_PARITY
-        self.serialport.stopbits = constants.COM_STOP
-        self.serialport.timeout = constants.COM_TIMEOUT
         self._open()
 
     def _open(self):
         if not self.serialport.is_open:
             logging.info("Opening serial port.")
             self.serialport.open()
-            self.status = True
         else:
             logging.info("Attempting to access already open port")
+        
+    def reopen(self):
+        self.serialport.open()
 
     def __del__(self):
         logging.info("Closing serial port.")
