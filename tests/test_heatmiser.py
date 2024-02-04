@@ -22,9 +22,9 @@ class TestHeatmiserPRTThermostatMethods(unittest.TestCase):
         # @TODO - Setup the mock interface for serial to write the tests.
         self.HeatmiserUH1 = connection.HeatmiserUH1("mock", "123")
 
-        self.thermo1 = heatmiser.HeatmiserThermostat(1,"prt", self.HeatmiserUH1)
-        self.thermo2 = heatmiser.HeatmiserThermostat(2,"prt", self.HeatmiserUH1)
-        self.thermo3 = heatmiser.HeatmiserThermostat(3,"prt", self.HeatmiserUH1)
+        self.thermo1 = heatmiser.HeatmiserThermostatPRT(1,"prt", self.HeatmiserUH1)
+        self.thermo2 = heatmiser.HeatmiserThermostatPRT(2,"prt", self.HeatmiserUH1)
+        self.thermo3 = heatmiser.HeatmiserThermostatPRT(3,"prt", self.HeatmiserUH1)
 
 
     def test_thermo1_temperature(self):

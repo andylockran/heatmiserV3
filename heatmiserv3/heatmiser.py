@@ -26,7 +26,7 @@ class HeatmiserThermostat(object):
             self.config = yaml.safe_load(config_yml)[model]
         except yaml.YAMLError as exc:
             logging.info("The YAML file is invalid: %s", exc)
-        self.conn = uh1.registerThermostat(self)
+        self.conn = uh1.serialport
         self.dcb = ""
         self.read_dcb()
 
@@ -251,6 +251,8 @@ class HeatmiserThermostat(object):
         self.dcb = self._hm_read_address()
         return self.dcb
 
+
+class HeatmiserThermostatPRT(HeatmiserThermostat):
     def get_frost_temp(self):
         """
         Returns the temperature
