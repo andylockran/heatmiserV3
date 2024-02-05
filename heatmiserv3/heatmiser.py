@@ -8,103 +8,25 @@ import yaml
 import logging
 from . import constants
 import importlib_resources
+from . import crc16
 
-config_yml = importlib_resources.files('heatmiserv3').joinpath('config.yml')
+config_yml = importlib_resources.files('heatmiserv3').joinpath('config.yml').read_bytes()
 
 
 logging.basicConfig(level=logging.INFO)
 
-#
-# Believe this is known as CCITT (0xFFFF)
-# This is the CRC function converted directly from the Heatmiser C code
-# provided in their API
-
-
-class CRC16:
-    """This is the CRC hashing mechanism used by the V3 protocol."""
-
-    LookupHigh = [
-        0x00,
-        0x10,
-        0x20,
-        0x30,
-        0x40,
-        0x50,
-        0x60,
-        0x70,
-        0x81,
-        0x91,
-        0xA1,
-        0xB1,
-        0xC1,
-        0xD1,
-        0xE1,
-        0xF1,
-    ]
-    LookupLow = [
-        0x00,
-        0x21,
-        0x42,
-        0x63,
-        0x84,
-        0xA5,
-        0xC6,
-        0xE7,
-        0x08,
-        0x29,
-        0x4A,
-        0x6B,
-        0x8C,
-        0xAD,
-        0xCE,
-        0xEF,
-    ]
-
-    def __init__(self):
-        self.high = constants.BYTEMASK
-        self.low = constants.BYTEMASK
-
-    def extract_bits(self, val):
-        """Extras the 4 bits, XORS the message data, and does table lookups."""
-        # Step one, extract the Most significant 4 bits of the CRC register
-        thisval = self.high >> 4
-        # XOR in the Message Data into the extracted bits
-        thisval = thisval ^ val
-        # Shift the CRC Register left 4 bits
-        self.high = (self.high << 4) | (self.low >> 4)
-        self.high = self.high & constants.BYTEMASK  # force char
-        self.low = self.low << 4
-        self.low = self.low & constants.BYTEMASK  # force char
-        # Do the table lookups and XOR the result into the CRC tables
-        self.high = self.high ^ self.LookupHigh[thisval]
-        self.high = self.high & constants.BYTEMASK  # force char
-        self.low = self.low ^ self.LookupLow[thisval]
-        self.low = self.low & constants.BYTEMASK  # force char
-
-    def update(self, val):
-        """Updates the CRC value using bitwise operations."""
-        self.extract_bits(val >> 4)  # High nibble first
-        self.extract_bits(val & 0x0F)  # Low nibble
-
-    def run(self, message):
-        """Calculates a CRC"""
-        for value in message:
-            self.update(value)
-        return [self.low, self.high]
-
 
 class HeatmiserThermostat(object):
     """Initialises a heatmiser thermostat, by taking an address and model."""
-
-    def __init__(self, address, model, uh1):
+    
+    def __init__(self, address, uh1):
         self.address = address
-        self.model = model
+        self.model = "prt" 
         try:
-            with open(config_yml) as config_file:
-                self.config = yaml.safe_load(config_file)[model]
+            self.config = yaml.safe_load(config_yml)[self.model]
         except yaml.YAMLError as exc:
             logging.info("The YAML file is invalid: %s", exc)
-        self.conn = uh1.registerThermostat(self)
+        self.conn = uh1.serialport
         self.dcb = ""
         self.read_dcb()
 
@@ -135,6 +57,7 @@ class HeatmiserThermostat(object):
             ]
             if function == constants.FUNC_WRITE:
                 msg = msg + payload
+                logging.debug("msg is of type, %s", type(msg))
                 type(msg)
             return msg
         else:
@@ -147,7 +70,7 @@ class HeatmiserThermostat(object):
         data = self._hm_form_message(
             thermostat_id, protocol, source, function, start, payload
         )
-        crc = CRC16()
+        crc = crc16.CRC16()
         data = data + crc.run(data)
         return data
 
@@ -160,9 +83,13 @@ class HeatmiserThermostat(object):
         badresponse = 0
         if protocol == constants.HMV3_ID:
             checksum = datal[len(datal) - 2:]
+            logging.info(f"Checksum value is: {checksum}")
             rxmsg = datal[: len(datal) - 2]
-            crc = CRC16()  # Initialises the CRC
+            logging.info(f"RXmsg value is: {rxmsg}")
+            crc = crc16.CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
+            logging.debug("Expected CRC: %s", expectedchecksum)
+            logging.debug("Actual CRC: %s", checksum)
             if expectedchecksum == checksum:
                 logging.info("CRC is correct")
             else:
@@ -248,8 +175,10 @@ class HeatmiserThermostat(object):
 
     def _hm_send_msg(self, message):
         """This is the only interface to the serial connection."""
+        logging.debug("Sending serial message")
         try:
             serial_message = message
+            logging.debug(f"Writing {serial_message} to serial connection.")
             self.conn.write(serial_message)  # Write a string
         except serial.SerialTimeoutException:
             serror = "Write timeout error: \n"
@@ -258,10 +187,12 @@ class HeatmiserThermostat(object):
         byteread = self.conn.read(159)
         # NB max return is 75 in 5/2 mode or 159 in 7day mode
         datal = list(byteread)
+        logging.debug(f"Received message from serial {datal}")
         return datal
 
     def _hm_send_address(self, thermostat_id, address, state, readwrite):
         protocol = constants.HMV3_ID
+        logging.info("Sending data with protocol 3.")
         if protocol == constants.HMV3_ID:
             payload = [state]
             msg = self._hm_form_message_crc(
@@ -272,21 +203,23 @@ class HeatmiserThermostat(object):
                 address,
                 payload,
             )
+            logging.info(f"Formed payload {msg}")
         else:
             assert 0, "Un-supported protocol found %s" % protocol
         string = bytes(msg)
         datal = self._hm_send_msg(string)
-        pro = protocol
         if readwrite == 1:
+            logging.debug("Verifying write CRC")
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 1, datal
+                0x81, protocol, thermostat_id, readwrite, 1, datal
             )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
             return datal
         else:
+            logging.debug("Verifying read CRC")
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 75, datal
+                0x81, protocol, thermostat_id, readwrite, 75, datal
             )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
@@ -294,18 +227,21 @@ class HeatmiserThermostat(object):
 
     def _hm_read_address(self):
         """Reads from the DCB and maps to yaml config file."""
+        logging.info("Sending read frame")
         response = self._hm_send_address(self.address, 0, 0, 0)
-        lookup = self.config["keys"]
-        offset = self.config["offset"]
-        keydata = {}
-        for i in lookup:
-            try:
-                kdata = lookup[i]
-                ddata = response[i + offset]
-                keydata[i] = {"label": kdata, "value": ddata}
-            except IndexError:
-                logging.info("Finished processing at %d", i)
-        return keydata
+        logging.debug(response)
+        return response
+        # lookup = self.config["keys"]
+        # offset = self.config["offset"]
+        # keydata = {}
+        # for i in lookup:
+        #     try:
+        #         kdata = lookup[i]
+        #         ddata = response[i + offset]
+        #         keydata[i] = {"label": kdata, "value": ddata}
+        #     except IndexError:
+        #         logging.info("Finished processing at %d", i)
+        # return keydata
 
     def read_dcb(self):
         """
@@ -316,42 +252,44 @@ class HeatmiserThermostat(object):
         self.dcb = self._hm_read_address()
         return self.dcb
 
+
+class HeatmiserThermostatPRT(HeatmiserThermostat):
     def get_frost_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[17]["value"]
+        return self.dcb[17]
 
     def get_target_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[18]["value"]
+        return self.dcb[18]
 
     def get_floormax_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[19]["value"]
+        return self.dcb[19]
 
     def get_status(self):
-        return self._hm_read_address()[21]["value"]
+        return self.dcb[21]
 
     def get_heating(self):
-        return self._hm_read_address()[23]["value"]
+        return self.dcb[23]
 
     def get_thermostat_id(self):
-        return self.dcb[11]["value"]
+        return self.dcb[11]
 
     def get_temperature_format(self):
-        temp_format = self.dcb[5]["value"]
+        temp_format = self.dcb[5]
         if temp_format == 00:
             return "C"
         else:
             return "F"
 
     def get_sensor_selection(self):
-        sensor = self.dcb[13]["value"]
+        sensor = self.dcb[13]
         answers = {
             0: "Built in air sensor",
             1: "Remote air sensor",
@@ -362,7 +300,7 @@ class HeatmiserThermostat(object):
         return answers[sensor]
 
     def get_program_mode(self):
-        mode = self.dcb[16]["value"]
+        mode = self.dcb[16]
         modes = {0: "5/2 mode", 1: "7 day mode"}
         return modes[mode]
 
@@ -371,16 +309,16 @@ class HeatmiserThermostat(object):
 
     def get_floor_temp(self):
         return (
-            (self.dcb[31]["value"] / 10)
-            if (int(self.dcb[13]["value"]) > 1)
-            else (self.dcb[33]["value"] / 10)
+            (self.dcb[31] / 10)
+            if (int(self.dcb[13]) > 1)
+            else (self.dcb[33] / 10)
         )
 
     def get_sensor_error(self):
-        return self.dcb[34]["value"]
+        return self.dcb[34]
 
     def get_current_state(self):
-        return self.dcb[35]["value"]
+        return self.dcb[35]
 
     def set_frost_protect_mode(self, onoff):
         self._hm_send_address(self.address, 23, onoff, 1)
@@ -403,6 +341,8 @@ class HeatmiserThermostat(object):
             return False
         else:
             self._hm_send_address(self.address, 18, temperature, 1)
+            self.read_dcb()
+            assert self.get_target_temp() == temperature
             return True
 
     def set_floormax_temp(self, floor_max):

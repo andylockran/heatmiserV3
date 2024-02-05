@@ -7,12 +7,13 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 appdirs = "^1.4.4"
 pyserial = "^3.5"
 pyserial-asyncio = "^0.6"
 pyyaml = "^6.0.1"
 importlib-resources = "^6.1.1"
+mock-serial = "^0.0.1"
 
 
 [tool.poetry.group.test.dependencies]
@@ -20,6 +21,7 @@ flake8 = "^7.0.0"
 pytest = "^8.0.0"
 pytest-cov = "^4.1.0"
 mock = "^5.1.0"
+ipython = "^8.21.0"
 
 [build-system]
 requires = ["poetry-core"]

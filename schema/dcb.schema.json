@@ -1,0 +1,68 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "$id": "https://github.com/andylockran/heatmiserv3/schema/message.schema.json",
+    "title": "HeatmiserV3 - Message schema",
+    "description": "Messaging schema for sending messages via the heatmiserV3 protocol",
+    "type": "object",
+    "properties": {
+      "destinationAddress": {
+        "description": "Destination Address",
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 32
+      },
+      "frameLength": {
+        "description": "frameLength, crc included. 10 (when read) or n+10 (when write)",
+        "type": "integer"
+      },
+      "sourceAddress": {
+        "description": "The sourceAddress the query is coming from",
+        "type": "integer",
+        "minimum": 129,
+        "maximum": 160
+      },
+      "functionCode": {
+        "description": "1 = write, 0 = read",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "startAddressLow": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "startAddressHigh": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "endAddressLow": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "endAddressHigh": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "contents": {
+        "description": "Content to be written (n bytes).  If function code is 0, no this segment.",
+        "type": "array"
+      },
+      "crcLow": {
+        "description": "CRC low bit (crc is not included)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      },
+      "crcHigh": {
+        "description": "CRC high bit (crc is not included)",
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 255
+      }
+    }
+  }
+  

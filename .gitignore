@@ -16,3 +16,4 @@ test.py
 build/
 dist/
 .pytest_cache/v/cache/lastfailed
+coverage.xml
