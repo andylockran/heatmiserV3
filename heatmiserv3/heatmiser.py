@@ -230,17 +230,18 @@ class HeatmiserThermostat(object):
         logging.info("Sending read frame")
         response = self._hm_send_address(self.address, 0, 0, 0)
         logging.debug(response)
-        lookup = self.config["keys"]
-        offset = self.config["offset"]
-        keydata = {}
-        for i in lookup:
-            try:
-                kdata = lookup[i]
-                ddata = response[i + offset]
-                keydata[i] = {"label": kdata, "value": ddata}
-            except IndexError:
-                logging.info("Finished processing at %d", i)
-        return keydata
+        return response
+        # lookup = self.config["keys"]
+        # offset = self.config["offset"]
+        # keydata = {}
+        # for i in lookup:
+        #     try:
+        #         kdata = lookup[i]
+        #         ddata = response[i + offset]
+        #         keydata[i] = {"label": kdata, "value": ddata}
+        #     except IndexError:
+        #         logging.info("Finished processing at %d", i)
+        # return keydata
 
     def read_dcb(self):
         """
@@ -257,38 +258,38 @@ class HeatmiserThermostatPRT(HeatmiserThermostat):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[17]["value"]
+        return self.dcb[17]
 
     def get_target_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[18]["value"]
+        return self.dcb[18]
 
     def get_floormax_temp(self):
         """
         Returns the temperature
         """
-        return self._hm_read_address()[19]["value"]
+        return self.dcb[19]
 
     def get_status(self):
-        return self._hm_read_address()[21]["value"]
+        return self.dcb[21]
 
     def get_heating(self):
-        return self._hm_read_address()[23]["value"]
+        return self.dcb[23]
 
     def get_thermostat_id(self):
-        return self.dcb[11]["value"]
+        return self.dcb[11]
 
     def get_temperature_format(self):
-        temp_format = self.dcb[5]["value"]
+        temp_format = self.dcb[5]
         if temp_format == 00:
             return "C"
         else:
             return "F"
 
     def get_sensor_selection(self):
-        sensor = self.dcb[13]["value"]
+        sensor = self.dcb[13]
         answers = {
             0: "Built in air sensor",
             1: "Remote air sensor",
@@ -299,7 +300,7 @@ class HeatmiserThermostatPRT(HeatmiserThermostat):
         return answers[sensor]
 
     def get_program_mode(self):
-        mode = self.dcb[16]["value"]
+        mode = self.dcb[16]
         modes = {0: "5/2 mode", 1: "7 day mode"}
         return modes[mode]
 
@@ -308,16 +309,16 @@ class HeatmiserThermostatPRT(HeatmiserThermostat):
 
     def get_floor_temp(self):
         return (
-            (self.dcb[31]["value"] / 10)
-            if (int(self.dcb[13]["value"]) > 1)
-            else (self.dcb[33]["value"] / 10)
+            (self.dcb[31] / 10)
+            if (int(self.dcb[13]) > 1)
+            else (self.dcb[33] / 10)
         )
 
     def get_sensor_error(self):
-        return self.dcb[34]["value"]
+        return self.dcb[34]
 
     def get_current_state(self):
-        return self.dcb[35]["value"]
+        return self.dcb[35]
 
     def set_frost_protect_mode(self, onoff):
         self._hm_send_address(self.address, 23, onoff, 1)

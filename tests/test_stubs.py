@@ -6,7 +6,7 @@ from heatmiserv3 import crc16
 import logging, sys
 from heatmiserv3.formats import message
 
-from .serial_stubs import MockUH1
+from .serial_stubs import MockUH1, MockHeatmiserPRT
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -15,7 +15,7 @@ logging.basicConfig(
 )
 
 
-class TestHeatmiserThermostatMethods(unittest.TestCase):
+class TestStubs(unittest.TestCase):
     """
     This test case tests the PRT Thermostat in 5/2 mode, where there are 64 bytes of information
     """
@@ -23,11 +23,17 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
     def setUp(self):
         # @TODO - Setup the mock interface for serial to write the tests.
         self.uh1 = MockUH1
+        self.thermo1 = MockHeatmiserPRT(1, self.uh1)
 
-    def test_thermo1_temperature(self):
+    def test_thermo1_get_target_temperature(self):
         """ Initialises the thermo1 thermostat, and checks the temperature is at 21*C"""
-        thermo1 = heatmiser.HeatmiserThermostat(1, self.uh1)
-        assert type(thermo1.dcb) == list
+        assert self.thermo1.get_target_temp() == 21
+
+    # def test_thermo1_set_target_temperature(self):
+    #     """ Initialises the thermo1 thermostat, and checks the temperature is at 21*C"""
+    #     self.thermo1.set_target_temp(22)
+    #     assert self.thermo1.get_target_temp() == 22
+
 
     def tearDown(self):
         pass

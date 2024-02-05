@@ -6,7 +6,7 @@ logging.basicConfig(level=logging.INFO)
 class HeatmiserUH1(object):
     """
     Represents the UH1 interface that holds the serial
-    connection, and can have multiple thermostats
+    connection, and can manage up to 32 devices.
     """
 
     def __init__(self, serialport):
