@@ -83,7 +83,7 @@ class MockHeatmiserPRT(heatmiser.HeatmiserThermostatPRT):
         else:
             logging.debug(data[3])
             logging.error("Cannot process message")
-            exit(1)
+            raise Exception("Invalid functionCode, must be 1 or 0 for write or read.")
 
 
 MockSerialPort = MockSerial()
