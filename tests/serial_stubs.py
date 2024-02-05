@@ -13,6 +13,11 @@ logging.basicConfig(
 )
 
 class MockHeatmiserPRT(heatmiser.HeatmiserThermostatPRT):
+    """
+    This is a mock of the PRT Thermostat in 64 bit mode (5/2 day programming mode)
+
+    If you need this to work with the 7 day programming mode, it'll need some more work.
+    """
     def __init__(self, address, uh1):
         super(MockHeatmiserPRT, self).__init__(address, uh1)
         self.dcb = bytearray([0,64,0,15,2,0,2,1,0,0,0,1,0,0,0,20,0,15,21,28,1,1,0,0,0,0,0,0,255,255,255,255,0,201,0,0,4,16,22,18,24,0,19,24,0,5,24,0,19,24,0,5,5,30,23,22,0,20,24,0,16,24,0,16])
