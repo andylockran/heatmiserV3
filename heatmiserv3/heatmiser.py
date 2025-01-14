@@ -366,8 +366,13 @@ class HeatmiserThermostat(object):
         modes = {0: "5/2 mode", 1: "7 day mode"}
         return modes[mode]
 
-    def get_frost_protection(self):
-        pass
+    def get_frost_protection(self) -> bool:
+        """
+        Return whether frost protection mode is enabled.
+        This is represented by the snowflake icon and is
+        the same as on/off
+        """
+        return bool(self._hm_read_address()[23]["value"])
 
     def get_floor_temp(self):
         return (
