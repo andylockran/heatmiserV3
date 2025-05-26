@@ -1,6 +1,7 @@
 # heatmiserv3
 
-[!CAUTION]
+> [!CAUTION]
+>```
 Unfortunately having lost access to the physical thermostats a few years ago, I can now no longer maintain this project.
 If you fancy taking the maintenance off my hands, please get in touch and I'll setup an org to host the package, and migrate
 the pypi ownership to the org. 
