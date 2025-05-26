@@ -1,5 +1,11 @@
 # heatmiserv3
 
+> [!CAUTION]
+> Unfortunately having lost access to the physical thermostats a few years ago, I can now no longer maintain this project.
+
+If you fancy taking the maintenance off my hands, please get in touch and I'll setup an org to host the package, and migrate
+the pypi ownership to the org. 
+
 [![Build Status](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml)
 
 This library has been created from the work carried out by 
