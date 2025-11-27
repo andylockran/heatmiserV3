@@ -10,7 +10,6 @@ readme = "README.md"
 python = "^3.9"
 appdirs = "^1.4.4"
 pyserial = "^3.5"
-pyserial-asyncio = "^0.6"
 pyyaml = "^6.0.1"
 importlib-resources = "^6.1.1"
 
