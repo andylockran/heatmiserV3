@@ -1,4 +1,5 @@
 """Setuptools file for the repo"""
+
 from setuptools import setup
 
 setup(
@@ -14,7 +15,7 @@ setup(
     keywords=["v3", "thermostat", "heatmiser", "prt", "serial", "uh1"],
     test_suite="tests.test_heatmiser",
     classifiers=[],
-    install_requires=["pyserial", "pyserial-asyncio", "pyyaml", "mock"],
+    install_requires=["pyserial", "pyyaml", "mock"],
     extras_require={
         "testing": ["pytest"],
     },
