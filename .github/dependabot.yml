@@ -10,7 +10,7 @@ updates:
   #   versions:
   #   - 6.2.2
 - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      # Check for updates to GitHub Actions every week
-      interval: "weekly"
+  directory: "/"
+  schedule:
+    # Check for updates to GitHub Actions every week
+    interval: "weekly"
