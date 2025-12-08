@@ -49,20 +49,12 @@ class FakeUH1:
 
 @pytest.fixture
 def fake_uh1():
-    # Default payload: zeroed list so tests can set explicit values if needed
-    payload = [0] * 64
-    # Set some sensible defaults used in tests
-    payload[5] = 0   # temperature format -> Celsius
-    payload[11] = 99  # thermostat id value
-    payload[13] = 2   # sensor selection -> floor sensor
-    payload[17] = 42  # frost protect temp
-    payload[18] = 210 # set room temp (21.0)
-    # use byte-sized values (<256)
-    payload[19] = 200 # floor max raw value (e.g. 20.0 represented as 200)
-    payload[31] = 235 # floor temp raw (23.5)
-    payload[33] = 180 # built in air temp (18.0)
-    payload[34] = 0   # sensor error
-    payload[35] = 1   # current state
+    # Default payload: use deterministic values 0..63
+    payload = list(range(64))
+    # Override indexes that must fall into expected ranges for getters
+    payload[5] = 0    # temperature format -> Celsius (0)
+    payload[13] = 2   # sensor selection -> floor sensor (2)
+    payload[16] = 1   # program mode -> 7 day mode (1)
     return FakeUH1(payload=payload)
 
 
