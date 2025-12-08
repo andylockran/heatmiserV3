@@ -65,7 +65,7 @@ def test_dcb_index_has_expected_default(thermostat, index, expected, comment):
     On failure the message includes the PDF comment so it's clear which
     protocol field is being tested and what it represents.
     """
-    cfg_keys = thermostat.config["keys"]
+    cfg_keys = thermostat.config["meta"]
     assert index in thermostat.dcb, f"DCB index {index} missing ({comment})"
     label = thermostat.dcb[index]["label"]
     # Label should equal the config label (human-friendly name)
@@ -104,7 +104,7 @@ def test_dcb_index_has_expected_default(thermostat, index, expected):
     `tests/conftest.py` (deterministic 0..63 mapping with a few overrides).
     The test failure message shows the index and the label from `config.yml`.
     """
-    cfg_keys = thermostat.config["keys"]
+    cfg_keys = thermostat.config["meta"]
     assert index in thermostat.dcb, f"DCB index {index} missing"
     label = thermostat.dcb[index]["label"]
     # Ensure label matches config

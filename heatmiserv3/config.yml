@@ -1,68 +1,172 @@
-prt:
+defaults: &defaults
   offset: 9
-  keys:
-    0: High 8 bit
-    1: Low 8 bit
-    2: Vendor ID
-    3: 0-6 bits = Version, bit 7 = floor limit state.
-    4: Model
-    5: Temperature format
-    6: Switch Differential
-    7: Frost Protection Mode
-    8: Calibration - high 8 bit
-    9: Calibration - low 8 bit
-    10: Output delay
-    11: Address
-    12: Up down key limit
-    13: Sensor Selection
-    14: Optimum start
-    15: Rate of change
-    16: Program mode
-    17: Frost protect temp
-    18: Set room temp
-    19: Floor max limit
-    20: Floor max limit enable/disable
-    21: On/off
-    22: Key lock
-    23: Run mode
-    24: Holiday hours
-    25: Holiday hours
-    26: Temp hold mins
-    27: Temp hold mins
-    28: Remote air temp
-    29: Remote air temp
-    30: Floor temp
-    31: Floor temp
-    32: Built in air temp
-    33: Built in air temp
-    34: Error code
-    35: Current state
-    36: Week 1~7
-    37: Hour
-    38: Min
-    39: Sec
-    40: Weekday
-    41: Weekday
-    42: Weekday
-    43: Weekday
-    44: Weekday
-    45: Weekday
-    46: Weekday
-    47: Weekday
-    48: Weekday
-    49: Weekday
-    50: Weekday
-    51: Weekday
-    52: Weekend
-    53: Weekend
-    54: Weekend
-    55: Weekend
-    56: Weekend
-    57: Weekend
-    58: Weekend
-    59: Weekend
-    60: Weekend
-    61: Weekend
-    62: Weekend
-    63: Weekend
-  Responses:
+  meta:
+    0:
+      name: "High 8 bit"
+      comment: "DCB length in byte, high 8 bit"
+      default: 0
+    1:
+      name: "Low 8 bit"
+      comment: "DCB length in byte, low 8 bit"
+      default: 0
+    2:
+      name: "Vendor ID"
+      comment: "Vendor ID (00=HEATMISER, 01=OEM)"
+      default: 0
+    3:
+      name: "Version / flags"
+      comment: "Bit0~6=Version, bit7=floor limit status"
+      default: 0
+    4:
+      name: "Model"
+      comment: "Model (DT/DT-E/PRT/PRT-E) (00/01/02/03)"
+      default: 2
+    5:
+      name: "Temperature format"
+      comment: "Temperature format (00=C, 01=F)"
+      default: 0
+    6:
+      name: "Switch Differential"
+      comment: "Switch differential [1,3]"
+      default: 1
+    7:
+      name: "Frost Protection Mode"
+      comment: "Frost protection disable/enable (0=disable,1=enable)"
+      default: 1
+    8:
+      name: "Calibration - high 8 bit"
+      comment: "Calibration offset, high 8 bit"
+      default: 0
+    9:
+      name: "Calibration - low 8 bit"
+      comment: "Calibration offset, low 8 bit"
+      default: 0
+    10:
+      name: "Output delay"
+      comment: "Output delay [0,15] minutes"
+      default: 0
+    11:
+      name: "Address"
+      comment: "Address [1,32]"
+      default: 0
+    12:
+      name: "Up down key limit"
+      comment: "Up/down key limit [0,10]"
+      default: 0
+    13:
+      name: "Sensor Selection"
+      comment: "Sensor selection (00=built-in,01=remote,02=floor,03=built-in+floor,04=remote+floor)"
+      default: 0
+    14:
+      name: "Optimum start"
+      comment: "Optimum start [0,3]"
+      default: 0
+    15:
+      name: "Rate of change"
+      comment: "Rate of change"
+      default: 20
+    16:
+      name: "Program mode"
+      comment: "Program mode (00=5/2,01=7 day)"
+      default: 0
+    17:
+      name: "Frost protect temp"
+      comment: "Frost protect temperature [7,17]"
+      default: 12
+    18:
+      name: "Set room temp"
+      comment: "Set room temp [5,35]"
+      default: 16
+    19:
+      name: "Floor max limit"
+      comment: "Floor max limit [20,45]"
+      default: 28
+    20:
+      name: "Floor max limit enable/disable"
+      comment: "Floor max limit enable/disable (00=disable,01=enable)"
+      default: 1
+    21:
+      name: "On/off"
+      comment: "On/Off (00=off,01=on)"
+      default: 0
+    22:
+      name: "Key lock"
+      comment: "Key lock (00=unlock,01=lock)"
+      default: 0
+    23:
+      name: "Run mode"
+      comment: "Run mode (00=heating,01=frost protection)"
+      default: 0
+    24:
+      name: "Holiday hours low"
+      comment: "Holiday hours low byte (write)/high byte (read)"
+      default: 0
+    25:
+      name: "Holiday hours high"
+      comment: "Holiday hours high byte (write)/low byte (read)"
+      default: 0
+    26:
+      name: "Temp hold mins high"
+      comment: "Temp hold minutes high 8 bit"
+      default: 0
+    27:
+      name: "Temp hold mins low"
+      comment: "Temp hold minutes low 8 bit"
+      default: 0
+    28:
+      name: "Remote air temp high"
+      comment: "Remote air temp high 8 bit (0xFF if no sensor)"
+      default: 255
+    29:
+      name: "Remote air temp low"
+      comment: "Remote air temp low 8 bit (divided by 10 for actual temp)"
+      default: 255
+    30:
+      name: "Floor temp high"
+      comment: "Floor temp high 8 bit (0xFF if no sensor)"
+      default: 255
+    31:
+      name: "Floor temp low"
+      comment: "Floor temp low 8 bit (divided by 10 for actual temp)"
+      default: 255
+    32:
+      name: "Built in air temp high"
+      comment: "Built-in air temp high 8 bit"
+      default: 0
+    33:
+      name: "Built in air temp low"
+      comment: "Built-in air temp low 8 bit"
+      default: 0
+    34:
+      name: "Error code"
+      comment: "Error code (non-zero indicates fault)"
+      default: 0
+    35:
+      name: "Current state"
+      comment: "Current operating state"
+      default: 0
+
+# Models merge the shared defaults; override only model-specific differences.
+prt:
+  <<: *defaults
+
+dt:
+  <<: *defaults
+
+"dt-e":
+  <<: *defaults
+
+"prt-e":
+  <<: *defaults
+
+"prt-hw":
+  <<: *defaults
+  meta:
+    3:
+      name: "Version / flags"
+      comment: "Bit0~6=Version, bit7=floor limit status"
+      default: 10
+    4:
+      name: "Model"
+      comment: "Model (PRTHW=04)"
+      default: 4

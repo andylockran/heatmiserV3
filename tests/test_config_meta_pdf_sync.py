@@ -55,16 +55,33 @@ def test_config_meta_matches_pdf_transcription():
     cfg = yaml.safe_load(Path('heatmiserv3/config.yml').read_text())
     parsed = _parse_pdf_docs(models)
 
+    # Build defaults meta (if present) and use it as fallback for per-model meta
+    defaults_meta_raw = cfg.get('defaults', {}).get('meta', {}) if isinstance(cfg.get('defaults'), dict) else {}
+
+    def _build_effective_meta(model_key):
+        model_meta_raw = cfg.get(model_key, {}).get('meta', {}) if isinstance(cfg.get(model_key), dict) else {}
+        effective = {}
+        # Start with defaults
+        for k, v in defaults_meta_raw.items():
+            try:
+                ik = int(k)
+            except Exception:
+                continue
+            effective[ik] = v
+        # Overlay model-specific
+        for k, v in model_meta_raw.items():
+            try:
+                ik = int(k)
+            except Exception:
+                continue
+            effective[ik] = v
+        return effective
+
     for model in models:
-        meta = cfg.get(model, {}).get('meta', {})
-        assert isinstance(meta, dict), f"model {model} missing meta in config.yml"
+        effective_meta = _build_effective_meta(model)
+        assert isinstance(effective_meta, dict), f"model {model} missing meta in config.yml"
         for idx, pdf_val in sorted(parsed.get(model, {}).items()):
-            # Only assert where PDF provides a value
-            # YAML keys may be ints or strings depending on loader; accept either
-            if idx in meta:
-                entry = meta[idx]
-            else:
-                entry = meta.get(str(idx))
+            entry = effective_meta.get(idx)
             assert entry is not None, f"model {model} missing index {idx} in config meta"
             cfg_val = entry['default']
             assert cfg_val == pdf_val, (

@@ -1,7 +1,7 @@
 """Test that every DCB index 0..35 is present and matches config labels/values."""
 
 def test_dcb_indexes_0_to_35(thermostat):
-    cfg_keys = thermostat.config["keys"]
+    cfg_keys = thermostat.config["meta"]
     # Ensure we have keys to check
     overrides = {5: 0, 13: 2, 16: 1}
     for i in range(0, 36):

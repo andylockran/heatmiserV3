@@ -101,9 +101,75 @@ class HeatmiserThermostat(object):
         self.model = model
         try:
             with open(config_yml) as config_file:
-                self.config = yaml.safe_load(config_file)[model]
+                full_cfg = yaml.safe_load(config_file)
         except yaml.YAMLError as exc:
-            logging.info("The YAML file is invalid: %s", exc)
+            logging.error("The YAML file is invalid: %s", exc)
+            raise RuntimeError(f"Invalid YAML in {config_yml}: {exc}") from exc
+
+        if not isinstance(full_cfg, dict):
+            raise RuntimeError(f"Config file {config_yml} did not contain a mapping at the top level")
+
+        if model not in full_cfg:
+            raise KeyError(f"Model '{model}' not found in {config_yml}")
+
+        self.config = full_cfg[model]
+
+        # Ensure the config uses `meta` as the source of DCB index metadata
+        # Merge defaults.meta into model.meta so library is resilient to
+        # configs that omit explicit per-model entries. This treats the
+        # top-level `defaults` mapping as authoritative base values.
+        base_meta = {}
+        base_offset = None
+        if isinstance(full_cfg.get('defaults'), dict):
+            d = full_cfg.get('defaults')
+            if isinstance(d.get('meta'), dict):
+                base_meta.update(d.get('meta'))
+            if 'offset' in d:
+                base_offset = d.get('offset')
+
+        model_meta = {}
+        if isinstance(self.config.get('meta'), dict):
+            model_meta.update(self.config.get('meta'))
+
+        # Build merged meta: start from base_meta, overlay model_meta
+        merged_meta = {}
+        for k, v in base_meta.items():
+            try:
+                ik = int(k)
+            except Exception:
+                continue
+            merged_meta[ik] = v
+
+        for k, v in model_meta.items():
+            try:
+                ik = int(k)
+            except Exception:
+                continue
+            merged_meta[ik] = v
+
+        if not merged_meta:
+            raise RuntimeError(f"Model '{model}' in {config_yml} missing required 'meta' mapping and no defaults present")
+
+        # Ensure offset is present (model may override)
+        offset = None
+        if isinstance(self.config.get('offset'), int):
+            offset = self.config.get('offset')
+        elif isinstance(base_offset, int):
+            offset = base_offset
+        else:
+            offset = 9
+
+        # Normalize merged_meta entries: ensure each value is a dict with expected keys
+        normalized_meta = {}
+        for idx, entry in merged_meta.items():
+            if isinstance(entry, dict):
+                normalized_meta[int(idx)] = entry
+            else:
+                # If entry is a plain string, use it as name
+                normalized_meta[int(idx)] = {'name': entry, 'comment': '', 'default': None}
+
+        self.config['meta'] = normalized_meta
+        self.config['offset'] = offset
         self.conn = uh1.registerThermostat(self)
         self.dcb = ""
         self.read_dcb()
@@ -295,7 +361,7 @@ class HeatmiserThermostat(object):
     def _hm_read_address(self):
         """Reads from the DCB and maps to yaml config file."""
         response = self._hm_send_address(self.address, 0, 0, 0)
-        lookup = self.config["keys"]
+        lookup = self.config["meta"]
         offset = self.config["offset"]
         keydata = {}
         for i in lookup:
