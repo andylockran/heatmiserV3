@@ -17,7 +17,7 @@ importlib-resources = "^6.1.1"
 [tool.poetry.group.test.dependencies]
 flake8 = "^7.0.0"
 pytest = "^8.0.0"
-pytest-cov = "^4.1.0"
+pytest-cov = ">=4.1,<8.0"
 mock = "^5.1.0"
 
 [build-system]
