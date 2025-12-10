@@ -1,25 +1,29 @@
-[tool.poetry]
+[project]
 name = "heatmiserv3"
 version = "2.0.4"
 description = "A library to interact with Heatmiser Themostats using V3 protocol."
-authors = ["Andy Loughran <andy@lockran.com>"]
-license = "MIT"
+authors = [{ name = "Andy Loughran", email = "andy@lockran.com" }]
+requires-python = ">=3.10,<4"
 readme = "README.md"
+license = "MIT"
+dependencies = [
+    "appdirs>=1.4.4,<2",
+    "pyserial>=3.5,<4",
+    "pyyaml>=6.0.1,<7",
+    "importlib-resources>=6.1.1,<7",
+    "pytest-cov>=7.0.0,<8",
+    "pytest>=9.0.2,<10",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-appdirs = "^1.4.4"
-pyserial = "^3.5"
-pyyaml = "^6.0.1"
-importlib-resources = "^6.1.1"
-pytest-cov = "^7.0.0"
-pytest = "^9.0.2"
+[dependency-groups]
+test = [
+    "flake8>=7.0.0,<8",
+    "mock>=5.1.0,<6",
+]
 
-
-[tool.poetry.group.test.dependencies]
-flake8 = "^7.0.0"
-mock = "^5.1.0"
+[tool.uv]
+default-groups = ["test"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
