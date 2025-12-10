@@ -255,7 +255,11 @@ class HeatmiserThermostat(object):
             serror = "Write timeout error: \n"
             sys.stderr.write(serror)
         # Now wait for reply
-        byteread = self.conn.read(159)
+        try:
+            byteread = self.conn.read(159)
+        except serial.serialutil.SerialException:
+            logging.error("Connection failed, attempting reconnect")
+            self.uh1.reopen(force=True)
         # NB max return is 75 in 5/2 mode or 159 in 7day mode
         datal = list(byteread)
         return datal

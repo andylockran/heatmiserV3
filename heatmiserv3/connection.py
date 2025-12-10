@@ -14,6 +14,8 @@ class HeatmiserUH1(object):
     """
 
     def __init__(self, ipaddress, port):
+        self.ipaddress = ipaddress
+        self.port = port
         self.thermostats = {}
         self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
         # Ensures that the serial port has not
@@ -38,8 +40,9 @@ class HeatmiserUH1(object):
             logging.info("Attempting to access already open port")
             return False
 
-    def reopen(self):
-        if not self.status:
+    def reopen(self, force=False):
+        if not self.status or force:
+            self._serport = serial.serial_for_url("socket://" + self.ipaddress + ":" + self.port)
             self._serport.open()
             self.status = True
             return self.status
