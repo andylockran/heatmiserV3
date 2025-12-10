@@ -372,7 +372,7 @@ class HeatmiserThermostat(object):
         This is represented by the snowflake icon and is
         the same as on/off
         """
-        return bool(self._hm_read_address()[23]["value"])
+        return self._hm_read_address()[23]["value"] == 1
 
     def get_floor_temp(self):
         return (
