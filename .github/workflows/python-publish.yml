@@ -34,6 +34,6 @@ jobs:
         uv sync --locked
         uv build
     - name: Publish Library
-      uses: pypa/gh-action-pypi-publish@v1.6.3
+      uses: pypa/gh-action-pypi-publish@v1.13.0
       with:
         pypi_token: ${{ secrets.PYPI_TOKEN }}
