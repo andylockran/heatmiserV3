@@ -15,6 +15,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   deploy:
@@ -35,5 +36,3 @@ jobs:
         uv build
     - name: Publish Library
       uses: pypa/gh-action-pypi-publish@v1.13.0
-      with:
-        pypi_token: ${{ secrets.PYPI_TOKEN }}
