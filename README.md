@@ -42,7 +42,11 @@ you get something working.
 
 # Requirements
 
-Python needs to be version 3.
+Python needs to be version 3.10.
+
+# Package Management
+
+I recently switched from poetry to uv.
 
 # Packaging and publishing
 
