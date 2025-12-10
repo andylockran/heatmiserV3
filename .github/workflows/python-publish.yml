@@ -27,7 +27,13 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: '3.x'
-    - name: Build and publish to pypi
-      uses: JRubics/poetry-publish@v1.17
+    - name: Install uv and set the Python version
+      uses: astral-sh/setup-uv@v7
+    - name: Build Library
+      run: |
+        uv sync --locked
+        uv build
+    - name: Publish Library
+      uses: pypa/gh-action-pypi-publish@v1.6.3
       with:
         pypi_token: ${{ secrets.PYPI_TOKEN }}
