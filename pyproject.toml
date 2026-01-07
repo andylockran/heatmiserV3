@@ -11,14 +11,14 @@ dependencies = [
     "pyserial>=3.5,<4",
     "pyyaml>=6.0.1,<7",
     "importlib-resources>=6.1.1,<7",
-    "pytest-cov>=7.0.0,<8",
-    "pytest>=9.0.2,<10",
 ]
 
 [dependency-groups]
 test = [
     "flake8>=7.0.0,<8",
     "mock>=5.1.0,<6",
+    "pytest-cov>=7.0.0,<8",
+    "pytest>=9.0.2,<10",
 ]
 
 [tool.uv]
