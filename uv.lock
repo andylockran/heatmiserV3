@@ -158,8 +158,6 @@ dependencies = [
     { name = "appdirs" },
     { name = "importlib-resources" },
     { name = "pyserial" },
-    { name = "pytest" },
-    { name = "pytest-cov" },
     { name = "pyyaml" },
 ]
 
@@ -167,6 +165,8 @@ dependencies = [
 test = [
     { name = "flake8" },
     { name = "mock" },
+    { name = "pytest" },
+    { name = "pytest-cov" },
 ]
 
 [package.metadata]
@@ -174,8 +174,6 @@ requires-dist = [
     { name = "appdirs", specifier = ">=1.4.4,<2" },
     { name = "importlib-resources", specifier = ">=6.1.1,<7" },
     { name = "pyserial", specifier = ">=3.5,<4" },
-    { name = "pytest", specifier = ">=9.0.2,<10" },
-    { name = "pytest-cov", specifier = ">=7.0.0,<8" },
     { name = "pyyaml", specifier = ">=6.0.1,<7" },
 ]
 
@@ -183,6 +181,8 @@ requires-dist = [
 test = [
     { name = "flake8", specifier = ">=7.0.0,<8" },
     { name = "mock", specifier = ">=5.1.0,<6" },
+    { name = "pytest", specifier = ">=9.0.2,<10" },
+    { name = "pytest-cov", specifier = ">=7.0.0,<8" },
 ]
 
 [[package]]
