@@ -1,13 +1,13 @@
 """This module is effectively a singleton for serial comms"""
-import serial
 import logging
+import serial
 from . import constants
 from heatmiserv3 import heatmiser
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
-class HeatmiserUH1(object):
+class HeatmiserUH1:
     """
     Represents the UH1 interface that holds the serial
     connection, and can have multiple thermostats
@@ -15,13 +15,13 @@ class HeatmiserUH1(object):
 
     def __init__(self, ipaddress, port):
         self.ipaddress = ipaddress
-        self.port = port
+        self.port = str(port)
         self.thermostats = {}
-        self._serport = serial.serial_for_url("socket://" + ipaddress + ":" + port)
+        self._serport = serial.serial_for_url("socket://" + self.ipaddress + ":" + self.port)
         # Ensures that the serial port has not
         # been left hanging around by a previous process.
         serport_response = self._serport.close()
-        logging.info("SerialPortResponse: %s", serport_response)
+        logger.info("SerialPortResponse: %s", serport_response)
         self._serport.baudrate = constants.COM_BAUD
         self._serport.bytesize = constants.COM_SIZE
         self._serport.parity = constants.COM_PARITY
@@ -32,41 +32,52 @@ class HeatmiserUH1(object):
 
     def _open(self):
         if not self.status:
-            logging.info("Opening serial port.")
+            logger.info("Opening serial port.")
             self._serport.open()
             self.status = True
             return True
         else:
-            logging.info("Attempting to access already open port")
+            logger.info("Attempting to access already open port")
             return False
 
     def reopen(self, force=False):
         if not self.status or force:
+            serport = getattr(self, "_serport", None)
+            if serport is not None:
+                try:
+                    serport.close()
+                except Exception:
+                    pass
             self._serport = serial.serial_for_url("socket://" + self.ipaddress + ":" + self.port)
             self._serport.open()
             self.status = True
             return self.status
         else:
-            logging.error("Cannot open serial port")
+            logger.error("Cannot open serial port")
 
     def __del__(self):
-        logging.info("Closing serial port.")
-        self._serport.close()
+        logger.info("Closing serial port.")
+        serport = getattr(self, "_serport", None)
+        if serport is not None:
+            try:
+                serport.close()
+            except Exception:
+                pass
 
     def registerThermostat(self, thermostat):
         """Registers a thermostat with the UH1"""
         try:
             if not isinstance(thermostat, heatmiser.HeatmiserThermostat):
                 raise TypeError("You're not adding a HeatmiserThermostat Object")
-            if thermostat.address in self.thermostats.keys():
+            if thermostat.address in self.thermostats:
                 raise ValueError("Key already present")
             else:
                 self.thermostats[thermostat.address] = thermostat
         except ValueError:
             pass
         except Exception as e:
-            logging.info("You're not adding a HeatmiiserThermostat Object")
-            logging.info(e.message)
+            logger.info("You're not adding a HeatmiserThermostat Object")
+            logger.info("%s", e)
         return self._serport
 
     def listThermostats(self):
