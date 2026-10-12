@@ -1,10 +1,4 @@
-# This workflow will upload a Python Package using Twine when a release is created
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
-
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
+# This workflow will upload a Python Package to PyPI when a release tag is pushed.
 
 name: Upload Python Package
 
@@ -19,20 +13,18 @@ permissions:
 
 jobs:
   deploy:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.x'
+    - uses: actions/checkout@v4
     - name: Install uv and set the Python version
-      uses: astral-sh/setup-uv@v7
+      uses: astral-sh/setup-uv@v5
+      with:
+        python-version: "3.11"
+        enable-cache: true
     - name: Build Library
       run: |
         uv sync --locked
         uv build
     - name: Publish Library
-      uses: pypa/gh-action-pypi-publish@v1.13.0
+      uses: pypa/gh-action-pypi-publish@release/v1

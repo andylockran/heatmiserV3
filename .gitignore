@@ -1,18 +1,32 @@
-*.pyc
-venv35/
-venv27/
-venv/
-venv3/
-test.py
-.idea/
-*egg/
-.coverage
-*.egg
-.eggs/
-.cache/
-.tox/
-.vscode/
-.mypy_cache/
+# Python artifacts
+*.py[cod]
+*$py.class
+__pycache__/
+*.so
+
+# Distribution / packaging
 build/
 dist/
-.pytest_cache/v/cache/lastfailed
+*.egg-info/
+.eggs/
+MANIFEST
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Testing and coverage
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.pytest_cache/
+.tox/
+
+# IDE and tool configs
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
