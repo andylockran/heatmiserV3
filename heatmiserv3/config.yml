@@ -1,4 +1,4 @@
-prt:
+prt: &prt_config
   offset: 9
   keys:
     0: High 8 bit
@@ -65,4 +65,345 @@ prt:
     61: Weekend
     62: Weekend
     63: Weekend
+
+PRT: *prt_config
+dt: *prt_config
+DT: *prt_config
+"dt-e": *prt_config
+"DT-E": *prt_config
+"prt-e": *prt_config
+"PRT-E": *prt_config
+
+tm1: &tm1_config
+  offset: 9
+  model_id: 5
+  keys:
+    0: High 8 bit
+    1: Low 8 bit
+    2: Vendor ID
+    3: Version
+    4: Model
+    5: Address
+    6: Program mode
+    7: Reserved
+    8: On/off
+    9: Key lock
+    10: Holiday hours high
+    11: Holiday hours low
+    12: Countdown min high
+    13: Countdown min low
+    14: Current timer state
+    15: Week 1~7
+    16: Hour
+    17: Min
+    18: Sec
+    # 5/2 mode
+    19: Weekday Time1 On Hour
+    20: Weekday Time1 On Min
+    21: Weekday Time1 Off Hour
+    22: Weekday Time1 Off Min
+    23: Weekday Time2 On Hour
+    24: Weekday Time2 On Min
+    25: Weekday Time2 Off Hour
+    26: Weekday Time2 Off Min
+    27: Weekday Time3 On Hour
+    28: Weekday Time3 On Min
+    29: Weekday Time3 Off Hour
+    30: Weekday Time3 Off Min
+    31: Weekday Time4 On Hour
+    32: Weekday Time4 On Min
+    33: Weekday Time4 Off Hour
+    34: Weekday Time4 Off Min
+    35: Weekend Time1 On Hour
+    36: Weekend Time1 On Min
+    37: Weekend Time1 Off Hour
+    38: Weekend Time1 Off Min
+    39: Weekend Time2 On Hour
+    40: Weekend Time2 On Min
+    41: Weekend Time2 Off Hour
+    42: Weekend Time2 Off Min
+    43: Weekend Time3 On Hour
+    44: Weekend Time3 On Min
+    45: Weekend Time3 Off Hour
+    46: Weekend Time3 Off Min
+    47: Weekend Time4 On Hour
+    48: Weekend Time4 On Min
+    49: Weekend Time4 Off Hour
+    50: Weekend Time4 Off Min
+    # 7 day mode
+    51: Monday Time1 On Hour
+    52: Monday Time1 On Min
+    53: Monday Time1 Off Hour
+    54: Monday Time1 Off Min
+    55: Monday Time2 On Hour
+    56: Monday Time2 On Min
+    57: Monday Time2 Off Hour
+    58: Monday Time2 Off Min
+    59: Monday Time3 On Hour
+    60: Monday Time3 On Min
+    61: Monday Time3 Off Hour
+    62: Monday Time3 Off Min
+    63: Monday Time4 On Hour
+    64: Monday Time4 On Min
+    65: Monday Time4 Off Hour
+    66: Monday Time4 Off Min
+    67: Tuesday Time1 On Hour
+    68: Tuesday Time1 On Min
+    69: Tuesday Time1 Off Hour
+    70: Tuesday Time1 Off Min
+    71: Tuesday Time2 On Hour
+    72: Tuesday Time2 On Min
+    73: Tuesday Time2 Off Hour
+    74: Tuesday Time2 Off Min
+    75: Tuesday Time3 On Hour
+    76: Tuesday Time3 On Min
+    77: Tuesday Time3 Off Hour
+    78: Tuesday Time3 Off Min
+    79: Tuesday Time4 On Hour
+    80: Tuesday Time4 On Min
+    81: Tuesday Time4 Off Hour
+    82: Tuesday Time4 Off Min
+    83: Wednesday Time1 On Hour
+    84: Wednesday Time1 On Min
+    85: Wednesday Time1 Off Hour
+    86: Wednesday Time1 Off Min
+    87: Wednesday Time2 On Hour
+    88: Wednesday Time2 On Min
+    89: Wednesday Time2 Off Hour
+    90: Wednesday Time2 Off Min
+    91: Wednesday Time3 On Hour
+    92: Wednesday Time3 On Min
+    93: Wednesday Time3 Off Hour
+    94: Wednesday Time3 Off Min
+    95: Wednesday Time4 On Hour
+    96: Wednesday Time4 On Min
+    97: Wednesday Time4 Off Hour
+    98: Wednesday Time4 Off Min
+    99: Thursday Time1 On Hour
+    100: Thursday Time1 On Min
+    101: Thursday Time1 Off Hour
+    102: Thursday Time1 Off Min
+    103: Thursday Time2 On Hour
+    104: Thursday Time2 On Min
+    105: Thursday Time2 Off Hour
+    106: Thursday Time2 Off Min
+    107: Thursday Time3 On Hour
+    108: Thursday Time3 On Min
+    109: Thursday Time3 Off Hour
+    110: Thursday Time3 Off Min
+    111: Thursday Time4 On Hour
+    112: Thursday Time4 On Min
+    113: Thursday Time4 Off Hour
+    114: Thursday Time4 Off Min
+    115: Friday Time1 On Hour
+    116: Friday Time1 On Min
+    117: Friday Time1 Off Hour
+    118: Friday Time1 Off Min
+    119: Friday Time2 On Hour
+    120: Friday Time2 On Min
+    121: Friday Time2 Off Hour
+    122: Friday Time2 Off Min
+    123: Friday Time3 On Hour
+    124: Friday Time3 On Min
+    125: Friday Time3 Off Hour
+    126: Friday Time3 Off Min
+    127: Friday Time4 On Hour
+    128: Friday Time4 On Min
+    129: Friday Time4 Off Hour
+    130: Friday Time4 Off Min
+    131: Saturday Time1 On Hour
+    132: Saturday Time1 On Min
+    133: Saturday Time1 Off Hour
+    134: Saturday Time1 Off Min
+    135: Saturday Time2 On Hour
+    136: Saturday Time2 On Min
+    137: Saturday Time2 Off Hour
+    138: Saturday Time2 Off Min
+    139: Saturday Time3 On Hour
+    140: Saturday Time3 On Min
+    141: Saturday Time3 Off Hour
+    142: Saturday Time3 Off Min
+    143: Saturday Time4 On Hour
+    144: Saturday Time4 On Min
+    145: Saturday Time4 Off Hour
+    146: Saturday Time4 Off Min
+    147: Sunday Time1 On Hour
+    148: Sunday Time1 On Min
+    149: Sunday Time1 Off Hour
+    150: Sunday Time1 Off Min
+    151: Sunday Time2 On Hour
+    152: Sunday Time2 On Min
+    153: Sunday Time2 Off Hour
+    154: Sunday Time2 Off Min
+    155: Sunday Time3 On Hour
+    156: Sunday Time3 On Min
+    157: Sunday Time3 Off Hour
+    158: Sunday Time3 Off Min
+    159: Sunday Time4 On Hour
+    160: Sunday Time4 On Min
+    161: Sunday Time4 Off Hour
+    162: Sunday Time4 Off Min
   Responses:
+
+TM1: *tm1_config
+prt-hw: &prthw_config
+  offset: 9
+  model_id: 4
+  keys:
+    0: High 8 bit
+    1: Low 8 bit
+    2: Vendor ID
+    3: 0-6 bits = Version, bit 7 = floor limit state.
+    4: Model
+    5: Temperature format
+    6: Switch Differential
+    7: Frost Protection Mode
+    8: Calibration - high 8 bit
+    9: Calibration - low 8 bit
+    10: Output delay
+    11: Address
+    12: Up down key limit
+    13: Sensor Selection
+    14: Optimum start
+    15: Rate of change
+    16: Program mode
+    17: Frost protect temp
+    18: Set room temp
+    19: Floor max limit
+    20: Floor max limit enable/disable
+    21: On/off
+    22: Key lock
+    23: Run mode
+    24: Holiday hours high (read) / low (write)
+    25: Holiday hours low (read) / high (write)
+    26: Temp hold mins high
+    27: Temp hold mins low
+    28: Remote air temp high
+    29: Remote air temp low
+    30: Floor temp high
+    31: Floor temp low
+    32: Built in air temp high
+    33: Built in air temp low
+    34: Error code
+    35: Current heating state
+    36: Current Hot water state
+    37: Week 1~7
+    38: Hour
+    39: Min
+    40: Sec
+    41: Weekday Heat Time1 Hour
+    42: Weekday Heat Time1 Min
+    43: Weekday Heat Time1 Temp
+    44: Weekday Heat Time2 Hour
+    45: Weekday Heat Time2 Min
+    46: Weekday Heat Time2 Temp
+    47: Weekday Heat Time3 Hour
+    48: Weekday Heat Time3 Min
+    49: Weekday Heat Time3 Temp
+    50: Weekday Heat Time4 Hour
+    51: Weekday Heat Time4 Min
+    52: Weekday Heat Time4 Temp
+    53: Weekend Heat Time1 Hour
+    54: Weekend Heat Time1 Min
+    55: Weekend Heat Time1 Temp
+    56: Weekend Heat Time2 Hour
+    57: Weekend Heat Time2 Min
+    58: Weekend Heat Time2 Temp
+    59: Weekend Heat Time3 Hour
+    60: Weekend Heat Time3 Min
+    61: Weekend Heat Time3 Temp
+    62: Weekend Heat Time4 Hour
+    63: Weekend Heat Time4 Min
+    64: Weekend Heat Time4 Temp
+    65: Weekday HW Time1 On Hour
+    66: Weekday HW Time1 On Min
+    67: Weekday HW Time1 Off Hour
+    68: Weekday HW Time1 Off Min
+    69: Weekday HW Time2 On Hour
+    70: Weekday HW Time2 On Min
+    71: Weekday HW Time2 Off Hour
+    72: Weekday HW Time2 Off Min
+    73: Weekday HW Time3 On Hour
+    74: Weekday HW Time3 On Min
+    75: Weekday HW Time3 Off Hour
+    76: Weekday HW Time3 Off Min
+    77: Weekday HW Time4 On Hour
+    78: Weekday HW Time4 On Min
+    79: Weekday HW Time4 Off Hour
+    80: Weekday HW Time4 Off Min
+    81: Weekend HW Time1 On Hour
+    82: Weekend HW Time1 On Min
+    83: Weekend HW Time1 Off Hour
+    84: Weekend HW Time1 Off Min
+    85: Weekend HW Time2 On Hour
+    86: Weekend HW Time2 On Min
+    87: Weekend HW Time2 Off Hour
+    88: Weekend HW Time2 Off Min
+    89: Weekend HW Time3 On Hour
+    90: Weekend HW Time3 On Min
+    91: Weekend HW Time3 Off Hour
+    92: Weekend HW Time3 Off Min
+    93: Weekend HW Time4 On Hour
+    94: Weekend HW Time4 On Min
+    95: Weekend HW Time4 Off Hour
+    96: Weekend HW Time4 Off Min
+  Responses:
+
+PRT-HW: *prthw_config
+"prt-hw": *prthw_config
+"PRT-HW": *prthw_config
+
+hc-en: &hcen_config
+  offset: 9
+  model_id: 7
+  keys:
+    0: DCB length high
+    1: DCB length low
+    2: Vendor ID
+    3: Version
+    4: Model
+    5: Temperature format
+    6: Address
+    7: Humidity sensor address
+    8: Up down key limit
+    9: Sensor selection
+    10: Optimum start
+    11: Frost protection enable/disable
+    12: Program mode
+    13: Cooling Enable
+    14: Dew point limit differential
+    15: Dew point time limit
+    16: Calibration offset high
+    17: Calibration offset low
+    18: Holiday hours low
+    19: Holiday hours high
+    20: Output delay
+    21: Switch differential
+    22: Floor max limit
+    23: Floor min limit
+    24: Cooling set temp
+    25: Frost protect temp
+    26: Rate of change
+    27: On/off
+    28: Run mode
+    29: Key lock
+    30: Temp hold mins high
+    31: Temp hold mins low
+    32: Built-in/remote air temp high
+    33: Built-in/remote air temp low
+    34: Floor temp high
+    35: Floor temp low
+    36: Humidity RH%
+    37: Dew Point temp
+    38: Output state
+    39: Heating set temp
+    40: Error code
+    41: Week 1~7
+    42: Hour
+    43: Min
+    44: Sec
+  Responses:
+
+HC-EN: *hcen_config
+"hc-en": *hcen_config
+"HC-EN": *hcen_config

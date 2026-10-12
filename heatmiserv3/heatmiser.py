@@ -101,7 +101,8 @@ class HeatmiserThermostat(object):
         self.model = model
         try:
             with open(config_yml) as config_file:
-                self.config = yaml.safe_load(config_file)[model]
+                cfg = yaml.safe_load(config_file)
+                self.config = cfg[model] if model in cfg else cfg[model.lower()]
         except yaml.YAMLError as exc:
             logging.info("The YAML file is invalid: %s", exc)
         self.conn = uh1.registerThermostat(self)
@@ -267,7 +268,10 @@ class HeatmiserThermostat(object):
     def _hm_send_address(self, thermostat_id, address, state, readwrite):
         protocol = constants.HMV3_ID
         if protocol == constants.HMV3_ID:
-            payload = [state]
+            if isinstance(state, (list, tuple, bytes)):
+                payload = list(state)
+            else:
+                payload = [state]
             msg = self._hm_form_message_crc(
                 thermostat_id,
                 protocol,
@@ -290,7 +294,7 @@ class HeatmiserThermostat(object):
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
-                0x81, pro, thermostat_id, readwrite, 75, datal
+                0x81, pro, thermostat_id, readwrite, len(datal), datal
             )
             if verification is False:
                 logging.info("OH DEAR BAD RESPONSE")
@@ -421,3 +425,229 @@ class HeatmiserThermostat(object):
         else:
             self._hm_send_address(self.address, 19, floor_max, 1)
             return True
+
+
+class TM1Thermostat(HeatmiserThermostat):
+    """
+    Representation of a Heatmiser TM1 timer thermostat.
+    Based on Section 3.5 of Heatmiser V3 System Protocol 3.9.
+    """
+
+    def __init__(self, address, uh1, model="tm1"):
+        super(TM1Thermostat, self).__init__(address, model, uh1)
+
+    def form_write_message(self, address, payload):
+        """Forms a write bytecode frame including CRC."""
+        if not isinstance(payload, (list, tuple, bytes)):
+            payload = [payload]
+        return self._hm_form_message_crc(
+            self.address,
+            constants.HMV3_ID,
+            constants.RW_MASTER_ADDRESS,
+            constants.FUNC_WRITE,
+            address,
+            list(payload),
+        )
+
+    def form_read_message(self, address=0, length=constants.RW_LENGTH_ALL):
+        """Forms a read bytecode frame including CRC."""
+        msg = self._hm_form_message(
+            self.address,
+            constants.HMV3_ID,
+            constants.RW_MASTER_ADDRESS,
+            constants.FUNC_READ,
+            address,
+            [],
+        )
+        if length != constants.RW_LENGTH_ALL:
+            msg[6] = length & constants.BYTEMASK
+            msg[7] = (length >> 8) & constants.BYTEMASK
+        crc = CRC16()
+        return msg + crc.run(msg)
+
+    def form_broadcast_message(self, address, payload):
+        """Forms a broadcast write bytecode frame (destination=0xFF)."""
+        if not isinstance(payload, (list, tuple, bytes)):
+            payload = [payload]
+        return self._hm_form_message_crc(
+            constants.BROADCAST_ADDR,
+            constants.HMV3_ID,
+            constants.RW_MASTER_ADDRESS,
+            constants.FUNC_WRITE,
+            address,
+            list(payload),
+        )
+
+    #
+    # Configurable setters (bytecode command senders)
+    #
+    def set_on_off(self, state):
+        """
+        Sets On/Off state (Unique address 21).
+        0 = Off, 1 = On
+        """
+        if state not in (0, 1):
+            raise ValueError(f"Invalid on/off state {state}; must be 0 (off) or 1 (on)")
+        return self._hm_send_address(self.address, constants.TM1_ON_OFF_ADDR, state, constants.FUNC_WRITE)
+
+    def set_key_lock(self, lock):
+        """
+        Sets Key lock state (Unique address 22).
+        0 = Unlock, 1 = Lock
+        """
+        if lock not in (0, 1):
+            raise ValueError(f"Invalid key lock state {lock}; must be 0 (unlock) or 1 (lock)")
+        return self._hm_send_address(self.address, constants.TM1_KEY_LOCK_ADDR, lock, constants.FUNC_WRITE)
+
+    def set_holiday_hours(self, hours):
+        """
+        Sets Holiday hours (Unique address 24).
+        2 bytes: low 8-bit ahead when write. Write 0 to cancel.
+        """
+        if not (0 <= hours <= 65535):
+            raise ValueError(f"Holiday hours {hours} out of range [0, 65535]")
+        payload = [hours & constants.BYTEMASK, (hours >> 8) & constants.BYTEMASK]
+        return self._hm_send_address(self.address, constants.TM1_HOLIDAY_ADDR, payload, constants.FUNC_WRITE)
+
+    def set_countdown_timer(self, minutes):
+        """
+        Sets Countdown timer minutes (Unique address 26).
+        Range: [0, 1800] minutes.
+        2 bytes: low 8-bit ahead when write.
+        """
+        if not (0 <= minutes <= 1800):
+            raise ValueError(f"Countdown minutes {minutes} out of range [0, 1800]")
+        payload = [minutes & constants.BYTEMASK, (minutes >> 8) & constants.BYTEMASK]
+        return self._hm_send_address(self.address, constants.TM1_COUNTDOWN_ADDR, payload, constants.FUNC_WRITE)
+
+    def set_timer_state(self, state):
+        """
+        Sets current timer state / override (Unique address 42).
+        0 = let timer run based on programmed period (auto)
+        1 = override timer to ON
+        2 = override timer to OFF
+        """
+        if state not in (0, 1, 2):
+            raise ValueError(f"Invalid timer state {state}; must be 0 (auto), 1 (override on), 2 (override off)")
+        return self._hm_send_address(self.address, constants.TM1_TIMER_STATE_ADDR, state, constants.FUNC_WRITE)
+
+    def set_program_mode(self, mode):
+        """
+        Sets program mode (Unique address 16).
+        0 = 5/2 mode
+        1 = 7 day mode
+        2 = countdown timer mode
+        """
+        if mode not in (0, 1, 2):
+            raise ValueError(f"Invalid program mode {mode}; must be 0 (5/2), 1 (7 day), or 2 (countdown)")
+        return self._hm_send_address(self.address, constants.TM1_PROG_MODE_ADDR, mode, constants.FUNC_WRITE)
+
+    def set_time(self, week, hour, minute, second):
+        """
+        Sets real time clock (RTC) (Unique address 43).
+        week: 1..7 (1=Monday .. 7=Sunday)
+        hour: 0..23
+        minute: 0..59
+        second: 0..59
+        """
+        if not (1 <= week <= 7):
+            raise ValueError(f"Weekday {week} out of range [1, 7]")
+        if not (0 <= hour <= 23):
+            raise ValueError(f"Hour {hour} out of range [0, 23]")
+        if not (0 <= minute <= 59):
+            raise ValueError(f"Minute {minute} out of range [0, 59]")
+        if not (0 <= second <= 59):
+            raise ValueError(f"Second {second} out of range [0, 59]")
+        payload = [week, hour, minute, second]
+        return self._hm_send_address(self.address, constants.TM1_TIME_ADDR, payload, constants.FUNC_WRITE)
+
+    def set_weekday_schedule(self, schedule):
+        """
+        Sets weekday switching times (Unique address 71).
+        schedule: list of 16 bytes representing 4 On/Off periods (Time1-4 On H/M, Off H/M).
+        """
+        if len(schedule) != 16:
+            raise ValueError(f"Schedule must be exactly 16 bytes, got {len(schedule)}")
+        return self._hm_send_address(self.address, constants.TM1_WEEKDAY_ADDR, list(schedule), constants.FUNC_WRITE)
+
+    def set_weekend_schedule(self, schedule):
+        """
+        Sets weekend switching times (Unique address 87).
+        schedule: list of 16 bytes representing 4 On/Off periods.
+        """
+        if len(schedule) != 16:
+            raise ValueError(f"Schedule must be exactly 16 bytes, got {len(schedule)}")
+        return self._hm_send_address(self.address, constants.TM1_WEEKEND_ADDR, list(schedule), constants.FUNC_WRITE)
+
+    def set_day_schedule(self, day, schedule):
+        """
+        Sets individual day switching times for 7-day mode.
+        day: 1=Mon, 2=Tue, 3=Wed, 4=Thu, 5=Fri, 6=Sat, 7=Sun (or string day name)
+        schedule: list of 16 bytes.
+        """
+        day_map = {
+            1: constants.TM1_MON_ADDR,
+            2: constants.TM1_TUE_ADDR,
+            3: constants.TM1_WED_ADDR,
+            4: constants.TM1_THU_ADDR,
+            5: constants.TM1_FRI_ADDR,
+            6: constants.TM1_SAT_ADDR,
+            7: constants.TM1_SUN_ADDR,
+            "monday": constants.TM1_MON_ADDR,
+            "tuesday": constants.TM1_TUE_ADDR,
+            "wednesday": constants.TM1_WED_ADDR,
+            "thursday": constants.TM1_THU_ADDR,
+            "friday": constants.TM1_FRI_ADDR,
+            "saturday": constants.TM1_SAT_ADDR,
+            "sunday": constants.TM1_SUN_ADDR,
+        }
+        addr = day_map.get(day if isinstance(day, int) else str(day).lower())
+        if addr is None:
+            raise ValueError(f"Invalid day {day}; must be 1..7 or weekday name")
+        if len(schedule) != 16:
+            raise ValueError(f"Schedule must be exactly 16 bytes, got {len(schedule)}")
+        return self._hm_send_address(self.address, addr, list(schedule), constants.FUNC_WRITE)
+
+    #
+    # DCB Getters for TM1
+    #
+    def get_model(self):
+        return self.dcb[4]["value"]
+
+    def get_on_off(self):
+        return self.dcb[8]["value"]
+
+    def get_key_lock(self):
+        return self.dcb[9]["value"]
+
+    def get_holiday_hours(self):
+        # Read: high byte ahead at index 10, low byte at index 11
+        high = self.dcb[10]["value"]
+        low = self.dcb[11]["value"]
+        return (high << 8) | low
+
+    def get_countdown_minutes(self):
+        # Read: high byte ahead at index 12, low byte at index 13
+        high = self.dcb[12]["value"]
+        low = self.dcb[13]["value"]
+        return (high << 8) | low
+
+    def get_timer_state(self):
+        return self.dcb[14]["value"]
+
+    def get_time(self):
+        return {
+            "week": self.dcb[15]["value"],
+            "hour": self.dcb[16]["value"],
+            "min": self.dcb[17]["value"],
+            "sec": self.dcb[18]["value"],
+        }
+
+    def get_program_mode(self):
+        mode = self.dcb[6]["value"]
+        modes = {
+            0: "5/2 mode",
+            1: "7 day mode",
+            2: "Countdown timer mode",
+        }
+        return modes.get(mode, "Unknown mode")
