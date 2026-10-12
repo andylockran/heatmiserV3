@@ -1,0 +1,3706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heatmiser V3 Protocol & Python Library Documentation</title>
+  <meta name="description" content="Comprehensive protocol specification, DCB register tables, bytecode packet guide, and Python library documentation for Heatmiser V3 Thermostats.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0f172a;
+      --bg-secondary: #1e293b;
+      --bg-tertiary: #334155;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-blue-hover: #0284c7;
+      --accent-cyan: #22d3ee;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --border-color: #334155;
+      --code-bg: #0b1120;
+      --table-stripe: rgba(255, 255, 255, 0.02);
+      --table-hover: rgba(56, 189, 248, 0.05);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Fira Code', monospace;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-blue: #0284c7;
+      --accent-blue-hover: #0369a1;
+      --accent-cyan: #0891b2;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --accent-purple: #9333ea;
+      --border-color: #cbd5e1;
+      --code-bg: #f1f5f9;
+      --table-stripe: rgba(0, 0, 0, 0.02);
+      --table-hover: rgba(2, 132, 199, 0.05);
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: 290px;
+      background-color: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      overflow-y: auto;
+      z-index: 100;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #38bdf8, #0284c7);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.2rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.05rem;
+      line-height: 1.2;
+    }
+
+    .brand-version {
+      font-size: 0.75rem;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+    }
+
+    .nav-group-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-top: 0.5rem;
+      margin-bottom: 0.25rem;
+      padding-left: 0.5rem;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 0.45rem 0.65rem;
+      border-radius: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--text-main);
+      background-color: var(--bg-tertiary);
+    }
+
+    .nav-link.active {
+      color: var(--accent-blue);
+      font-weight: 600;
+    }
+
+    /* Main Content */
+    #main-content {
+      flex: 1;
+      min-width: 0;
+      padding: 2.5rem 3.5rem;
+      max-width: 1350px;
+    }
+
+    header.doc-header {
+      margin-bottom: 3rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .header-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.65rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .badge-blue { background: rgba(56, 189, 248, 0.15); color: var(--accent-blue); border: 1px solid rgba(56, 189, 248, 0.3); }
+    .badge-emerald { background: rgba(16, 185, 129, 0.15); color: var(--accent-emerald); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-amber { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-purple { background: rgba(168, 85, 247, 0.15); color: var(--accent-purple); border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    h1.doc-title {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.75rem;
+      background: linear-gradient(135deg, #f8fafc, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    [data-theme="light"] h1.doc-title {
+      background: linear-gradient(135deg, #0f172a, #334155);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p.doc-subtitle {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 900px;
+      line-height: 1.6;
+    }
+
+    /* Sections */
+    section {
+      margin-bottom: 4rem;
+      scroll-margin-top: 2rem;
+    }
+
+    h2 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid var(--accent-blue);
+      display: inline-block;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.75rem;
+      color: var(--accent-cyan);
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-main);
+    }
+
+    /* Callout Boxes */
+    .callout {
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.25rem 0;
+      border-left: 4px solid;
+      background-color: var(--bg-secondary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .callout-info { border-left-color: var(--accent-blue); }
+    .callout-warning { border-left-color: var(--accent-amber); }
+    .callout-success { border-left-color: var(--accent-emerald); }
+    .callout-danger { border-left-color: var(--accent-rose); }
+
+    .callout-title {
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .callout p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Tables */
+    .table-container {
+      overflow-x: auto;
+      margin: 1.5rem 0;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-secondary);
+      box-shadow: var(--shadow-sm);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.88rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--bg-tertiary);
+      font-weight: 600;
+      color: var(--text-main);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    tr:nth-child(even) td {
+      background-color: var(--table-stripe);
+    }
+
+    tr:hover td {
+      background-color: var(--table-hover);
+    }
+
+    td.code-cell {
+      font-family: var(--font-mono);
+      font-size: 0.83rem;
+      white-space: nowrap;
+    }
+
+    /* Status Tags in Tables */
+    .tag {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+      font-family: var(--font-mono);
+      display: inline-block;
+    }
+
+    .tag-ro { background: rgba(56, 189, 248, 0.18); color: var(--accent-blue); }
+    .tag-rw { background: rgba(245, 158, 11, 0.18); color: var(--accent-amber); }
+    .tag-yes { background: rgba(16, 185, 129, 0.18); color: var(--accent-emerald); }
+    .tag-partial { background: rgba(245, 158, 11, 0.18); color: var(--accent-amber); }
+    .tag-no { background: rgba(244, 63, 94, 0.18); color: var(--accent-rose); }
+
+    /* Model Tabs */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.5rem;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+      animation: fadeIn 0.2s ease-in;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Code Blocks */
+    pre {
+      background-color: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      margin: 1.25rem 0;
+      position: relative;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      background-color: var(--code-bg);
+      padding: 0.15rem 0.35rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+
+    pre code {
+      padding: 0;
+      background: none;
+    }
+
+    .code-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: var(--bg-tertiary);
+      padding: 0.4rem 1rem;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+    }
+
+    .code-header + pre {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      margin-top: 0;
+    }
+
+    /* Bytecode Interactive Tool */
+    .calculator-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.75rem;
+      margin: 1.5rem 0;
+      box-shadow: var(--shadow-md);
+    }
+
+    .calc-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .calc-field label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .calc-field select, .calc-field input {
+      width: 100%;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.55rem 0.75rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+    }
+
+    .calc-field select:focus, .calc-field input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    .calc-output {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin-top: 1.25rem;
+    }
+
+    .output-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .byte-sequence {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      margin: 0.5rem 0;
+    }
+
+    .byte-pill {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 44px;
+    }
+
+    .byte-pill .b-hex {
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .byte-pill .b-dec {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .byte-pill.pill-crc {
+      border-color: var(--accent-amber);
+      background: rgba(245, 158, 11, 0.1);
+    }
+
+    .byte-pill.pill-crc .b-hex {
+      color: var(--accent-amber);
+    }
+
+    .byte-pill.pill-payload {
+      border-color: var(--accent-emerald);
+      background: rgba(16, 185, 129, 0.1);
+    }
+
+    .byte-pill.pill-payload .b-hex {
+      color: var(--accent-emerald);
+    }
+
+    /* Theme Switcher Button */
+    .theme-toggle-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: auto;
+    }
+
+    /* ==========================================================================
+       Layout Modes & Workspace Container
+       ========================================================================== */
+    .view-mode-container {
+      margin-top: 0.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .view-mode-bar {
+      display: flex;
+      background: var(--bg-primary);
+      padding: 0.25rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      gap: 0.25rem;
+    }
+
+    .view-mode-btn {
+      flex: 1;
+      padding: 0.4rem 0.35rem;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.25rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .view-mode-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-tertiary);
+    }
+
+    .view-mode-btn.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+
+    #workspace-container {
+      margin-left: 290px;
+      display: flex;
+      min-height: 100vh;
+      width: calc(100% - 290px);
+      position: relative;
+      transition: margin-left 0.2s ease;
+    }
+
+    /* Layout: Split Mode (Default desktop) */
+    body.mode-split #workspace-container {
+      flex-direction: row;
+    }
+
+    body.mode-split #main-content {
+      flex: 1;
+      min-width: 0;
+      padding: 2.5rem 3rem;
+      max-width: 1100px;
+    }
+
+    body.mode-split #device-dock {
+      width: 500px;
+      flex-shrink: 0;
+      border-left: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -5px 0 25px rgba(0, 0, 0, 0.25);
+      z-index: 80;
+    }
+
+    /* Layout: Docs Focus Mode */
+    body.mode-docs #workspace-container {
+      display: block;
+    }
+
+    body.mode-docs #main-content {
+      max-width: 1350px;
+      padding: 2.5rem 3.5rem;
+    }
+
+    body.mode-docs #device-dock {
+      display: none;
+    }
+
+    /* Layout: Simulator Focus Mode */
+    body.mode-simulator #main-content {
+      display: none;
+    }
+
+    body.mode-simulator #device-dock {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      border-left: none;
+      position: static;
+      height: auto;
+      display: flex;
+      padding: 2.5rem 2rem;
+      background: transparent;
+      box-shadow: none;
+    }
+
+    /* Floating Dock Toggle Button */
+    #floating-dock-btn {
+      display: none;
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 9999px;
+      padding: 0.85rem 1.4rem;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(2, 132, 199, 0.45);
+      align-items: center;
+      gap: 0.6rem;
+      z-index: 180;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    #floating-dock-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(2, 132, 199, 0.6);
+    }
+
+    .pulse-dot {
+      width: 10px;
+      height: 10px;
+      background-color: #22d3ee;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #22d3ee;
+      animation: pulseAnim 1.8s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { transform: scale(0.9); opacity: 0.8; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.8; }
+    }
+
+    /* Device Dock Container & Header */
+    .dock-header {
+      padding: 1.15rem 1.35rem;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-tertiary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .dock-title-group {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .dock-title {
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .dock-status-badge {
+      font-size: 0.68rem;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      font-weight: 600;
+    }
+
+    .dock-close-btn {
+      display: none;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      cursor: pointer;
+      padding: 0.25rem;
+      border-radius: 4px;
+    }
+
+    .dock-close-btn:hover {
+      color: var(--text-main);
+      background: var(--bg-secondary);
+    }
+
+    .dock-body {
+      padding: 1.35rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    /* Model & Backlight Controls */
+    .dock-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      background: var(--bg-primary);
+      padding: 0.65rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+    }
+
+    .model-pills {
+      display: flex;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .model-pill {
+      font-size: 0.73rem;
+      font-weight: 700;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .model-pill:hover {
+      color: var(--text-main);
+      border-color: var(--accent-blue);
+    }
+
+    .model-pill.active {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border-color: var(--accent-blue);
+    }
+
+    .backlight-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .backlight-dot {
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.15s ease;
+    }
+
+    .backlight-dot:hover, .backlight-dot.active {
+      transform: scale(1.15);
+      border-color: #ffffff;
+    }
+
+    .dot-cyan { background-color: #22d3ee; box-shadow: 0 0 8px rgba(34, 211, 238, 0.6); }
+    .dot-green { background-color: #10b981; box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+    .dot-amber { background-color: #f59e0b; box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+    .dot-mono { background-color: #94a3b8; }
+
+    /* ==========================================================================
+       Thermostat Hardware Faceplate & Backlit LCD
+       ========================================================================== */
+    .thermostat-casing {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 3px solid #475569;
+      border-radius: 18px;
+      padding: 1.35rem;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 15px 35px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    [data-theme="light"] .thermostat-casing {
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border-color: #cbd5e1;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .casing-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.65rem;
+      padding: 0 0.2rem;
+    }
+
+    .brand-heatmiser {
+      font-size: 0.78rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .casing-model-tag {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    /* LCD Screen */
+    .thermostat-screen {
+      border-radius: 10px;
+      padding: 1.15rem;
+      border: 3px solid #0f172a;
+      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+      min-height: 205px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Screen Backlights */
+    .backlight-cyan {
+      background-color: #042f2e;
+      box-shadow: inset 0 0 35px rgba(20, 184, 166, 0.35), 0 0 25px rgba(34, 211, 238, 0.18);
+      color: #2dd4bf;
+    }
+
+    .backlight-green {
+      background-color: #052e16;
+      box-shadow: inset 0 0 35px rgba(34, 197, 94, 0.35), 0 0 25px rgba(34, 197, 94, 0.18);
+      color: #4ade80;
+    }
+
+    .backlight-amber {
+      background-color: #451a03;
+      box-shadow: inset 0 0 35px rgba(245, 158, 11, 0.35), 0 0 25px rgba(245, 158, 11, 0.18);
+      color: #fbbf24;
+    }
+
+    .backlight-mono {
+      background-color: #1e293b;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+      color: #cbd5e1;
+    }
+
+    /* Top Bar: Days, Clock, Comm Dot */
+    .lcd-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px dashed currentColor;
+      padding-bottom: 0.35rem;
+      opacity: 0.95;
+    }
+
+    .lcd-days {
+      display: flex;
+      gap: 0.2rem;
+    }
+
+    .day-item {
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      font-weight: 700;
+      opacity: 0.3;
+      padding: 0 0.12rem;
+    }
+
+    .day-item.active {
+      opacity: 1;
+      text-decoration: underline;
+      font-weight: 900;
+    }
+
+    .lcd-clock-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .lcd-comm-blip {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.3;
+    }
+
+    .lcd-comm-blip.active {
+      opacity: 1;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Center Section: Large Temperature Display */
+    .lcd-center {
+      text-align: center;
+      margin: 0.65rem 0;
+      position: relative;
+    }
+
+    .lcd-digits-temp {
+      font-family: var(--font-mono);
+      font-size: 3.2rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      text-shadow: 0 0 10px currentColor;
+    }
+
+    .lcd-digits-temp .temp-unit {
+      font-size: 1.4rem;
+      font-weight: 500;
+      vertical-align: super;
+      margin-left: 0.2rem;
+    }
+
+    .lcd-sub-readout {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.85rem;
+      margin-top: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+
+    .lcd-setpoint-pill {
+      border: 1px solid currentColor;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.78rem;
+    }
+
+    .lcd-floor-readout {
+      opacity: 0.9;
+    }
+
+    .lcd-floor-readout.warning-flash {
+      color: #f43f5e !important;
+      animation: alertBlink 0.8s infinite;
+      font-weight: 800;
+    }
+
+    @keyframes alertBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.2; transform: scale(1.05); }
+    }
+
+    /* Tamper Notification Overlay */
+    .lcd-tamper-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(244, 63, 94, 0.93);
+      color: #ffffff;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-weight: 800;
+      z-index: 20;
+      animation: fadeIn 0.15s ease-out;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .lcd-tamper-overlay.show {
+      display: flex;
+    }
+
+    /* Bottom Bar: Status Icons */
+    .lcd-icons-bar {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px dashed currentColor;
+      padding-top: 0.45rem;
+    }
+
+    .lcd-icon {
+      font-size: 1.15rem;
+      opacity: 0.22;
+      transition: all 0.2s ease;
+      cursor: default;
+    }
+
+    .lcd-icon.active {
+      opacity: 1;
+      transform: scale(1.18);
+      filter: drop-shadow(0 0 6px currentColor);
+    }
+
+    /* Keypad Tactile Buttons */
+    .thermostat-keypad {
+      display: flex;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-top: 1.15rem;
+    }
+
+    .keypad-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #334155, #1e293b);
+      border: 1px solid #475569;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    [data-theme="light"] .keypad-btn {
+      background: linear-gradient(145deg, #ffffff, #e2e8f0);
+      border-color: #cbd5e1;
+      color: #0f172a;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .keypad-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent-blue);
+    }
+
+    .keypad-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* ==========================================================================
+       Physical Relay Terminal Board (Real-World Actuator)
+       ========================================================================== */
+    .terminal-board-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .section-subtitle {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent-blue);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Terminal Screw Block Graphic */
+    .terminal-strip {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 0.3rem;
+      background: #14532d;
+      border: 2px solid #166534;
+      padding: 0.55rem 0.45rem;
+      border-radius: 8px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.4);
+      margin-bottom: 0.85rem;
+    }
+
+    .screw-terminal {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .screw-head {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #e2e8f0, #64748b);
+      border: 1px solid #334155;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+      position: relative;
+    }
+
+    .screw-head::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 20%;
+      right: 20%;
+      height: 2px;
+      background: #1e293b;
+      transform: translateY(-50%) rotate(35deg);
+    }
+
+    .terminal-label {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      font-weight: 700;
+      color: #f0fdf4;
+      text-align: center;
+      line-height: 1.1;
+    }
+
+    /* Relays Grid */
+    .relays-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+
+    .relay-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      transition: all 0.2s ease;
+    }
+
+    .relay-item.relay-active {
+      border-color: rgba(239, 68, 68, 0.6);
+      background: rgba(239, 68, 68, 0.05);
+    }
+
+    .relay-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .relay-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .relay-sub {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .relay-visual {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    /* Animated Relay Switch Arm SVG */
+    .switch-svg {
+      width: 42px;
+      height: 22px;
+    }
+
+    .switch-line {
+      stroke: var(--text-muted);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+    }
+
+    .switch-arm {
+      stroke: var(--text-muted);
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      transform-origin: 8px 17px;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), stroke 0.2s ease;
+      transform: rotate(-30deg);
+    }
+
+    .relay-item.relay-active .switch-arm {
+      transform: rotate(0deg);
+      stroke: #ef4444;
+    }
+
+    /* Status LED */
+    .status-led {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #475569;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .relay-item.relay-active .led-red {
+      background: #ef4444;
+      box-shadow: 0 0 10px #ef4444, inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .relay-item.relay-active .led-amber {
+      background: #f59e0b;
+      box-shadow: 0 0 10px #f59e0b, inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    }
+
+    .relay-item.relay-active .led-cyan {
+      background: #06b6d4;
+      box-shadow: 0 0 10px #06b6d4, inset 0 1px 1px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Connected Equipment Cards */
+    .equipment-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.5rem;
+    }
+
+    .equipment-pill {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.73rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+    }
+
+    .eq-label {
+      color: var(--text-muted);
+      font-size: 0.66rem;
+    }
+
+    .eq-val {
+      font-weight: 700;
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .eq-active { color: #ef4444; }
+    .eq-active-amber { color: #f59e0b; }
+    .eq-idle { color: var(--text-muted); }
+
+    /* Safety Cutout Alert Banner */
+    .safety-cutout-alert {
+      display: none;
+      background: rgba(244, 63, 94, 0.15);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      color: var(--accent-rose);
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-top: 0.75rem;
+      font-size: 0.76rem;
+      line-height: 1.4;
+      animation: alertBlink 1.5s infinite;
+    }
+
+    /* ==========================================================================
+       Real-World Environment Simulator (Sliders)
+       ========================================================================== */
+    .env-simulator-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .env-slider-row {
+      margin-bottom: 1rem;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.3rem;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+
+    .slider-val-badge {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--accent-cyan);
+    }
+
+    .slider-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .env-range {
+      flex: 1;
+      accent-color: var(--accent-cyan);
+      cursor: pointer;
+    }
+
+    .nudge-btn {
+      width: 25px;
+      height: 25px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-main);
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nudge-btn:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-tertiary);
+    }
+
+    .env-preset-bar {
+      display: flex;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .preset-chip {
+      font-size: 0.68rem;
+      padding: 0.18rem 0.5rem;
+      border-radius: 9999px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .preset-chip:hover {
+      border-color: var(--accent-blue);
+      color: var(--text-main);
+    }
+
+    /* ==========================================================================
+       One-Click Real-World Test Scenarios
+       ========================================================================== */
+    .scenarios-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .scenarios-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .scenario-btn {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.6rem 0.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+    }
+
+    .scenario-btn:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-tertiary);
+      transform: translateX(2px);
+    }
+
+    .scenario-icon {
+      font-size: 1.1rem;
+      line-height: 1.2;
+    }
+
+    .scenario-text {
+      flex: 1;
+    }
+
+    .scenario-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .scenario-desc {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-top: 0.1rem;
+      line-height: 1.35;
+    }
+
+    /* ==========================================================================
+       Live DCB Hex Memory Map & RS485 Wire Telemetry
+       ========================================================================== */
+    .telemetry-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1.15rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .dcb-hex-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0.2rem;
+      margin: 0.65rem 0;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+    }
+
+    .hex-cell {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: 0.22rem 0.12rem;
+      text-align: center;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .hex-cell:hover {
+      border-color: var(--accent-blue);
+      background: var(--bg-tertiary);
+    }
+
+    .hex-cell.hex-modified {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--accent-emerald);
+      color: var(--accent-emerald);
+      font-weight: 700;
+      animation: hexFlash 1.5s ease-out;
+    }
+
+    @keyframes hexFlash {
+      0% { background: rgba(245, 158, 11, 0.8); color: #fff; }
+      100% { background: rgba(16, 185, 129, 0.25); color: var(--accent-emerald); }
+    }
+
+    .wire-frame-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.55rem 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      margin-top: 0.5rem;
+      word-break: break-all;
+    }
+
+    .python-code-card {
+      background: var(--code-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.55rem 0.7rem;
+      font-family: var(--font-mono);
+      font-size: 0.73rem;
+      color: var(--accent-cyan);
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .copy-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.2rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      cursor: pointer;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent-blue);
+      color: #ffffff;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1250px) {
+      body.mode-split #workspace-container {
+        display: block;
+      }
+      body.mode-split #main-content {
+        max-width: 100%;
+        padding: 2rem;
+      }
+      body.mode-split #device-dock {
+        position: fixed;
+        top: 0;
+        right: -520px;
+        width: 480px;
+        height: 100vh;
+        z-index: 200;
+        transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      body.mode-split #device-dock.dock-open {
+        right: 0;
+      }
+      .dock-close-btn {
+        display: block !important;
+      }
+      #floating-dock-btn {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 900px) {
+      #sidebar {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease-in-out;
+      }
+      #sidebar.open {
+        transform: translateX(0);
+      }
+      #workspace-container {
+        margin-left: 0;
+        width: 100%;
+      }
+      #main-content {
+        padding: 1.5rem;
+      }
+      body.mode-split #device-dock {
+        width: 100%;
+        right: -100%;
+      }
+      body.mode-split #device-dock.dock-open {
+        right: 0;
+      }
+    }
+  </style>
+<body class="mode-split">
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo">HM</div>
+      <div>
+        <div class="brand-title">heatmiserv3</div>
+        <div class="brand-version">Protocol 3.9 Doc</div>
+      </div>
+    </div>
+
+    <!-- Layout Mode Switcher -->
+    <div class="view-mode-container">
+      <div class="nav-group-title">Layout Mode</div>
+      <div class="view-mode-bar">
+        <button class="view-mode-btn active" id="btn-mode-split" onclick="setLayoutMode('split')">🌓 Split</button>
+        <button class="view-mode-btn" id="btn-mode-docs" onclick="setLayoutMode('docs')">📖 Docs</button>
+        <button class="view-mode-btn" id="btn-mode-sim" onclick="setLayoutMode('simulator')">⚡ Sim</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="nav-group-title">Navigation</div>
+      <ul class="nav-links">
+        <li><a class="nav-link active" href="#overview">Overview & Architecture</a></li>
+        <li><a class="nav-link" href="#capability-audit">Protocol vs Library Audit</a></li>
+        <li><a class="nav-link" href="#hardware-models">Supported Thermostats</a></li>
+        <li><a class="nav-link" href="#how-it-works">How the Library Works</a></li>
+        <li><a class="nav-link" href="#dcb-specifications">Thermostat DCB Register Tables</a></li>
+        <li><a class="nav-link" href="#visual-harness">⚡ Visual Test Harness (Digital Twin)</a></li>
+        <li><a class="nav-link" href="#bytecode-inspector">Bytecode Frame Inspector</a></li>
+        <li><a class="nav-link" href="#clarifications">Pitfalls & Clarifications</a></li>
+        <li><a class="nav-link" href="#api-examples">Python API Reference</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-group-title">DCB Models</div>
+      <ul class="nav-links">
+        <li><a class="nav-link" href="#model-prt">PRT / DT / DT-E / PRT-E</a></li>
+        <li><a class="nav-link" href="#model-prthw">PRT-HW (Hot Water)</a></li>
+        <li><a class="nav-link" href="#model-tm1">TM1 (Time Clock & Countdown)</a></li>
+        <li><a class="nav-link" href="#model-hcen">HC-EN (Heating & Cooling)</a></li>
+        <li><a class="nav-link" href="#model-sensors">OTS & HTS Sensors</a></li>
+        <li><a class="nav-link" href="#model-wifi">Wi-Fi System Variants</a></li>
+      </ul>
+    </div>
+
+    <button class="theme-toggle-btn" id="theme-btn" onclick="toggleTheme()">
+      <span id="theme-icon">☀️</span> <span id="theme-text">Toggle Theme</span>
+    </button>
+  </nav>
+
+  <!-- Workspace Container: Holds Docs & Adjacent Digital Twin Dock -->
+  <div id="workspace-container">
+
+    <!-- Main Content -->
+    <main id="main-content">
+
+    <header class="doc-header">
+      <div class="header-badges">
+        <span class="badge badge-blue">Python 3.10 – 3.14</span>
+        <span class="badge badge-emerald">Protocol Spec v3.9</span>
+        <span class="badge badge-purple">122 Automated Tests</span>
+        <span class="badge badge-amber">RS485 Half-Duplex CCITT-16</span>
+      </div>
+      <h1 class="doc-title">Heatmiser V3 Protocol & Library Documentation</h1>
+      <p class="doc-subtitle">
+        A definitive reference and developer guide for communicating with Heatmiser V3 network thermostats over RS485 and UH1 bridges. Replicating the official <code>heatmiser_v3_protocol_3.9.pdf</code> specification with enhanced clarity, exact byte offsets, and interactive tools.
+      </p>
+    </header>
+
+    <!-- Section 1: Overview & Architecture -->
+    <section id="overview">
+      <h2>1. Overview & Architecture</h2>
+      <p>
+        The <code>heatmiserv3</code> Python library provides a robust, low-level and high-level interface for controlling and reading telemetry from Heatmiser thermostats communicating via the Heatmiser Version 3 RS485 protocol.
+      </p>
+      
+      <div class="callout callout-info">
+        <div class="callout-title">Hardware Topology</div>
+        <p>
+          Heatmiser thermostats communicate over a 2-wire, half-duplex RS485 serial bus operating at <strong>4800 baud, 8 data bits, no parity, 1 stop bit</strong>. A central master node—typically a Heatmiser <strong>UH1 wiring centre</strong> or Ethernet/RS485 bridge—originates all bus sessions and forwards commands to individual thermostats (slaves) addressed <code>[1, 32]</code>.
+        </p>
+      </div>
+
+      <p>
+        In modern home automation setups, the UH1 or RS485 converter provides a TCP socket server (e.g. <code>socket://192.168.1.57:102</code>). The <code>heatmiserv3</code> library establishes a connection to this bridge via <code>HeatmiserUH1</code> and coordinates session arbitration, frame formatting, CRC calculation, and response parsing.
+      </p>
+    </section>
+
+    <!-- Section 2: Capability Audit -->
+    <section id="capability-audit">
+      <h2>2. Protocol Capability Audit: PDF v3.9 vs. heatmiserv3 Library</h2>
+      <p>
+        Below is a comprehensive audit assessing every chapter and feature described in the 45-page <code>heatmiser_v3_protocol_3.9.pdf</code> against the current library implementation:
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>PDF Chapter</th>
+              <th>Protocol Capability / Feature</th>
+              <th>Status in Library</th>
+              <th>Implementation Details & Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Sec 3.1 & 3.2</strong></td>
+              <td>RS485 Master Command Framing & Slave Verification</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td><code>_hm_form_message</code>, <code>_hm_form_message_crc</code>, and <code>_hm_verify_message_crc_uk</code> handle framing, variable payloads, and 7-byte write confirmations.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 3.3</strong></td>
+              <td>DT / DT-E / PRT / PRT-E DCB Configuration</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td>Registered in <code>config.yml</code> (keys 0..147). Setters for target temperature, frost protection, floor limit; DCB reading for temperature telemetry.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 3.4</strong></td>
+              <td>PRT-HW (Programmable Thermostat + Hot Water)</td>
+              <td><span class="tag tag-partial">Partially Covered</span></td>
+              <td>Full 0..292 DCB mapping registered in <code>config.yml</code>. Hot water state reading supported. Multi-period schedule writing methods are not yet wrapped in dedicated convenience helpers.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 3.5</strong></td>
+              <td>TM1 Timer & Countdown Mode Thermostat</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td>100% covered via <code>TM1Thermostat</code> and validated with 122 tests. Includes On/Off, Key lock, Holiday, Countdown (0–1800m), Override (0/1/2), RTC, and 5/2 & 7-day schedules.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 3.6</strong></td>
+              <td>HC-EN V3 (Heating & Cooling with Dew Point / RH)</td>
+              <td><span class="tag tag-partial">Partially Covered</span></td>
+              <td>Full DCB mapping registered in <code>config.yml</code>. Library can read DCB and map labels. Dedicated heating/cooling setters (dew point, cooling limit) are not yet wrapped in a specialized class.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 3.7 & 3.8</strong></td>
+              <td>OTS (Outside Temp Sensor) & HTS (Humidity Sensor)</td>
+              <td><span class="tag tag-no">Not Covered</span></td>
+              <td>PDF defines read-only DCB for OTS (addr 81) and HTS (addrs 41–72). The library does not currently provide standalone sensor reader classes.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 4</strong></td>
+              <td>Hot Water & Timer Boost via RS485</td>
+              <td><span class="tag tag-partial">Partially Covered</span></td>
+              <td>Supported via TM1 timer countdown and direct payload writing; high-level <code>set_boost()</code> helper for PRTHW not yet exposed.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 5 & 6</strong></td>
+              <td>Wi-Fi Direct Thermostat Protocol (Port 8068 + PIN)</td>
+              <td><span class="tag tag-no">Not Covered</span></td>
+              <td>PDF describes single-zone Wi-Fi thermostats accepting <code>0x93</code> frames with 4-byte PINs over port 8068. The library currently targets RS485 / UH1 bridges.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 7</strong></td>
+              <td>Multi-Link / Netmonitor (NM) Hub Protocol</td>
+              <td><span class="tag tag-no">Not Covered</span></td>
+              <td>PDF specifies multi-zone aggregator frames (<code>0x98</code>, <code>0x99</code>, <code>0xA8</code>) and history logging. The library focuses on direct thermostat communication.</td>
+            </tr>
+            <tr>
+              <td><strong>Sec 8 & App A</strong></td>
+              <td>CRC-16 CCITT (0xFFFF) Lookup Table Algorithm</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td><code>CRC16</code> implements the exact nibble-swapping bitwise lookup algorithm from the Heatmiser C reference code.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 3: Supported Thermostats -->
+    <section id="hardware-models">
+      <h2>3. Supported Thermostats & Model Identification</h2>
+      <p>
+        Every Heatmiser thermostat returns its Model ID at <strong>DCB Index 4</strong> during a full DCB read:
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Model Name</th>
+              <th>Model ID (Dec / Hex)</th>
+              <th>Description & Heating Modes</th>
+              <th>DCB Lengths</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>DT</strong></td>
+              <td class="code-cell">0 (0x00)</td>
+              <td>Digital Thermostat, non-programmable, room heating only.</td>
+              <td>36 bytes</td>
+            </tr>
+            <tr>
+              <td><strong>DT-E</strong></td>
+              <td class="code-cell">1 (0x01)</td>
+              <td>Digital Thermostat with remote/floor sensor for electrical underfloor heating.</td>
+              <td>36 bytes</td>
+            </tr>
+            <tr>
+              <td><strong>PRT</strong></td>
+              <td class="code-cell">2 (0x02)</td>
+              <td>Programmable Room Thermostat, 4 comfort levels per day.</td>
+              <td>64 bytes (5/2 mode) / 148 bytes (7-day mode)</td>
+            </tr>
+            <tr>
+              <td><strong>PRT-E</strong></td>
+              <td class="code-cell">3 (0x03)</td>
+              <td>Programmable Room Thermostat with electrical floor sensor probe.</td>
+              <td>64 bytes (5/2 mode) / 148 bytes (7-day mode)</td>
+            </tr>
+            <tr>
+              <td><strong>PRT-HW</strong></td>
+              <td class="code-cell">4 (0x04)</td>
+              <td>Programmable Room Thermostat with independent Hot Water time clock channel.</td>
+              <td>72 bytes (5/2 mode) / 293 bytes (7-day mode)</td>
+            </tr>
+            <tr>
+              <td><strong>TM1</strong></td>
+              <td class="code-cell">5 (0x05)</td>
+              <td>Time Clock & Countdown Timer (Heating timer or hot water).</td>
+              <td>19 bytes (countdown) / 51 bytes (5/2) / 163 bytes (7-day)</td>
+            </tr>
+            <tr>
+              <td><strong>HC-EN</strong></td>
+              <td class="code-cell">7 (0x07)</td>
+              <td>Heating & Cooling Thermostat with Relative Humidity and Dew Point sensors.</td>
+              <td>68 bytes (5/2 mode) / 152 bytes (7-day mode)</td>
+            </tr>
+            <tr>
+              <td><strong>OTS / HTS</strong></td>
+              <td class="code-cell">Sensors</td>
+              <td>Outside Temperature Sensor (addr 81) & Humidity Sensor (addrs 41–72).</td>
+              <td>11 bytes / 13 bytes</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 4: How the Library Works -->
+    <section id="how-it-works">
+      <h2>4. How the Library Works</h2>
+      
+      <h3>4.1 Master Command Frame Structure</h3>
+      <p>
+        Whenever a command is issued by the library, a 10-byte (read) or <code>(10 + n)</code>-byte (write) bytecode frame is assembled:
+      </p>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Byte #</th>
+              <th>Field Name</th>
+              <th>Value / Expression</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="code-cell">0</td>
+              <td>Destination Address</td>
+              <td class="code-cell">1 – 32 (or 0xFF)</td>
+              <td>Thermostat slave ID. <code>0xFF</code> (255) is broadcast.</td>
+            </tr>
+            <tr>
+              <td class="code-cell">1</td>
+              <td>Frame Length</td>
+              <td class="code-cell">10 (Read) or 10 + n (Write)</td>
+              <td>Total length of this frame including the 2-byte CRC.</td>
+            </tr>
+            <tr>
+              <td class="code-cell">2</td>
+              <td>Source Address</td>
+              <td class="code-cell">0x81 (129)</td>
+              <td>Master controller address (typically <code>0x81</code>).</td>
+            </tr>
+            <tr>
+              <td class="code-cell">3</td>
+              <td>Function Code</td>
+              <td class="code-cell">0 = Read, 1 = Write</td>
+              <td><code>0x00</code> to read from DCB, <code>0x01</code> to write parameters.</td>
+            </tr>
+            <tr>
+              <td class="code-cell">4 – 5</td>
+              <td>Start DCB Address</td>
+              <td class="code-cell">start & 0xFF, (start &gt;&gt; 8) & 0xFF</td>
+              <td>16-bit parameter starting address in <strong>Little-Endian</strong> format.</td>
+            </tr>
+            <tr>
+              <td class="code-cell">6 – 7</td>
+              <td>Read / Write Length</td>
+              <td class="code-cell">len & 0xFF, (len &gt;&gt; 8) & 0xFF</td>
+              <td>Number of bytes. <code>0xFFFF</code> requests the full DCB for read.</td>
+            </tr>
+            <tr>
+              <td class="code-cell">8 .. (n+7)</td>
+              <td>Payload Data</td>
+              <td class="code-cell">n bytes</td>
+              <td>The configuration bytes (omitted on read frames).</td>
+            </tr>
+            <tr>
+              <td class="code-cell">n+8 .. n+9</td>
+              <td>16-bit CRC</td>
+              <td class="code-cell">crc_low, crc_high</td>
+              <td>CCITT-16 checksum computed across bytes 0 to (n+7).</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>4.2 Slave Response Verification</h3>
+      <p>
+        Upon receiving a command, the thermostat replies with:
+      </p>
+      <ul>
+        <li><strong>Write Reply (7 bytes)</strong>: <code>[0x81, 7, 0, slave_id, 1, crc_low, crc_high]</code>. Verified by <code>_hm_verify_message_crc_uk()</code>.</li>
+        <li><strong>Read Reply</strong>: 9-byte header + DCB payload + 2-byte CRC. The header contains <code>[0x81, frame_len_l, frame_len_h, slave_id, 0, start_l, start_h, read_len_l, read_len_h]</code>.</li>
+      </ul>
+    </section>
+
+    <!-- Section 5: Thermostat DCB Register Tables -->
+    <section id="dcb-specifications">
+      <h2>5. Thermostat DCB Register Tables</h2>
+      <p>
+        The tables below replicate the exact register tables from the official Heatmiser V3.9 protocol specification, augmented with explicit <strong>Access Rights</strong>, <strong>Endianness Rules</strong>, and <strong>Value Scaling</strong>.
+      </p>
+
+      <!-- Tabs -->
+      <div class="tab-bar">
+        <button class="tab-btn active" onclick="switchTab('tab-prt')">PRT / DT / DT-E / PRT-E</button>
+        <button class="tab-btn" onclick="switchTab('tab-tm1')">TM1 (Timer)</button>
+        <button class="tab-btn" onclick="switchTab('tab-prthw')">PRT-HW (Hot Water)</button>
+        <button class="tab-btn" onclick="switchTab('tab-hcen')">HC-EN (Heating/Cooling)</button>
+        <button class="tab-btn" onclick="switchTab('tab-wifi')">Wi-Fi Variants</button>
+      </div>
+
+      <!-- Tab Panel: PRT / DT / DT-E / PRT-E -->
+      <div id="tab-prt" class="tab-panel active">
+        <h3>DT / DT-E / PRT / PRT-E Register Table (Section 3.3)</h3>
+        <p>DT/DT-E stops at index 35 (36 bytes). PRT in 5/2 mode is 64 bytes; in 7-day mode is 148 bytes.</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Unique Addr</th>
+                <th>DCB Index</th>
+                <th>Parameter Name</th>
+                <th>Access</th>
+                <th>Format & Endianness</th>
+                <th>Default</th>
+                <th>Protocol Description & Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="code-cell">0</td><td class="code-cell">0–1</td><td>DCB Length</td><td><span class="tag tag-ro">R</span></td><td>2B Big-Endian</td><td>64 / 148</td><td>Total byte length of the DCB.</td></tr>
+              <tr><td class="code-cell">2</td><td class="code-cell">2</td><td>Vendor ID</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Heatmiser, <code>01</code> = OEM.</td></tr>
+              <tr><td class="code-cell">3</td><td class="code-cell">3</td><td>Version & Status</td><td><span class="tag tag-ro">R</span></td><td>1 Byte (Bitmask)</td><td>10</td><td>Bits 0–6 = Version (10 = v1.0). Bit 7 = Floor limit state (1 = in floor limit).</td></tr>
+              <tr><td class="code-cell">4</td><td class="code-cell">4</td><td>Model ID</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>2</td><td><code>00</code> = DT, <code>01</code> = DT-E, <code>02</code> = PRT, <code>03</code> = PRT-E.</td></tr>
+              <tr><td class="code-cell">5</td><td class="code-cell">5</td><td>Temperature Format</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = °C, <code>01</code> = °F.</td></tr>
+              <tr><td class="code-cell">6</td><td class="code-cell">6</td><td>Switch Differential</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>1</td><td>Hysteresis between switching: <code>[1, 3]</code> °C.</td></tr>
+              <tr><td class="code-cell">7</td><td class="code-cell">7</td><td>Frost Protect Mode</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>1</td><td>Frost protection state: <code>0</code> = Disabled, <code>1</code> = Enabled.</td></tr>
+              <tr><td class="code-cell">8</td><td class="code-cell">8–9</td><td>Calibration Offset</td><td><span class="tag tag-rw">R/W</span></td><td>2B Big-Endian</td><td>0</td><td>Temperature calibration offset.</td></tr>
+              <tr><td class="code-cell">10</td><td class="code-cell">10</td><td>Output Delay</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Switching delay in minutes: <code>[0, 15]</code>.</td></tr>
+              <tr><td class="code-cell">11</td><td class="code-cell">11</td><td>Thermostat Address</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>1</td><td>Comms network address: <code>[1, 32]</code>.</td></tr>
+              <tr><td class="code-cell">12</td><td class="code-cell">12</td><td>Key Limit</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Up/down temperature adjustment limit: <code>[0, 10]</code> °C.</td></tr>
+              <tr><td class="code-cell">13</td><td class="code-cell">13</td><td>Sensor Selection</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code>=Built-in, <code>01</code>=Remote air, <code>02</code>=Floor, <code>03</code>=Built-in+Floor, <code>04</code>=Remote+Floor.</td></tr>
+              <tr><td class="code-cell">14</td><td class="code-cell">14</td><td>Optimum Start</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Pre-heat anticipation: <code>[0, 3]</code> hours.</td></tr>
+              <tr><td class="code-cell">15</td><td class="code-cell">15</td><td>Rate of Change</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>20</td><td>Time in minutes to raise temperature by 1°C.</td></tr>
+              <tr><td class="code-cell">16</td><td class="code-cell">16</td><td>Program Mode</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = 5/2 Day mode, <code>01</code> = 7-Day mode.</td></tr>
+              <tr><td class="code-cell">17</td><td class="code-cell">17</td><td>Frost Protect Temp</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>12</td><td>Frost target temperature: <code>[7, 17]</code> °C.</td></tr>
+              <tr><td class="code-cell">18</td><td class="code-cell">18</td><td>Set Room Temp</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>16</td><td>Target temperature setpoint: <code>[5, 35]</code> °C.</td></tr>
+              <tr><td class="code-cell">19</td><td class="code-cell">19</td><td>Floor Max Limit</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>28</td><td>Maximum floor safety temperature: <code>[20, 45]</code> °C.</td></tr>
+              <tr><td class="code-cell">20</td><td class="code-cell">20</td><td>Floor Limit Enable</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>1</td><td><code>00</code> = Disabled, <code>01</code> = Enabled.</td></tr>
+              <tr><td class="code-cell">21</td><td class="code-cell">21</td><td>On / Off State</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Off, <code>01</code> = On.</td></tr>
+              <tr><td class="code-cell">22</td><td class="code-cell">22</td><td>Key Lock</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Unlocked, <code>01</code> = Locked.</td></tr>
+              <tr><td class="code-cell">23</td><td class="code-cell">23</td><td>Run Mode</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Heating (Normal), <code>01</code> = Frost Protection.</td></tr>
+              <tr><td class="code-cell">24</td><td class="code-cell">24–25</td><td>Holiday Hours</td><td><span class="tag tag-rw">R/W</span></td><td>2B Read:BE / Write:LE</td><td>0</td><td><strong>Caution:</strong> Read is High byte ahead; Write is Low byte ahead!</td></tr>
+              <tr><td class="code-cell">32</td><td class="code-cell">26–27</td><td>Temp Hold Mins</td><td><span class="tag tag-rw">R/W</span></td><td>2B Read:BE / Write:LE</td><td>0</td><td>Hold override duration. Write 0 to cancel.</td></tr>
+              <tr><td class="code-cell">34</td><td class="code-cell">28–29</td><td>Remote Air Temp</td><td><span class="tag tag-ro">R</span></td><td>2B Big-Endian</td><td>0xFFFF</td><td>Actual temp is <code>value / 10</code>. Returns <code>0xFFFF</code> if no sensor.</td></tr>
+              <tr><td class="code-cell">36</td><td class="code-cell">30–31</td><td>Floor Temp</td><td><span class="tag tag-ro">R</span></td><td>2B Big-Endian</td><td>0xFFFF</td><td>Actual temp is <code>value / 10</code>. Returns <code>0xFFFF</code> if no sensor.</td></tr>
+              <tr><td class="code-cell">38</td><td class="code-cell">32–33</td><td>Built-In Air Temp</td><td><span class="tag tag-ro">R</span></td><td>2B Big-Endian</td><td>—</td><td>Actual temp is <code>value / 10</code>.</td></tr>
+              <tr><td class="code-cell">40</td><td class="code-cell">34</td><td>Error Code</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>0</td><td><code>E0</code> = Built-in error, <code>E1</code> = Floor sensor error, <code>E2</code> = Remote air error.</td></tr>
+              <tr><td class="code-cell">41</td><td class="code-cell">35</td><td>Heating State</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = No heating active, <code>01</code> = Heating currently calling.</td></tr>
+              <tr><td class="code-cell">43</td><td class="code-cell">36–39</td><td>Clock (RTC)</td><td><span class="tag tag-rw">R/W</span></td><td>4 Bytes</td><td>—</td><td><code>[Week (1..7), Hour (0..23), Min (0..59), Sec (0..59)]</code>.</td></tr>
+              <tr><td class="code-cell">47</td><td class="code-cell">40–51</td><td>Weekday Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>12 Bytes</td><td>—</td><td>4 periods * 3 bytes (Hour, Min, Temp). Temp = 24 cancels period.</td></tr>
+              <tr><td class="code-cell">59</td><td class="code-cell">52–63</td><td>Weekend Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>12 Bytes</td><td>—</td><td>4 periods * 3 bytes (Hour, Min, Temp).</td></tr>
+              <tr><td class="code-cell">103..</td><td class="code-cell">64–147</td><td>7-Day Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>84 Bytes</td><td>—</td><td>Mon–Sun comfort levels (12 bytes per day). Unique addrs 103, 115, 127, 139, 151, 163, 175.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Panel: TM1 -->
+      <div id="tab-tm1" class="tab-panel">
+        <h3>TM1 Timer & Countdown Register Table (Section 3.5)</h3>
+        <p>Countdown mode finishes at index 18 (19 bytes); 5/2 mode is 51 bytes; 7-day mode is 163 bytes.</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Unique Addr</th>
+                <th>DCB Index</th>
+                <th>Parameter Name</th>
+                <th>Access</th>
+                <th>Format & Endianness</th>
+                <th>Default</th>
+                <th>Protocol Description & Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="code-cell">0</td><td class="code-cell">0–1</td><td>DCB Length</td><td><span class="tag tag-ro">R</span></td><td>2B Big-Endian</td><td>19 / 51 / 163</td><td>Total length of TM1 DCB based on program mode.</td></tr>
+              <tr><td class="code-cell">2</td><td class="code-cell">2</td><td>Vendor ID</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Heatmiser, <code>01</code> = OEM.</td></tr>
+              <tr><td class="code-cell">3</td><td class="code-cell">3</td><td>Version</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>10</td><td>10 = VER 1.0.</td></tr>
+              <tr><td class="code-cell">4</td><td class="code-cell">4</td><td>Model ID</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>5</td><td><strong>TM1 = 0x05</strong>.</td></tr>
+              <tr><td class="code-cell">11</td><td class="code-cell">5</td><td>Address</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>1</td><td>Slave address <code>[1, 32]</code>.</td></tr>
+              <tr><td class="code-cell">16</td><td class="code-cell">6</td><td>Program Mode</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = 5/2 mode, <code>01</code> = 7-day mode, <code>02</code> = Countdown timer mode.</td></tr>
+              <tr><td class="code-cell">—</td><td class="code-cell">7</td><td>Reserved</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>0</td><td>Not currently used.</td></tr>
+              <tr><td class="code-cell">21</td><td class="code-cell">8</td><td>On / Off State</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Off, <code>01</code> = On.</td></tr>
+              <tr><td class="code-cell">22</td><td class="code-cell">9</td><td>Key Lock</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Key Unlock, <code>01</code> = Key Lock.</td></tr>
+              <tr><td class="code-cell">24</td><td class="code-cell">10–11</td><td>Holiday Hours</td><td><span class="tag tag-rw">R/W</span></td><td>2B Read:BE / Write:LE</td><td>0</td><td>Write 0 to cancel holiday. Low byte first when writing.</td></tr>
+              <tr><td class="code-cell">26</td><td class="code-cell">12–13</td><td>Countdown Minutes</td><td><span class="tag tag-rw">R/W</span></td><td>2B Read:BE / Write:LE</td><td>0</td><td>Countdown duration: <code>[0, 1800]</code> minutes. Low byte first when writing.</td></tr>
+              <tr><td class="code-cell">42</td><td class="code-cell">14</td><td>Timer State / Override</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Read: <code>00</code>=Off, <code>01</code>=On.<br>Write: <code>00</code>=Auto (run program), <code>01</code>=Override On, <code>02</code>=Override Off.</td></tr>
+              <tr><td class="code-cell">43</td><td class="code-cell">15–18</td><td>Clock (RTC)</td><td><span class="tag tag-rw">R/W</span></td><td>4 Bytes</td><td>—</td><td><code>[Week (1..7), Hour (0..23), Min (0..59), Sec (0..59)]</code>.</td></tr>
+              <tr><td class="code-cell">71</td><td class="code-cell">19–34</td><td>Weekday Switching</td><td><span class="tag tag-rw">R/W</span></td><td>16 Bytes</td><td>—</td><td>4 on/off switching pairs: Time 1–4 On H/M, Off H/M. Hour 24 = Cancelled.</td></tr>
+              <tr><td class="code-cell">87</td><td class="code-cell">35–50</td><td>Weekend Switching</td><td><span class="tag tag-rw">R/W</span></td><td>16 Bytes</td><td>—</td><td>4 on/off switching pairs: Time 1–4 On H/M, Off H/M.</td></tr>
+              <tr><td class="code-cell">187..283</td><td class="code-cell">51–162</td><td>7-Day Switching</td><td><span class="tag tag-rw">R/W</span></td><td>112 Bytes</td><td>—</td><td>Monday (187), Tuesday (203), Wednesday (219), Thursday (235), Friday (251), Saturday (267), Sunday (283). 16 bytes each.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Panel: PRTHW -->
+      <div id="tab-prthw" class="tab-panel">
+        <h3>PRT-HW (Heating & Hot Water) Register Table (Section 3.4)</h3>
+        <p>Model ID = 4 (0x04). Contains both 12-byte heating comfort levels and 16-byte hot water timer switching periods.</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Unique Addr</th>
+                <th>DCB Index</th>
+                <th>Parameter Name</th>
+                <th>Access</th>
+                <th>Format</th>
+                <th>Default</th>
+                <th>Protocol Description & Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="code-cell">0..35</td><td class="code-cell">0..35</td><td>Standard Telemetry</td><td><span class="tag tag-ro">R</span></td><td>Var</td><td>—</td><td>Same registers as PRT (DCB len, Model 04, temp format, sensor, current temp).</td></tr>
+              <tr><td class="code-cell">42</td><td class="code-cell">36</td><td>Current Hot Water State</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Read: <code>00</code>=Off, <code>01</code>=On.<br>Write: <code>00</code>=Auto program, <code>01</code>=Override ON, <code>02</code>=Override OFF.</td></tr>
+              <tr><td class="code-cell">43</td><td class="code-cell">37–40</td><td>Clock (RTC)</td><td><span class="tag tag-rw">R/W</span></td><td>4 Bytes</td><td>—</td><td>Week 1..7, Hour 0..23, Min 0..59, Sec 0..59.</td></tr>
+              <tr><td class="code-cell">47</td><td class="code-cell">41–52</td><td>Weekday Heating Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>12 Bytes</td><td>—</td><td>4 periods * 3 bytes (Hour, Min, Temp). Hour 24 cancels.</td></tr>
+              <tr><td class="code-cell">59</td><td class="code-cell">53–64</td><td>Weekend Heating Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>12 Bytes</td><td>—</td><td>4 periods * 3 bytes (Hour, Min, Temp).</td></tr>
+              <tr><td class="code-cell">71</td><td class="code-cell">65–80</td><td>Weekday Hot Water Timer</td><td><span class="tag tag-rw">R/W</span></td><td>16 Bytes</td><td>—</td><td>4 on/off pairs (Time 1..4 On H/M, Off H/M). Hour 24 cancels.</td></tr>
+              <tr><td class="code-cell">87</td><td class="code-cell">81–96</td><td>Weekend Hot Water Timer</td><td><span class="tag tag-rw">R/W</span></td><td>16 Bytes</td><td>—</td><td>4 on/off pairs (Time 1..4 On H/M, Off H/M).</td></tr>
+              <tr><td class="code-cell">103..175</td><td class="code-cell">97–180</td><td>7-Day Heating Comfort</td><td><span class="tag tag-rw">R/W</span></td><td>84 Bytes</td><td>—</td><td>7 days * 12 bytes = 84 bytes.</td></tr>
+              <tr><td class="code-cell">187..283</td><td class="code-cell">181–292</td><td>7-Day Hot Water Timer</td><td><span class="tag tag-rw">R/W</span></td><td>112 Bytes</td><td>—</td><td>7 days * 16 bytes = 112 bytes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Panel: HC-EN -->
+      <div id="tab-hcen" class="tab-panel">
+        <h3>HC-EN V3 (Heating & Cooling) Register Table (Section 3.6)</h3>
+        <p>Model ID = 7 (0x07). 68 bytes in 5/2 mode, 152 bytes in 7-day mode.</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Unique Addr</th>
+                <th>DCB Index</th>
+                <th>Parameter Name</th>
+                <th>Access</th>
+                <th>Format</th>
+                <th>Default</th>
+                <th>Protocol Description & Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="code-cell">4</td><td class="code-cell">4</td><td>Model ID</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>7</td><td>HC-EN = 0x07.</td></tr>
+              <tr><td class="code-cell">29</td><td class="code-cell">13</td><td>Cooling Enable</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>1</td><td><code>00</code> = Disabled, <code>01</code> = Enabled.</td></tr>
+              <tr><td class="code-cell">—</td><td class="code-cell">14</td><td>Dew Point Differential</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>3</td><td>Range: <code>[0, 10]</code> °C.</td></tr>
+              <tr><td class="code-cell">—</td><td class="code-cell">15</td><td>Dew Point Time Limit</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td>Minutes: <code>[0, 60]</code>.</td></tr>
+              <tr><td class="code-cell">27</td><td class="code-cell">24</td><td>Cooling Setpoint</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>24</td><td>Cooling setpoint temperature.</td></tr>
+              <tr><td class="code-cell">23</td><td class="code-cell">28</td><td>Run Mode</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td>0</td><td><code>00</code> = Heating, <code>01</code> = Frost, <code>02</code> = Cooling.</td></tr>
+              <tr><td class="code-cell">30</td><td class="code-cell">36</td><td>Relative Humidity</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>—</td><td>Relative Humidity RH% reading from built-in/remote sensor.</td></tr>
+              <tr><td class="code-cell">28</td><td class="code-cell">37</td><td>Dew Point Temp</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td>—</td><td>Calculated dew point temperature.</td></tr>
+              <tr><td class="code-cell">41</td><td class="code-cell">38</td><td>Output State Bitmask</td><td><span class="tag tag-ro">R</span></td><td>1 Byte (Bitmask)</td><td>—</td><td>bit0=Heat On, bit1=Heat Floor Limit, bit4=Cool On, bit5=Cool Floor Limit, bit6=Dew Point Reached, bit7=Dew Point Exceeded.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Panel: Wi-Fi -->
+      <div id="tab-wifi" class="tab-panel">
+        <h3>Wi-Fi System Variants (Section 6)</h3>
+        <p>Single-zone Wi-Fi thermostats communicate over direct TCP sockets on port 8068 with PIN authentication.</p>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Unique Addr</th>
+                <th>DCB Index</th>
+                <th>Parameter Name</th>
+                <th>Access</th>
+                <th>Format</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="code-cell">31</td><td class="code-cell">7</td><td>Away Mode</td><td><span class="tag tag-rw">R/W</span></td><td>1 Byte</td><td><code>00</code> = Normal mode, <code>01</code> = Away mode.</td></tr>
+              <tr><td class="code-cell">24</td><td class="code-cell">10–14</td><td>Holiday Return Date</td><td><span class="tag tag-rw">R/W</span></td><td>5 Bytes</td><td><code>[Year, Month, Day, Hour, Min]</code>. Write single byte <code>00</code> to cancel.</td></tr>
+              <tr><td class="code-cell">24</td><td class="code-cell">15</td><td>Holiday Status</td><td><span class="tag tag-ro">R</span></td><td>1 Byte</td><td><code>00</code> = Not in holiday, <code>01</code> = In holiday mode.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Visual Test Harness & Digital Twin Dynamics -->
+    <section id="visual-harness">
+      <h2>6. Visual Test Harness: Real-World DCB Dynamics</h2>
+      <p>
+        Writing register values to a Heatmiser thermostat over RS485 does not merely alter memory bytes in the Device Control Block (DCB)—it orchestrates physical relays, drives safety interlocks, updates LCD annunciators, and modulates HVAC heating loops in the real world.
+      </p>
+
+      <div class="callout callout-info">
+        <div class="callout-title">Live Adjacent Digital Twin</div>
+        <p>
+          In <strong>Split View</strong> (desktop default), the <strong>Virtual Thermostat Digital Twin</strong> is rendered adjacent to this guide on the right side of the screen. You can interact with tactile faceplate buttons, adjust physical environment temperatures, observe relay contacts opening and closing, and test safety cutouts in real time.
+        </p>
+      </div>
+
+      <h3>6.1 Heating Relay Switching & Differential Hysteresis</h3>
+      <p>
+        The central heating relay (connected across <strong>Terminals 1 &amp; 2</strong>) switches 230V mains or dry-contact signals to central heating motorized zone valves and boiler call-for-heat terminals:
+      </p>
+      <ul>
+        <li><strong>Call for Heat:</strong> When the ambient temperature drops below <code>Target Setpoint - Switching Differential</code> (DCB Addr 18 and Addr 27), the microcontroller fires Relay 1/2. The physical circuit closes, the boiler fires, and the 🔥 flame icon illuminates.</li>
+        <li><strong>Setpoint Reached:</strong> When the ambient temperature reaches or exceeds the target setpoint, Relay 1/2 opens. The boiler shuts down and the flame icon extinguishes.</li>
+        <li><strong>Hysteresis Protection:</strong> The 1°C, 2°C, or 3°C differential (DCB Addr 27) prevents rapid boiler short-cycling, extending compressor and burner life.</li>
+      </ul>
+
+      <h3>6.2 Underfloor Heating Overheat Thermal Safety Interlock</h3>
+      <p>
+        When configured for <strong>Mode 3 (Built-in Air + Floor Limit Sensor)</strong>, the thermostat regulates room comfort using air temperature while continuously polling the NTC floor probe embedded in the floor screed:
+      </p>
+      <ul>
+        <li><strong>Safety Cutout Threshold:</strong> If the floor temperature reaches or exceeds <code>Floor Max Limit</code> (DCB Addr 29, typically 28°C–35°C), the firmware trips an <strong>Emergency Thermal Safety Cutout</strong>.</li>
+        <li><strong>Forced Relay Disengagement:</strong> The heating relay is <strong>forcibly opened immediately</strong>, even if the room is cold and demanding heat.</li>
+        <li><strong>Real-World Protection:</strong> This interlock protects engineered wood flooring from buckling, adhesive breakdown, and cement screed cracking. The LCD flashes <code>FLR HI</code> or a warning badge.</li>
+      </ul>
+
+      <h3>6.3 Domestic Hot Water Dual-Channel Control (PRT-HW)</h3>
+      <p>
+        The <code>PRT-HW</code> model features an independent secondary relay across <strong>Terminals 3 &amp; 4</strong> dedicated to domestic hot water (DHW) cylinder valves:
+      </p>
+      <ul>
+        <li><strong>Manual Hot Water Boost:</strong> Writing <code>01</code> to DCB Addr 41 (Unique Address 41) closes Terminals 3 &amp; 4, energizing the cylinder valve and illuminating the 🚿 tap icon.</li>
+        <li><strong>Holiday Suppression:</strong> When Holiday Mode is engaged, hot water heating is suppressed for the holiday duration to conserve energy while the property is unoccupied.</li>
+      </ul>
+
+      <h3>6.4 TM1 Time Clock & Countdown Timer Operations</h3>
+      <p>
+        The <code>TM1</code> operates in three distinct programming modes (DCB Addr 16: 5/2 day, 7 day, or Countdown Timer):
+      </p>
+      <ul>
+        <li><strong>Countdown Boost:</strong> Setting Countdown Minutes (DCB Addr 26–27, transmitted Little-Endian) energizes the relay and displays the remaining minutes alongside the ⏱️ timer icon. When the counter expires (0 minutes), the relay disengages automatically.</li>
+        <li><strong>Timer Override:</strong> DCB Addr 42 allows software overrides (<code>0</code> = Auto Program, <code>1</code> = Constant ON, <code>2</code> = Constant OFF).</li>
+      </ul>
+
+      <h3>6.5 Commercial Anti-Tamper Keypad Lockout</h3>
+      <p>
+        In public buildings, rental properties, and commercial installations, keypad locking prevents unauthorized temperature manipulation:
+      </p>
+      <ul>
+        <li><strong>Lock Level 1:</strong> Full keypad lock (DCB Addr 22 = <code>1</code>). All tactile front panel buttons are disabled, displaying a padlock 🔒 icon.</li>
+        <li><strong>Tamper Alarm:</strong> Attempting to press buttons on the physical faceplate causes the display to flash a red <code>LOC</code> tamper warning and prevents changes.</li>
+        <li><strong>Lock Level 2:</strong> Partial lock allowing setpoint adjustment within configured temperature limits.</li>
+      </ul>
+
+      <h3>6.6 Holiday Mode Setback vs. Sub-Zero Frost Protection</h3>
+      <p>
+        Energy conservation and freeze prevention are governed by two safety state machines:
+      </p>
+      <ul>
+        <li><strong>Holiday Mode:</strong> Setting holiday hours (DCB Addr 24–25) suspends normal scheduled comfort levels and locks the target to the Frost Protect Temperature (DCB Addr 17, default 12°C). The 🧳 suitcase icon is displayed.</li>
+        <li><strong>Standby Freeze Protection:</strong> Even when the user turns the thermostat completely <strong>OFF / Standby</strong> (DCB Addr 21 = <code>0</code>), an emergency freeze-protection monitor remains active. If the room drops $\le 12^\circ\text{C}$, Relay 1/2 closes and the ❄️ snowflake icon illuminates to prevent burst water pipes.</li>
+      </ul>
+
+      <h3>6.7 One-Click Scenario Demonstration Presets</h3>
+      <p>
+        Click any scenario below to automatically configure the simulated environment, mutate the thermostat DCB registers, and observe real-world hardware actuation:
+      </p>
+
+      <div class="scenarios-grid" style="margin-top: 1rem;">
+        <div class="scenario-btn" onclick="runScenario('heat_call')">
+          <div class="scenario-icon">📉</div>
+          <div class="scenario-text">
+            <div class="scenario-title">1. Room Cools Below Setpoint (Call for Heat)</div>
+            <div class="scenario-desc">Ambient drops to 19°C (Setpoint 21°C). Watch Relay 1/2 close, 🔴 red LED light up, and 🔥 flame appear.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('temp_reached')">
+          <div class="scenario-icon">📈</div>
+          <div class="scenario-text">
+            <div class="scenario-title">2. Target Temperature Reached (Hysteresis Cutoff)</div>
+            <div class="scenario-desc">Ambient rises to 21.2°C. Watch Relay 1/2 open, flame extinguish, and boiler return to standby.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('floor_overheat')">
+          <div class="scenario-icon">🚨</div>
+          <div class="scenario-text">
+            <div class="scenario-title">3. Underfloor Overheat Safety Interlock Cutout</div>
+            <div class="scenario-desc">Floor reaches 36°C (Max Limit 32°C). Relay FORCIBLY OPENS despite cold room (18°C) to protect flooring!</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('tm1_countdown')">
+          <div class="scenario-icon">⏱️</div>
+          <div class="scenario-text">
+            <div class="scenario-title">4. TM1 Countdown Timer Boost (120 Minutes)</div>
+            <div class="scenario-desc">Switches to TM1 model, starts 120-min countdown timer, energizes timer relay, displays countdown.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('holiday_mode')">
+          <div class="scenario-icon">🧳</div>
+          <div class="scenario-text">
+            <div class="scenario-title">5. 7-Day Holiday Mode Energy Setback</div>
+            <div class="scenario-desc">Sets 168 hours holiday. Normal schedule disabled, target forced to 12°C frost setback, suitcase icon displayed.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('keypad_lock')">
+          <div class="scenario-icon">🔒</div>
+          <div class="scenario-text">
+            <div class="scenario-title">6. Commercial Anti-Tamper Keypad Lockout</div>
+            <div class="scenario-desc">Engages Lock Level 1. Padlock icon displayed on LCD. Front panel button presses trigger tamper alarms.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('hw_boost')">
+          <div class="scenario-icon">🚿</div>
+          <div class="scenario-text">
+            <div class="scenario-title">7. PRT-HW Domestic Hot Water Override Boost</div>
+            <div class="scenario-desc">Switches to PRT-HW model. Closes Terminals 3 &amp; 4 (Hot Water Relay) and illuminates tap icon.</div>
+          </div>
+        </div>
+
+        <div class="scenario-btn" onclick="runScenario('frost_protect')">
+          <div class="scenario-icon">🧊</div>
+          <div class="scenario-text">
+            <div class="scenario-title">8. Sub-Zero Failsafe Pipe Frost Protection</div>
+            <div class="scenario-desc">Thermostat turned OFF in Standby, but room drops to 4°C. Emergency frost heat engages to save plumbing.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Bytecode Inspector & Calculator -->
+    <section id="bytecode-inspector">
+      <h2>7. Interactive Bytecode Frame Inspector</h2>
+      <p>
+        Use the tool below to generate, inspect, and verify exact RS485 bytecode packets according to Section 3.1:
+      </p>
+
+      <div class="calculator-card">
+        <div class="calc-row">
+          <div class="calc-field">
+            <label for="calc-thermostat">Target Model</label>
+            <select id="calc-thermostat" onchange="updateCalcFields()">
+              <option value="tm1">TM1 (Timer Thermostat)</option>
+              <option value="prt">PRT (Heating Thermostat)</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label for="calc-command">Command Action</label>
+            <select id="calc-command" onchange="updateCalcFields()">
+              <option value="read_all">Read Entire DCB (0xFFFF)</option>
+              <option value="on_off">Set On / Off (Addr 21)</option>
+              <option value="key_lock">Set Key Lock (Addr 22)</option>
+              <option value="holiday">Set Holiday Hours (Addr 24)</option>
+              <option value="countdown">Set Countdown Minutes (Addr 26)</option>
+              <option value="override">Set Timer Override (Addr 42)</option>
+              <option value="clock">Set Real Time Clock (Addr 43)</option>
+              <option value="prog_mode">Set Program Mode (Addr 16)</option>
+              <option value="set_temp">Set Room Temp (Addr 18 - PRT)</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label for="calc-dest">Thermostat Address [1–32 or 255]</label>
+            <input type="number" id="calc-dest" value="1" min="1" max="255" oninput="generateBytecode()">
+          </div>
+        </div>
+
+        <div class="calc-row" id="calc-param-container">
+          <!-- Dynamically populated parameters -->
+        </div>
+
+        <div class="calc-output">
+          <div class="output-title">Generated Master Bytecode Frame (Hex & Dec)</div>
+          <div class="byte-sequence" id="byte-sequence-display">
+            <!-- Injected byte pills -->
+          </div>
+          <p style="margin-top: 0.75rem; font-family: var(--font-mono); font-size: 0.82rem; color: var(--text-muted);" id="calc-explanation">
+            Explanation will appear here.
+          </p>
+
+          <button class="tab-btn" style="background: var(--accent-emerald); color: white; margin-top: 0.85rem;" onclick="transmitCalcFrameToSim()">
+            ▶️ Transmit Frame to Virtual Thermostat Twin
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 8: Pitfalls & Clarifications -->
+    <section id="clarifications">
+      <h2>8. Protocol Gotchas & Clarifications</h2>
+      <p>
+        The official Heatmiser specification contains subtleties that frequently cause integration bugs. Here are critical clarifications:
+      </p>
+
+      <div class="callout callout-warning">
+        <div class="callout-title">1. The Endianness Trap: Big-Endian Reads vs. Little-Endian Writes!</div>
+        <p>
+          Page 4 states: <em>"For those with 2 bytes parameters, when reading, high 8 bits are sent first while for writing the low 8 bit should be sent first"</em>.
+          <br>
+          For Holiday Hours (Address 24) and Countdown Minutes (Address 26):
+          <br>
+          • <strong>When reading from DCB:</strong> High byte is at index <code>N</code>, low byte is at index <code>N+1</code> (Big-Endian).
+          <br>
+          • <strong>When writing command frames:</strong> Low byte is sent first, followed by high byte (Little-Endian).
+        </p>
+      </div>
+
+      <div class="callout callout-info">
+        <div class="callout-title">2. Unique Address vs. DCB Index</div>
+        <p>
+          In the PDF tables, there are two address columns:
+          <br>
+          • <strong>Unique Address:</strong> The network address used in write command frames (Bytes 4–5).
+          <br>
+          • <strong>Index in DCB:</strong> The zero-indexed byte position in the received read reply payload. These often differ! For instance, on TM1, Program Mode is Unique Address <code>16</code>, but lives at DCB Index <code>6</code>.
+        </p>
+      </div>
+
+      <div class="callout callout-danger">
+        <div class="callout-title">3. Hour 24 Represents a Cancelled Period</div>
+        <p>
+          In both heating comfort levels and timer switching periods, an Hour value of <code>24</code> (<code>0x18</code>) denotes that this switching interval is cancelled/disabled, not midnight (which is Hour <code>00</code>).
+        </p>
+      </div>
+
+      <div class="callout callout-success">
+        <div class="callout-title">4. Temperature Sensor Scaling (Divided by 10)</div>
+        <p>
+          Remote air temperature, floor temperature, and built-in temperature values are returned as 16-bit integers multiplied by 10. A value of <code>215</code> represents <strong>21.5°C</strong>. If a sensor is disconnected or absent, the value returns <code>0xFFFF</code> (65535).
+        </p>
+      </div>
+    </section>
+
+    <!-- Section 9: Python API Reference -->
+    <section id="api-examples">
+      <h2>9. Python API Quickstart & Examples</h2>
+      
+      <div class="code-header"><span>Example: TM1 Timer Thermostat Automation</span><span>Python</span></div>
+      <pre><code>from heatmiserv3 import heatmiser, connection
+
+# 1. Connect to UH1 wiring centre over TCP/Serial bridge
+uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")
+
+# 2. Instantiate TM1 thermostat (Address 1)
+tm1 = heatmiser.TM1Thermostat(address=1, uh1=uh1)
+
+# 3. Read current status & telemetry
+print(f"Model ID: {tm1.get_model()}")               # 5
+print(f"Program Mode: {tm1.get_program_mode()}")     # '5/2 mode'
+print(f"Timer State: {tm1.get_timer_state()}")       # 0 (Auto), 1 (On), 2 (Off)
+print(f"Clock: {tm1.get_time()}")                    # {'week': 1, 'hour': 12, 'min': 30, 'sec': 0}
+
+# 4. Configure parameters (generates valid bytecode frames with CRC)
+tm1.set_on_off(1)                       # Turn thermostat on
+tm1.set_key_lock(0)                     # Unlock keypad
+tm1.set_holiday_hours(168)              # 7-day holiday (168 hours)
+tm1.set_countdown_timer(120)            # 2-hour countdown timer
+tm1.set_timer_state(1)                  # Override timer to ON
+
+# 5. Configure 5/2 Weekday switching schedule (4 pairs: On H/M, Off H/M)
+weekday_schedule = [
+    6, 30,  8, 30,   # Time 1: 06:30 On, 08:30 Off
+    17, 0, 22, 30,   # Time 2: 17:00 On, 22:30 Off
+    24, 0, 24,  0,   # Time 3: Cancelled (Hour 24)
+    24, 0, 24,  0,   # Time 4: Cancelled (Hour 24)
+]
+tm1.set_weekday_schedule(weekday_schedule)
+</code></pre>
+    </section>
+
+  </main>
+
+    <!-- ====================================================================
+         Adjacent Virtual Thermostat Digital Twin & Hardware Test Harness
+         ==================================================================== -->
+    <aside id="device-dock">
+      <div class="dock-header">
+        <div class="dock-title-group">
+          <span class="dock-title">⚡ Virtual Thermostat Twin</span>
+          <span class="dock-status-badge" id="dock-comm-badge">RS485: ADDR 01</span>
+        </div>
+        <button class="dock-close-btn" onclick="toggleDockDrawer()" title="Close Dock">✕</button>
+      </div>
+
+      <div class="dock-body">
+        <!-- Model Selection & LCD Backlight Toolbar -->
+        <div class="dock-toolbar">
+          <div class="model-pills">
+            <button class="model-pill active" id="pill-prt" onclick="selectModel('prt')">PRT / PRT-E</button>
+            <button class="model-pill" id="pill-prthw" onclick="selectModel('prt-hw')">PRT-HW</button>
+            <button class="model-pill" id="pill-tm1" onclick="selectModel('tm1')">TM1</button>
+            <button class="model-pill" id="pill-hcen" onclick="selectModel('hcen')">HC-EN</button>
+          </div>
+          <div class="backlight-selector" title="Switch LCD Backlight">
+            <span class="backlight-dot dot-cyan active" onclick="setBacklight('cyan')" title="Cyan Backlight"></span>
+            <span class="backlight-dot dot-green" onclick="setBacklight('green')" title="Emerald Backlight"></span>
+            <span class="backlight-dot dot-amber" onclick="setBacklight('amber')" title="Amber Backlight"></span>
+            <span class="backlight-dot dot-mono" onclick="setBacklight('mono')" title="Mono LCD"></span>
+          </div>
+        </div>
+
+        <!-- Thermostat Faceplate & Backlit LCD Screen -->
+        <div class="thermostat-casing">
+          <div class="casing-badge">
+            <span class="brand-heatmiser">HEATMISER</span>
+            <span class="casing-model-tag" id="screen-model-tag">PRT-N (v3.9)</span>
+          </div>
+
+          <div class="thermostat-screen backlight-cyan" id="virtual-screen">
+            <!-- Tamper Lockout Warning Overlay -->
+            <div class="lcd-tamper-overlay" id="lcd-tamper-alert">
+              <div style="font-size: 1.6rem; margin-bottom: 0.25rem;">🔒</div>
+              <div style="font-size: 0.95rem;">KEYPAD LOCKED</div>
+              <div style="font-size: 0.75rem; opacity: 0.9; margin-top: 0.2rem;">DCB Addr 22 = 1 (Anti-Tamper Active)</div>
+            </div>
+
+            <!-- Screen Top Bar: Days, Clock, Comm Dot -->
+            <div class="lcd-topbar">
+              <div class="lcd-days">
+                <span class="day-item active" id="day-1">MON</span>
+                <span class="day-item" id="day-2">TUE</span>
+                <span class="day-item" id="day-3">WED</span>
+                <span class="day-item" id="day-4">THU</span>
+                <span class="day-item" id="day-5">FRI</span>
+                <span class="day-item" id="day-6">SAT</span>
+                <span class="day-item" id="day-7">SUN</span>
+              </div>
+              <div class="lcd-clock-group">
+                <span class="lcd-comm-blip" id="lcd-blip"></span>
+                <span id="lcd-clock-time">14:35:00</span>
+              </div>
+            </div>
+
+            <!-- Screen Center: Large Temperature Display -->
+            <div class="lcd-center">
+              <div class="lcd-digits-temp" id="lcd-room-temp">
+                21.5<span class="temp-unit">°C</span>
+              </div>
+              <div class="lcd-sub-readout">
+                <span class="lcd-setpoint-pill" id="lcd-setpoint-pill">SET 22.0°C</span>
+                <span class="lcd-floor-readout" id="lcd-floor-readout">FLR 24.0°C</span>
+              </div>
+            </div>
+
+            <!-- Screen Bottom Bar: Status Icons -->
+            <div class="lcd-icons-bar">
+              <span class="lcd-icon" id="icon-flame" title="Flame (Heating Call)">🔥</span>
+              <span class="lcd-icon" id="icon-frost" title="Snowflake (Frost Protection / Cooling)">❄️</span>
+              <span class="lcd-icon" id="icon-lock" title="Padlock (Keypad Lock)">🔒</span>
+              <span class="lcd-icon" id="icon-holiday" title="Suitcase (Holiday Mode)">🧳</span>
+              <span class="lcd-icon" id="icon-timer" title="Countdown Timer (TM1)">⏱️</span>
+              <span class="lcd-icon" id="icon-tap" title="Tap (Hot Water HW)">🚿</span>
+              <span class="lcd-icon" id="icon-hold" title="House (Temperature Hold)">🏠</span>
+            </div>
+          </div>
+
+          <!-- Tactile Faceplate Buttons -->
+          <div class="thermostat-keypad">
+            <button class="keypad-btn" onclick="onKeypadPress('power')" title="Power / Standby">⏻</button>
+            <button class="keypad-btn" onclick="onKeypadPress('down')" title="Decrease Setpoint">▼</button>
+            <button class="keypad-btn" onclick="onKeypadPress('up')" title="Increase Setpoint">▲</button>
+            <button class="keypad-btn" onclick="onKeypadPress('hold')" title="2-Hour Temp Hold">H</button>
+            <button class="keypad-btn" onclick="onKeypadPress('mode')" title="View Schedule / Program">🕒</button>
+          </div>
+        </div>
+
+        <!-- Physical Relay Terminal Board -->
+        <div class="terminal-board-card">
+          <div class="section-subtitle">
+            <span>Physical Relay Output &amp; Terminals</span>
+            <span style="color: var(--text-muted); font-size: 0.68rem;">230V / Volt-Free</span>
+          </div>
+
+          <!-- Terminal Block Strip -->
+          <div class="terminal-strip">
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">1<br>HEAT</span></div>
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">2<br>COM</span></div>
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">3<br>HW/TM</span></div>
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">4<br>COM</span></div>
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">FS<br>PROBE</span></div>
+            <div class="screw-terminal"><div class="screw-head"></div><span class="terminal-label">0V<br>GND</span></div>
+          </div>
+
+          <!-- Relay Contacts & Animated Schematics -->
+          <div class="relays-grid">
+            <!-- Relay 1: Heating Contact -->
+            <div class="relay-item" id="relay-heat-card">
+              <div class="relay-meta">
+                <span class="relay-name">
+                  <span class="status-led led-red" id="led-heat"></span>
+                  Relay 1: Heating (Terminals 1 &amp; 2)
+                </span>
+                <span class="relay-sub" id="relay-heat-status">OPEN (De-energized)</span>
+              </div>
+              <div class="relay-visual">
+                <svg class="switch-svg" viewBox="0 0 42 22">
+                  <circle cx="8" cy="17" r="2.5" fill="var(--text-muted)"/>
+                  <circle cx="34" cy="17" r="2.5" fill="var(--text-muted)"/>
+                  <line x1="2" y1="17" x2="8" y2="17" class="switch-line"/>
+                  <line x1="34" y1="17" x2="40" y2="17" class="switch-line"/>
+                  <line x1="8" y1="17" x2="34" y2="17" class="switch-arm"/>
+                </svg>
+              </div>
+            </div>
+
+            <!-- Relay 2: Hot Water / TM1 Timer Contact -->
+            <div class="relay-item" id="relay-hw-card">
+              <div class="relay-meta">
+                <span class="relay-name">
+                  <span class="status-led led-amber" id="led-hw"></span>
+                  <span id="relay-hw-title">Relay 2: Hot Water (Terminals 3 &amp; 4)</span>
+                </span>
+                <span class="relay-sub" id="relay-hw-status">OPEN (De-energized)</span>
+              </div>
+              <div class="relay-visual">
+                <svg class="switch-svg" viewBox="0 0 42 22">
+                  <circle cx="8" cy="17" r="2.5" fill="var(--text-muted)"/>
+                  <circle cx="34" cy="17" r="2.5" fill="var(--text-muted)"/>
+                  <line x1="2" y1="17" x2="8" y2="17" class="switch-line"/>
+                  <line x1="34" y1="17" x2="40" y2="17" class="switch-line"/>
+                  <line x1="8" y1="17" x2="34" y2="17" class="switch-arm"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Connected Equipment Real-World State -->
+          <div class="equipment-cards">
+            <div class="equipment-pill">
+              <span class="eq-label">Central Heating Boiler / Valve</span>
+              <span class="eq-val eq-idle" id="eq-boiler">STANDBY ⏸️</span>
+            </div>
+            <div class="equipment-pill">
+              <span class="eq-label" id="eq-secondary-label">Hot Water Cylinder Valve</span>
+              <span class="eq-val eq-idle" id="eq-secondary-val">OFF ⚪</span>
+            </div>
+          </div>
+
+          <!-- Safety Cutout Trip Banner -->
+          <div class="safety-cutout-alert" id="safety-cutout-banner">
+            🚨 <strong>SAFETY CUTOUT TRIPPED:</strong> Floor probe temperature (<span id="alert-floor-temp">36°C</span>) has exceeded the configured limit (<span id="alert-floor-limit">32°C</span>). Heating relay forcibly disengaged to protect wood flooring/screed.
+          </div>
+        </div>
+
+        <!-- Real-World Environment Simulator -->
+        <div class="env-simulator-card">
+          <div class="section-subtitle">
+            <span>Environment Simulator</span>
+            <span style="color: var(--text-muted); font-size: 0.68rem;">Physical Ambient Inputs</span>
+          </div>
+
+          <!-- Room Temperature Slider -->
+          <div class="env-slider-row">
+            <div class="slider-header">
+              <span>Ambient Room Temperature</span>
+              <span class="slider-val-badge" id="badge-room-temp">21.5°C</span>
+            </div>
+            <div class="slider-controls">
+              <button class="nudge-btn" onclick="nudgeEnv('room', -0.5)">−</button>
+              <input type="range" class="env-range" id="slider-room-temp" min="5" max="35" step="0.5" value="21.5" oninput="onEnvSliderChange()">
+              <button class="nudge-btn" onclick="nudgeEnv('room', 0.5)">+</button>
+            </div>
+          </div>
+
+          <!-- Floor Temperature Slider -->
+          <div class="env-slider-row">
+            <div class="slider-header">
+              <span>Floor Probe Temperature</span>
+              <span class="slider-val-badge" id="badge-floor-temp">24.0°C</span>
+            </div>
+            <div class="slider-controls">
+              <button class="nudge-btn" onclick="nudgeEnv('floor', -1)">−</button>
+              <input type="range" class="env-range" id="slider-floor-temp" min="10" max="50" step="1" value="24" oninput="onEnvSliderChange()">
+              <button class="nudge-btn" onclick="nudgeEnv('floor', 1)">+</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.35rem; font-size: 0.72rem; color: var(--text-muted);">
+              <input type="checkbox" id="check-floor-connected" checked onchange="onEnvSliderChange()">
+              <label for="check-floor-connected">Floor Probe Connected (Uncheck to test 0xFFFF Open-Circuit Fault)</label>
+            </div>
+          </div>
+
+          <!-- Environment Presets -->
+          <div class="env-preset-bar">
+            <span class="preset-chip" onclick="setEnvPreset(16, 18)">❄️ Cold Winter (16°C)</span>
+            <span class="preset-chip" onclick="setEnvPreset(21.5, 23)">☀️ Mild Room (21.5°C)</span>
+            <span class="preset-chip" onclick="setEnvPreset(19, 38)">🔥 Hot Floor (38°C)</span>
+            <span class="preset-chip" onclick="setEnvPreset(3, 8)">🧊 Sub-Zero (3°C)</span>
+          </div>
+        </div>
+
+        <!-- Live DCB Register Mutation Panel -->
+        <div class="calculator-card" style="margin: 0; padding: 1.15rem;">
+          <div class="section-subtitle">
+            <span>Direct DCB Register Mutator</span>
+            <span style="color: var(--text-muted); font-size: 0.68rem;">Write via RS485</span>
+          </div>
+
+          <div class="calc-row" style="grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div class="calc-field">
+              <label for="dcb-input-settemp">Setpoint (Addr 18)</label>
+              <input type="number" id="dcb-input-settemp" min="5" max="35" value="22" oninput="applyDCBForm()">
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-runmode">Power State (Addr 21)</label>
+              <select id="dcb-input-runmode" onchange="applyDCBForm()">
+                <option value="1" selected>1: Thermostat ON</option>
+                <option value="0">0: Standby (OFF)</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-keylock">Keypad Lock (Addr 22)</label>
+              <select id="dcb-input-keylock" onchange="applyDCBForm()">
+                <option value="0" selected>0: Unlocked</option>
+                <option value="1">1: Full Lock</option>
+                <option value="2">2: Partial Lock</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-diff">Differential (Addr 27)</label>
+              <select id="dcb-input-diff" onchange="applyDCBForm()">
+                <option value="1" selected>1°C Differential</option>
+                <option value="2">2°C Differential</option>
+                <option value="3">3°C Differential</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-sensormode">Sensor Mode (Addr 28)</label>
+              <select id="dcb-input-sensormode" onchange="applyDCBForm()">
+                <option value="0">0: Internal Only</option>
+                <option value="1">1: Remote Air</option>
+                <option value="2">2: Floor Only</option>
+                <option value="3" selected>3: Internal + Floor</option>
+              </select>
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-floorlimit">Floor Max (Addr 29)</label>
+              <input type="number" id="dcb-input-floorlimit" min="20" max="45" value="32" oninput="applyDCBForm()">
+            </div>
+            <div class="calc-field">
+              <label for="dcb-input-holiday">Holiday Hours (Addr 24)</label>
+              <input type="number" id="dcb-input-holiday" min="0" max="999" value="0" oninput="applyDCBForm()">
+            </div>
+            <div class="calc-field" id="dcb-field-model-specific">
+              <label for="dcb-input-extra" id="dcb-label-extra">Hot Water State (Addr 41)</label>
+              <select id="dcb-input-extra" onchange="applyDCBForm()">
+                <option value="0">0: Auto / Off</option>
+                <option value="1">1: Boost ON</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live DCB Hex Memory Map & RS485 Wire Telemetry -->
+        <div class="telemetry-card">
+          <div class="section-subtitle">
+            <span>Live DCB Memory Buffer</span>
+            <span style="color: var(--text-muted); font-size: 0.68rem;" id="dcb-size-label">73 Bytes</span>
+          </div>
+
+          <p style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.4rem;">
+            Hover over any memory cell to inspect its zero-indexed DCB offset, register name, and current byte value.
+          </p>
+
+          <div class="dcb-hex-grid" id="dcb-hex-container">
+            <!-- Dynamically populated 73 hex cells -->
+          </div>
+
+          <div class="section-subtitle" style="margin-top: 1rem; margin-bottom: 0.35rem;">
+            <span>Last RS485 Bus Write Frame</span>
+            <span style="color: var(--accent-emerald); font-size: 0.68rem;">CRC-16 Verified</span>
+          </div>
+          <div class="wire-frame-box" id="wire-frame-display">
+            <!-- Byte sequence -->
+          </div>
+
+          <div class="python-code-card">
+            <span id="py-code-snippet">thermostat.set_temperature(22)</span>
+            <button class="copy-btn" onclick="copySnippet()">Copy</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- /#workspace-container -->
+
+  <!-- Floating Toggle Button for Drawer Mode on Small Screens & Docs Mode -->
+  <button id="floating-dock-btn" onclick="toggleDockDrawer()">
+    <span class="pulse-dot"></span> ⚡ Virtual Device Twin
+  </button>
+
+  <script>
+    // Tab Switching
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.tab-btn')).find(b => b.getAttribute('onclick').includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const targetPanel = document.getElementById(tabId);
+      if (targetPanel) targetPanel.classList.add('active');
+    }
+
+    // Theme Toggle
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('theme-icon').textContent = next === 'light' ? '🌙' : '☀️';
+      document.getElementById('theme-text').textContent = next === 'light' ? 'Dark Theme' : 'Light Theme';
+    }
+
+    // CRC16 CCITT (0xFFFF) Implementation in JS matching Appendix A
+    const LookupHigh = [0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x81, 0x91, 0xa1, 0xb1, 0xc1, 0xd1, 0xe1, 0xf1];
+    const LookupLow  = [0x00, 0x21, 0x42, 0x63, 0x84, 0xa5, 0xc6, 0xe7, 0x08, 0x29, 0x4a, 0x6b, 0x8c, 0xad, 0xce, 0xef];
+
+    function calculateCRC16(bytes) {
+      let high = 0xff;
+      let low = 0xff;
+
+      function updateNibble(val) {
+        let t = (high >> 4) ^ val;
+        high = ((high << 4) | (low >> 4)) & 0xff;
+        low = (low << 4) & 0xff;
+        high = (high ^ LookupHigh[t]) & 0xff;
+        low = (low ^ LookupLow[t]) & 0xff;
+      }
+
+      for (let b of bytes) {
+        updateNibble(b >> 4);
+        updateNibble(b & 0x0f);
+      }
+      return [low, high];
+    }
+
+    // Dynamic Parameter Fields for Calculator
+    function updateCalcFields() {
+      const cmd = document.getElementById('calc-command').value;
+      const container = document.getElementById('calc-param-container');
+      container.innerHTML = '';
+
+      if (cmd === 'on_off') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>On / Off State</label>
+            <select id="param-val" onchange="generateBytecode()">
+              <option value="0">0 (Off)</option>
+              <option value="1" selected>1 (On)</option>
+            </select>
+          </div>`;
+      } else if (cmd === 'key_lock') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Key Lock State</label>
+            <select id="param-val" onchange="generateBytecode()">
+              <option value="0">0 (Unlock)</option>
+              <option value="1" selected>1 (Lock)</option>
+            </select>
+          </div>`;
+      } else if (cmd === 'holiday') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Holiday Hours [0–65535]</label>
+            <input type="number" id="param-val" value="168" min="0" max="65535" oninput="generateBytecode()">
+          </div>`;
+      } else if (cmd === 'countdown') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Countdown Minutes [0–1800]</label>
+            <input type="number" id="param-val" value="60" min="0" max="1800" oninput="generateBytecode()">
+          </div>`;
+      } else if (cmd === 'override') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Timer State Override</label>
+            <select id="param-val" onchange="generateBytecode()">
+              <option value="0">0 = Auto (Programmed)</option>
+              <option value="1" selected>1 = Override ON</option>
+              <option value="2">2 = Override OFF</option>
+            </select>
+          </div>`;
+      } else if (cmd === 'clock') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Weekday [1=Mon .. 7=Sun]</label>
+            <input type="number" id="param-week" value="3" min="1" max="7" oninput="generateBytecode()">
+          </div>
+          <div class="calc-field">
+            <label>Hour [0–23]</label>
+            <input type="number" id="param-hour" value="14" min="0" max="23" oninput="generateBytecode()">
+          </div>
+          <div class="calc-field">
+            <label>Minute [0–59]</label>
+            <input type="number" id="param-min" value="30" min="0" max="59" oninput="generateBytecode()">
+          </div>
+          <div class="calc-field">
+            <label>Second [0–59]</label>
+            <input type="number" id="param-sec" value="0" min="0" max="59" oninput="generateBytecode()">
+          </div>`;
+      } else if (cmd === 'prog_mode') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Program Mode</label>
+            <select id="param-val" onchange="generateBytecode()">
+              <option value="0">0 = 5/2 Day Mode</option>
+              <option value="1">1 = 7 Day Mode</option>
+              <option value="2">2 = Countdown Timer Mode</option>
+            </select>
+          </div>`;
+      } else if (cmd === 'set_temp') {
+        container.innerHTML = `
+          <div class="calc-field">
+            <label>Set Room Temp [5–35 °C]</label>
+            <input type="number" id="param-val" value="21" min="5" max="35" oninput="generateBytecode()">
+          </div>`;
+      }
+      generateBytecode();
+    }
+
+    function generateBytecode() {
+      const dest = parseInt(document.getElementById('calc-dest').value) || 1;
+      const cmd = document.getElementById('calc-command').value;
+      const src = 0x81; // 129 Master
+      let func = 1;
+      let start = 0;
+      let payload = [];
+      let explanation = "";
+
+      if (cmd === 'read_all') {
+        func = 0;
+        start = 0;
+        let len = 0xFFFF;
+        let frame = [dest, 10, src, func, 0, 0, 255, 255];
+        let crc = calculateCRC16(frame);
+        renderFrame(frame.concat(crc), "Read Entire DCB: Dest=" + dest + ", Start=0x0000, Length=0xFFFF");
+        return;
+      } else if (cmd === 'on_off') {
+        start = 21;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        payload = [v];
+        explanation = "Set On/Off (Unique Addr 21): State = " + (v ? "ON" : "OFF");
+      } else if (cmd === 'key_lock') {
+        start = 22;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        payload = [v];
+        explanation = "Set Key Lock (Unique Addr 22): State = " + (v ? "LOCKED" : "UNLOCKED");
+      } else if (cmd === 'holiday') {
+        start = 24;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        // Little endian when write
+        payload = [v & 0xff, (v >> 8) & 0xff];
+        explanation = "Set Holiday Hours (Unique Addr 24): " + v + " hours (Little-Endian: Low=" + payload[0] + ", High=" + payload[1] + ")";
+      } else if (cmd === 'countdown') {
+        start = 26;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        payload = [v & 0xff, (v >> 8) & 0xff];
+        explanation = "Set Countdown (Unique Addr 26): " + v + " minutes (Little-Endian: Low=" + payload[0] + ", High=" + payload[1] + ")";
+      } else if (cmd === 'override') {
+        start = 42;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        payload = [v];
+        const labels = ["0 (Auto Program)", "1 (Override ON)", "2 (Override OFF)"];
+        explanation = "Set Timer State Override (Unique Addr 42): " + labels[v];
+      } else if (cmd === 'clock') {
+        start = 43;
+        const w = parseInt(document.getElementById('param-week')?.value) || 1;
+        const h = parseInt(document.getElementById('param-hour')?.value) || 0;
+        const m = parseInt(document.getElementById('param-min')?.value) || 0;
+        const s = parseInt(document.getElementById('param-sec')?.value) || 0;
+        payload = [w, h, m, s];
+        explanation = `Set RTC (Unique Addr 43): Week=${w}, Time=${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      } else if (cmd === 'prog_mode') {
+        start = 16;
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        payload = [v];
+        const modes = ["5/2 Day Mode", "7 Day Mode", "Countdown Timer Mode"];
+        explanation = "Set Program Mode (Unique Addr 16): " + modes[v];
+      } else if (cmd === 'set_temp') {
+        start = 18;
+        const v = parseInt(document.getElementById('param-val').value) || 21;
+        payload = [v];
+        explanation = "Set Room Temp (Unique Addr 18): " + v + "°C";
+      }
+
+      const totalLen = 10 + payload.length;
+      let frame = [
+        dest,
+        totalLen,
+        src,
+        func,
+        start & 0xff,
+        (start >> 8) & 0xff,
+        payload.length & 0xff,
+        (payload.length >> 8) & 0xff
+      ].concat(payload);
+
+      let crc = calculateCRC16(frame);
+      renderFrame(frame.concat(crc), explanation);
+    }
+
+    function renderFrame(fullFrame, explanation) {
+      const container = document.getElementById('byte-sequence-display');
+      container.innerHTML = '';
+
+      fullFrame.forEach((byteVal, idx) => {
+        const hex = byteVal.toString(16).toUpperCase().padStart(2, '0');
+        const pill = document.createElement('div');
+        pill.className = 'byte-pill';
+        
+        if (idx >= fullFrame.length - 2) {
+          pill.classList.add('pill-crc');
+        } else if (idx >= 8) {
+          pill.classList.add('pill-payload');
+        }
+
+        pill.innerHTML = `<span class="b-hex">${hex}</span><span class="b-dec">${byteVal}</span>`;
+        container.appendChild(pill);
+      });
+
+      document.getElementById('calc-explanation').textContent = explanation;
+    }
+
+    /* ==========================================================================
+       Virtual Thermostat Digital Twin Simulation Engine
+       ========================================================================== */
+    const simState = {
+      model: 'prt', // 'prt', 'prt-hw', 'tm1', 'hcen'
+      address: 1,
+      backlight: 'cyan',
+      // Real physical ambient environment
+      roomTemp: 21.5,
+      floorTemp: 24.0,
+      floorConnected: true,
+      outsideTemp: 8.0,
+      // Key DCB Registers
+      runMode: 1,          // Addr 21: 1: On, 0: Standby
+      keyLock: 0,          // Addr 22: 0: Unlocked, 1: Full, 2: Partial
+      setTemp: 22.0,       // Addr 18: Target setpoint in °C
+      frostTemp: 12.0,     // Addr 17: Frost protect setpoint
+      differential: 1.0,   // Addr 27: 1, 2, 3 °C
+      sensorMode: 3,       // Addr 28: 0: Int, 1: Remote, 2: Floor, 3: Int+Floor
+      floorMaxLimit: 32.0, // Addr 29: 20-45 °C
+      holidayHours: 0,     // Addr 24-25: Remaining holiday hours
+      tempHoldHours: 0,
+      tempHoldSetTemp: 22.0,
+      hotWaterState: 0,    // Addr 41 (PRT-HW): 0: Auto/Off, 1: Boost On
+      timerState: 0,       // Addr 42 (TM1): 0: Auto, 1: On, 2: Off
+      countdownMinutes: 0, // Addr 26-27 (TM1): Countdown mins
+      progMode: 0,         // Addr 16 (TM1): 0: 5/2, 1: 7day, 2: Countdown
+      // Computed real-world electrical & thermodynamic outputs
+      heatingRelay: false,
+      hotWaterRelay: false,
+      coolingRelay: false,
+      floorOverheatCutout: false,
+      frostActive: false,
+      sensorFault: false,
+      lastModifiedIndex: 18,
+      lastTxFrame: [1, 11, 129, 1, 18, 0, 1, 0, 22, 0x2A, 0x6E],
+      pySnippet: 'thermostat.set_temperature(22)'
+    };
+
+    // Layout Mode Management
+    function setLayoutMode(mode) {
+      document.body.classList.remove('mode-split', 'mode-docs', 'mode-simulator');
+      document.body.classList.add('mode-' + mode);
+      ['split', 'docs', 'sim'].forEach(m => {
+        const btn = document.getElementById('btn-mode-' + m);
+        if (btn) btn.classList.toggle('active', (m === 'sim' ? 'simulator' : m) === mode);
+      });
+      localStorage.setItem('hm_layout_mode', mode);
+    }
+
+    function toggleDockDrawer() {
+      const dock = document.getElementById('device-dock');
+      if (dock) dock.classList.toggle('dock-open');
+    }
+
+    // Model & Backlight Selection
+    function selectModel(model) {
+      simState.model = model;
+      document.querySelectorAll('.model-pill').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = document.getElementById('pill-' + model.replace('-', ''));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      const extraField = document.getElementById('dcb-field-model-specific');
+      const extraLabel = document.getElementById('dcb-label-extra');
+      const extraSelect = document.getElementById('dcb-input-extra');
+      const hwTitle = document.getElementById('relay-hw-title');
+      const secLabel = document.getElementById('eq-secondary-label');
+      const tag = document.getElementById('screen-model-tag');
+      const sizeLabel = document.getElementById('dcb-size-label');
+
+      if (model === 'prt') {
+        tag.textContent = 'PRT-N (v3.9)';
+        extraField.style.display = 'none';
+        hwTitle.textContent = 'Relay 2: Auxiliary (Unused)';
+        secLabel.textContent = 'Auxiliary Relay';
+        sizeLabel.textContent = '73 Bytes';
+      } else if (model === 'prt-hw') {
+        tag.textContent = 'PRT-HW (Dual Channel)';
+        extraField.style.display = 'block';
+        extraLabel.textContent = 'Hot Water State (Addr 41)';
+        extraSelect.innerHTML = '<option value="0">0: Auto / Off</option><option value="1">1: Boost ON</option>';
+        extraSelect.value = simState.hotWaterState;
+        hwTitle.textContent = 'Relay 2: Hot Water (Terminals 3 & 4)';
+        secLabel.textContent = 'DHW Cylinder Valve';
+        sizeLabel.textContent = '73 Bytes';
+      } else if (model === 'tm1') {
+        tag.textContent = 'TM1 Time Clock';
+        extraField.style.display = 'block';
+        extraLabel.textContent = 'Timer Override (Addr 42)';
+        extraSelect.innerHTML = '<option value="0">0: Auto (Program)</option><option value="1">1: Constant ON</option><option value="2">2: Constant OFF</option>';
+        extraSelect.value = simState.timerState;
+        hwTitle.textContent = 'Relay 2: Channel 2 (Aux)';
+        secLabel.textContent = 'Timed Auxiliary Circuit';
+        sizeLabel.textContent = '43 Bytes';
+      } else if (model === 'hcen') {
+        tag.textContent = 'HC-EN (Heat & Cool)';
+        extraField.style.display = 'none';
+        hwTitle.textContent = 'Relay 2: Cooling (Terminals 5 & 6)';
+        secLabel.textContent = 'Chiller / AC Unit';
+        sizeLabel.textContent = '73 Bytes';
+      }
+
+      evaluateThermostat();
+    }
+
+    function setBacklight(theme) {
+      simState.backlight = theme;
+      const scr = document.getElementById('virtual-screen');
+      scr.className = 'thermostat-screen backlight-' + theme;
+      document.querySelectorAll('.backlight-dot').forEach(d => {
+        d.classList.toggle('active', d.classList.contains('dot-' + theme));
+      });
+    }
+
+    // Thermodynamic & Electrical Evaluation Logic
+    function evaluateThermostat() {
+      const s = simState;
+      s.sensorFault = (!s.floorConnected && (s.sensorMode === 2 || s.sensorMode === 3));
+
+      // 1. Underfloor Overheat Safety Interlock
+      if (!s.sensorFault && (s.sensorMode === 2 || s.sensorMode === 3)) {
+        if (s.floorTemp >= s.floorMaxLimit) {
+          s.floorOverheatCutout = true;
+        } else if (s.floorTemp <= s.floorMaxLimit - 1.0) {
+          s.floorOverheatCutout = false;
+        }
+      } else {
+        s.floorOverheatCutout = false;
+      }
+
+      // 2. Heating Relay Evaluation (PRT, PRT-HW, HC-EN)
+      if (s.model === 'prt' || s.model === 'prt-hw' || s.model === 'hcen') {
+        if (s.floorOverheatCutout) {
+          // Emergency Thermal Safety Cutout overrides everything!
+          s.heatingRelay = false;
+          s.frostActive = false;
+        } else if (s.holidayHours > 0) {
+          // Holiday setback: Target = Frost Temp (12°C)
+          const target = s.frostTemp;
+          if (s.roomTemp <= target - s.differential) {
+            s.heatingRelay = true;
+            s.frostActive = true;
+          } else if (s.roomTemp >= target) {
+            s.heatingRelay = false;
+            s.frostActive = false;
+          }
+        } else if (s.runMode === 0) {
+          // Standby / Off mode: Freeze protection remains armed!
+          if (s.roomTemp <= s.frostTemp) {
+            s.heatingRelay = true;
+            s.frostActive = true;
+          } else {
+            s.heatingRelay = false;
+            s.frostActive = false;
+          }
+        } else {
+          // Normal mode with switching differential hysteresis
+          s.frostActive = false;
+          let effectiveTarget = (s.tempHoldHours > 0) ? s.tempHoldSetTemp : s.setTemp;
+          if (s.heatingRelay) {
+            if (s.roomTemp >= effectiveTarget) {
+              s.heatingRelay = false;
+            }
+          } else {
+            if (s.roomTemp <= effectiveTarget - s.differential) {
+              s.heatingRelay = true;
+            }
+          }
+        }
+      }
+
+      // 3. Hot Water Relay Evaluation (PRT-HW)
+      if (s.model === 'prt-hw') {
+        if (s.holidayHours > 0) {
+          s.hotWaterRelay = false; // Suppressed during holiday
+        } else {
+          s.hotWaterRelay = (s.hotWaterState === 1);
+        }
+      } else {
+        s.hotWaterRelay = false;
+      }
+
+      // 4. TM1 Relay Evaluation
+      if (s.model === 'tm1') {
+        if (s.runMode === 0) {
+          s.heatingRelay = false;
+        } else if (s.countdownMinutes > 0) {
+          s.heatingRelay = true;
+        } else if (s.timerState === 1) {
+          s.heatingRelay = true;
+        } else if (s.timerState === 2) {
+          s.heatingRelay = false;
+        } else {
+          s.heatingRelay = false;
+        }
+      }
+
+      // 5. HC-EN Cooling Relay Evaluation
+      if (s.model === 'hcen') {
+        const coolSet = 24.0;
+        if (s.runMode === 1 && !s.floorOverheatCutout) {
+          if (s.coolingRelay) {
+            if (s.roomTemp <= coolSet) s.coolingRelay = false;
+          } else {
+            if (s.roomTemp >= coolSet + s.differential) s.coolingRelay = true;
+          }
+        } else {
+          s.coolingRelay = false;
+        }
+      } else {
+        s.coolingRelay = false;
+      }
+
+      renderLCD();
+      renderRelays();
+      renderDCBHexGrid();
+      syncDCBForm();
+    }
+
+    // Render LCD Screen
+    function renderLCD() {
+      const s = simState;
+      const roomDigits = document.getElementById('lcd-room-temp');
+      const setpointPill = document.getElementById('lcd-setpoint-pill');
+      const floorReadout = document.getElementById('lcd-floor-readout');
+
+      // Room Temp Digits
+      if (s.sensorFault) {
+        roomDigits.innerHTML = 'E2<span class="temp-unit">FLR</span>';
+      } else if (s.runMode === 0 && !s.frostActive) {
+        roomDigits.innerHTML = 'OFF';
+      } else {
+        roomDigits.innerHTML = `${s.roomTemp.toFixed(1)}<span class="temp-unit">°C</span>`;
+      }
+
+      // Setpoint Pill
+      if (s.holidayHours > 0) {
+        setpointPill.textContent = `HOLIDAY ${s.frostTemp.toFixed(0)}°C`;
+      } else if (s.tempHoldHours > 0) {
+        setpointPill.textContent = `HOLD ${s.tempHoldSetTemp.toFixed(1)}°C`;
+      } else if (s.model === 'tm1') {
+        if (s.countdownMinutes > 0) {
+          setpointPill.textContent = `BOOST ${s.countdownMinutes}m`;
+        } else {
+          setpointPill.textContent = s.timerState === 1 ? 'OVERRIDE ON' : (s.timerState === 2 ? 'OVERRIDE OFF' : 'AUTO PROG');
+        }
+      } else {
+        setpointPill.textContent = `SET ${s.setTemp.toFixed(1)}°C`;
+      }
+
+      // Floor Readout
+      if (s.floorOverheatCutout) {
+        floorReadout.textContent = `FLR HI ${s.floorTemp.toFixed(0)}°C`;
+        floorReadout.className = 'lcd-floor-readout warning-flash';
+      } else if (s.sensorMode === 2 || s.sensorMode === 3) {
+        floorReadout.textContent = `FLR ${s.floorTemp.toFixed(1)}°C`;
+        floorReadout.className = 'lcd-floor-readout';
+      } else {
+        floorReadout.textContent = `AIR SENS`;
+        floorReadout.className = 'lcd-floor-readout';
+      }
+
+      // LCD Icons
+      document.getElementById('icon-flame').classList.toggle('active', s.heatingRelay);
+      document.getElementById('icon-frost').classList.toggle('active', s.frostActive || s.coolingRelay);
+      document.getElementById('icon-lock').classList.toggle('active', s.keyLock > 0);
+      document.getElementById('icon-holiday').classList.toggle('active', s.holidayHours > 0);
+      document.getElementById('icon-timer').classList.toggle('active', s.countdownMinutes > 0 || (s.model === 'tm1' && s.heatingRelay));
+      document.getElementById('icon-tap').classList.toggle('active', s.hotWaterRelay);
+      document.getElementById('icon-hold').classList.toggle('active', s.tempHoldHours > 0);
+
+      // Environment Sliders Badges
+      document.getElementById('badge-room-temp').textContent = `${s.roomTemp.toFixed(1)}°C`;
+      document.getElementById('badge-floor-temp').textContent = `${s.floorTemp.toFixed(1)}°C`;
+      document.getElementById('slider-room-temp').value = s.roomTemp;
+      document.getElementById('slider-floor-temp').value = s.floorTemp;
+    }
+
+    // Render Relays & Physical Equipment
+    function renderRelays() {
+      const s = simState;
+      const heatCard = document.getElementById('relay-heat-card');
+      const heatStatus = document.getElementById('relay-heat-status');
+      const boilerVal = document.getElementById('eq-boiler');
+
+      const hwCard = document.getElementById('relay-hw-card');
+      const hwStatus = document.getElementById('relay-hw-status');
+      const secVal = document.getElementById('eq-secondary-val');
+
+      const cutoutBanner = document.getElementById('safety-cutout-banner');
+
+      // Relay 1 (Heating)
+      if (s.heatingRelay) {
+        heatCard.classList.add('relay-active');
+        heatStatus.textContent = 'CLOSED (230V / Active)';
+        boilerVal.textContent = 'FIRING 🔥';
+        boilerVal.className = 'eq-val eq-active';
+      } else {
+        heatCard.classList.remove('relay-active');
+        heatStatus.textContent = 'OPEN (De-energized)';
+        boilerVal.textContent = 'STANDBY ⏸️';
+        boilerVal.className = 'eq-val eq-idle';
+      }
+
+      // Relay 2 (HW / Timer / Cooling)
+      const r2Active = s.hotWaterRelay || (s.model === 'tm1' && s.heatingRelay) || s.coolingRelay;
+      if (r2Active) {
+        hwCard.classList.add('relay-active');
+        hwStatus.textContent = 'CLOSED (Active)';
+        if (s.model === 'prt-hw') {
+          secVal.textContent = 'HEATING 🚿';
+          secVal.className = 'eq-val eq-active-amber';
+        } else if (s.model === 'tm1') {
+          secVal.textContent = 'ENERGIZED ⏱️';
+          secVal.className = 'eq-val eq-active-amber';
+        } else if (s.model === 'hcen') {
+          secVal.textContent = 'COOLING ❄️';
+          secVal.className = 'eq-val eq-active';
+        }
+      } else {
+        hwCard.classList.remove('relay-active');
+        hwStatus.textContent = 'OPEN (De-energized)';
+        secVal.textContent = 'OFF ⚪';
+        secVal.className = 'eq-val eq-idle';
+      }
+
+      // Cutout Banner
+      if (s.floorOverheatCutout) {
+        cutoutBanner.style.display = 'block';
+        document.getElementById('alert-floor-temp').textContent = `${s.floorTemp.toFixed(1)}°C`;
+        document.getElementById('alert-floor-limit').textContent = `${s.floorMaxLimit.toFixed(0)}°C`;
+      } else {
+        cutoutBanner.style.display = 'none';
+      }
+    }
+
+    // Render DCB Memory Buffer Hex Map
+    function renderDCBHexGrid() {
+      const s = simState;
+      const totalBytes = (s.model === 'tm1') ? 43 : 73;
+      const buffer = new Array(totalBytes).fill(0);
+
+      // Populate DCB fields according to model
+      buffer[0] = s.address;
+      buffer[1] = totalBytes;
+      buffer[2] = 0x81; // UH1 Master
+
+      if (s.model === 'tm1') {
+        buffer[3] = 0x05; // Model TM1
+        buffer[6] = s.progMode;
+        buffer[21] = s.keyLock;
+        buffer[23] = (s.holidayHours >> 8) & 0xff; // Big-endian on read!
+        buffer[24] = s.holidayHours & 0xff;
+        buffer[25] = s.timerState;
+        buffer[26] = (s.countdownMinutes >> 8) & 0xff;
+        buffer[27] = s.countdownMinutes & 0xff;
+        buffer[28] = s.runMode;
+      } else {
+        buffer[3] = (s.model === 'prt-hw') ? 0x02 : 0x01;
+        buffer[16] = 0x00; // 5/2 mode
+        buffer[17] = Math.round(s.frostTemp);
+        buffer[18] = Math.round(s.setTemp);
+        buffer[21] = s.runMode;
+        buffer[22] = s.keyLock;
+        buffer[23] = (s.holidayHours >> 8) & 0xff;
+        buffer[24] = s.holidayHours & 0xff;
+        buffer[25] = Math.round(s.floorMaxLimit);
+        buffer[26] = 0; // Opt Start
+        buffer[27] = Math.round(s.differential);
+        buffer[28] = s.sensorMode;
+
+        // 16-bit Scaled Temp Words (T * 10)
+        const flrWord = s.floorConnected ? Math.round(s.floorTemp * 10) : 0xFFFF;
+        buffer[29] = (flrWord >> 8) & 0xff;
+        buffer[30] = flrWord & 0xff;
+
+        const roomWord = Math.round(s.roomTemp * 10);
+        buffer[33] = (roomWord >> 8) & 0xff;
+        buffer[34] = roomWord & 0xff;
+
+        if (s.model === 'prt-hw') {
+          buffer[37] = s.hotWaterState;
+        }
+      }
+
+      // CRC16
+      const crc = calculateCRC16(buffer.slice(0, totalBytes - 2));
+      buffer[totalBytes - 2] = crc[0];
+      buffer[totalBytes - 1] = crc[1];
+
+      // Build Hex Cells
+      const container = document.getElementById('dcb-hex-container');
+      container.innerHTML = '';
+
+      buffer.forEach((byteVal, idx) => {
+        const hex = byteVal.toString(16).toUpperCase().padStart(2, '0');
+        const cell = document.createElement('div');
+        cell.className = 'hex-cell';
+        if (idx === s.lastModifiedIndex) {
+          cell.classList.add('hex-modified');
+        }
+
+        let label = `Index ${idx}: 0x${hex} (${byteVal})`;
+        if (idx === 0) label += ' [Dest Addr]';
+        else if (idx === 1) label += ' [DCB Length]';
+        else if (idx === 3) label += ' [Model ID]';
+        else if (idx === 18 && s.model !== 'tm1') label += ' [Set Temp]';
+        else if (idx === 21) label += ' [Run Mode / Key Lock]';
+        else if (idx === 22) label += ' [Keypad Lock]';
+        else if (idx === 23 || idx === 24) label += ' [Holiday Hours]';
+        else if (idx === 25 && s.model !== 'tm1') label += ' [Floor Max Limit]';
+        else if (idx === 25 && s.model === 'tm1') label += ' [Timer Override State]';
+        else if (idx === 29 || idx === 30) label += ' [Floor Temp * 10]';
+        else if (idx === 33 || idx === 34) label += ' [Room Temp * 10]';
+        else if (idx >= totalBytes - 2) label += ' [CRC16 Checksum]';
+
+        cell.title = label;
+        cell.textContent = hex;
+        container.appendChild(cell);
+      });
+    }
+
+    // Sync DCB Mutator Form with simState
+    function syncDCBForm() {
+      const s = simState;
+      const setInput = document.getElementById('dcb-input-settemp');
+      if (setInput) setInput.value = Math.round(s.setTemp);
+      const runInput = document.getElementById('dcb-input-runmode');
+      if (runInput) runInput.value = s.runMode;
+      const lockInput = document.getElementById('dcb-input-keylock');
+      if (lockInput) lockInput.value = s.keyLock;
+      const diffInput = document.getElementById('dcb-input-diff');
+      if (diffInput) diffInput.value = Math.round(s.differential);
+      const sensorInput = document.getElementById('dcb-input-sensormode');
+      if (sensorInput) sensorInput.value = s.sensorMode;
+      const floorInput = document.getElementById('dcb-input-floorlimit');
+      if (floorInput) floorInput.value = Math.round(s.floorMaxLimit);
+      const holInput = document.getElementById('dcb-input-holiday');
+      if (holInput) holInput.value = s.holidayHours;
+      const extra = document.getElementById('dcb-input-extra');
+      if (extra) {
+        extra.value = (s.model === 'tm1') ? s.timerState : s.hotWaterState;
+      }
+    }
+
+    // Apply Changes from DCB Mutator Form
+    function applyDCBForm() {
+      const s = simState;
+      s.setTemp = parseFloat(document.getElementById('dcb-input-settemp').value) || 21;
+      s.runMode = parseInt(document.getElementById('dcb-input-runmode').value);
+      s.keyLock = parseInt(document.getElementById('dcb-input-keylock').value);
+      s.differential = parseFloat(document.getElementById('dcb-input-diff').value) || 1;
+      s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
+      s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
+      s.holidayHours = parseInt(document.getElementById('dcb-input-holiday').value) || 0;
+      
+      const extra = document.getElementById('dcb-input-extra');
+      if (extra) {
+        if (s.model === 'tm1') s.timerState = parseInt(extra.value);
+        else s.hotWaterState = parseInt(extra.value);
+      }
+
+      flashCommBlip();
+      generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${Math.round(s.setTemp)})`);
+      evaluateThermostat();
+    }
+
+    // Tactile Keypad Button Presses
+    function onKeypadPress(btn) {
+      const s = simState;
+
+      // Tamper Check
+      if (s.keyLock > 0) {
+        const overlay = document.getElementById('lcd-tamper-alert');
+        overlay.classList.add('show');
+        setTimeout(() => overlay.classList.remove('show'), 1200);
+        return;
+      }
+
+      flashCommBlip();
+
+      if (btn === 'up') {
+        s.setTemp = Math.min(35, s.setTemp + 0.5);
+        s.lastModifiedIndex = 18;
+        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+      } else if (btn === 'down') {
+        s.setTemp = Math.max(5, s.setTemp - 0.5);
+        s.lastModifiedIndex = 18;
+        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+      } else if (btn === 'power') {
+        s.runMode = (s.runMode === 1) ? 0 : 1;
+        s.lastModifiedIndex = 21;
+        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})`);
+      } else if (btn === 'hold') {
+        s.tempHoldHours = (s.tempHoldHours > 0) ? 0 : 2;
+        s.tempHoldSetTemp = s.setTemp;
+        s.lastModifiedIndex = 31;
+        generateAndDisplayWriteFrame(32, [s.tempHoldHours & 0xff, 0], `thermostat.set_temp_hold(${s.tempHoldHours}, ${s.setTemp})`);
+      } else if (btn === 'mode') {
+        // Cycle program view / model
+        const models = ['prt', 'prt-hw', 'tm1', 'hcen'];
+        const nextIdx = (models.indexOf(s.model) + 1) % models.length;
+        selectModel(models[nextIdx]);
+        return;
+      }
+
+      evaluateThermostat();
+    }
+
+    // Environment Slider Handlers
+    function onEnvSliderChange() {
+      simState.roomTemp = parseFloat(document.getElementById('slider-room-temp').value);
+      simState.floorTemp = parseFloat(document.getElementById('slider-floor-temp').value);
+      simState.floorConnected = document.getElementById('check-floor-connected').checked;
+      evaluateThermostat();
+    }
+
+    function nudgeEnv(type, delta) {
+      if (type === 'room') {
+        simState.roomTemp = Math.max(5, Math.min(35, simState.roomTemp + delta));
+      } else if (type === 'floor') {
+        simState.floorTemp = Math.max(10, Math.min(50, simState.floorTemp + delta));
+      }
+      evaluateThermostat();
+    }
+
+    function setEnvPreset(room, floor) {
+      simState.roomTemp = room;
+      simState.floorTemp = floor;
+      evaluateThermostat();
+    }
+
+    // One-Click Real-World Test Scenarios
+    function runScenario(name) {
+      const s = simState;
+      // Auto open dock on small screens
+      const dock = document.getElementById('device-dock');
+      if (window.innerWidth < 1250 && dock && !dock.classList.contains('dock-open')) {
+        dock.classList.add('dock-open');
+      }
+
+      // Default baseline values to prevent cross-scenario interference
+      s.runMode = 1;
+      s.keyLock = 0;
+      s.holidayHours = 0;
+      s.tempHoldHours = 0;
+      s.differential = 1.0;
+      s.floorMaxLimit = 32.0;
+      s.floorTemp = 22.0;
+      s.floorConnected = true;
+      s.floorOverheatCutout = false;
+      s.countdownMinutes = 0;
+      s.timerState = 0;
+      s.hotWaterState = 0;
+
+      if (name === 'heat_call') {
+        selectModel('prt');
+        s.setTemp = 21.0;
+        s.roomTemp = 19.0;
+        generateAndDisplayWriteFrame(18, [21], 'thermostat.set_temperature(21)  # Room is 19°C -> Heating Relay 1/2 Closes');
+      } else if (name === 'temp_reached') {
+        selectModel('prt');
+        s.setTemp = 21.0;
+        s.roomTemp = 21.2;
+        generateAndDisplayWriteFrame(18, [21], 'thermostat.set_temperature(21)  # Room is 21.2°C >= Setpoint -> Relay Opens');
+      } else if (name === 'floor_overheat') {
+        selectModel('prt');
+        s.sensorMode = 3; // Int + Floor
+        s.floorMaxLimit = 32.0;
+        s.setTemp = 24.0;
+        s.roomTemp = 18.0; // Cold room!
+        s.floorTemp = 36.0; // Exceeds limit!
+        generateAndDisplayWriteFrame(29, [32], 'thermostat.set_floor_max(32)  # Floor is 36°C -> SAFETY CUTOUT TRIPS RELAY!');
+      } else if (name === 'tm1_countdown') {
+        selectModel('tm1');
+        s.countdownMinutes = 120;
+        generateAndDisplayWriteFrame(26, [120, 0], 'tm1.set_countdown_timer(120)  # Relay Closes for 120 mins');
+      } else if (name === 'holiday_mode') {
+        selectModel('prt');
+        s.holidayHours = 168; // 7 days
+        s.frostTemp = 12.0;
+        s.roomTemp = 18.0;
+        generateAndDisplayWriteFrame(24, [168 & 0xff, 0], 'thermostat.set_holiday_hours(168)  # Setback to 12°C Frost Protect');
+      } else if (name === 'keypad_lock') {
+        selectModel('prt');
+        s.keyLock = 1;
+        generateAndDisplayWriteFrame(22, [1], 'thermostat.set_key_lock(1)  # Front panel buttons disabled');
+      } else if (name === 'hw_boost') {
+        selectModel('prt-hw');
+        s.hotWaterState = 1;
+        generateAndDisplayWriteFrame(41, [1], 'prt_hw.set_hot_water_boost(1)  # Terminals 3 & 4 Close immediately');
+      } else if (name === 'frost_protect') {
+        selectModel('prt');
+        s.runMode = 0; // Standby
+        s.frostTemp = 12.0;
+        s.roomTemp = 4.0; // Freezing!
+        generateAndDisplayWriteFrame(21, [0], '# Thermostat OFF, but ambient is 4°C -> Emergency Frost Heat engaged!');
+      }
+
+      flashCommBlip();
+      evaluateThermostat();
+    }
+
+    // RS485 Wire Telemetry Formatter
+    function generateAndDisplayWriteFrame(startAddr, payload, pySnippet) {
+      const dest = simState.address;
+      const totalLen = 10 + payload.length;
+      const frame = [
+        dest,
+        totalLen,
+        0x81, // Master
+        0x01, // Write Func
+        startAddr & 0xff,
+        (startAddr >> 8) & 0xff,
+        payload.length & 0xff,
+        (payload.length >> 8) & 0xff
+      ].concat(payload);
+
+      const crc = calculateCRC16(frame);
+      const fullFrame = frame.concat(crc);
+      simState.lastTxFrame = fullFrame;
+      simState.pySnippet = pySnippet;
+
+      // Render wire display
+      const container = document.getElementById('wire-frame-display');
+      container.innerHTML = fullFrame.map((b, i) => {
+        const hex = '0x' + b.toString(16).toUpperCase().padStart(2, '0');
+        if (i >= fullFrame.length - 2) return `<span style="color: var(--accent-amber); font-weight:700;">${hex}</span>`;
+        if (i >= 8) return `<span style="color: var(--accent-emerald); font-weight:700;">${hex}</span>`;
+        return `<span>${hex}</span>`;
+      }).join(' ');
+
+      document.getElementById('py-code-snippet').textContent = pySnippet;
+    }
+
+    function flashCommBlip() {
+      const blip = document.getElementById('lcd-blip');
+      blip.classList.add('active');
+      setTimeout(() => blip.classList.remove('active'), 250);
+    }
+
+    function copySnippet() {
+      navigator.clipboard.writeText(simState.pySnippet).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1200);
+      });
+    }
+
+    // Hook: Transmit Bytecode Calculator Frame to Virtual Thermostat
+    function transmitCalcFrameToSim() {
+      const cmd = document.getElementById('calc-command').value;
+      const dest = parseInt(document.getElementById('calc-dest').value) || 1;
+      simState.address = dest;
+
+      if (cmd === 'on_off') {
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        simState.runMode = v;
+        generateAndDisplayWriteFrame(21, [v], `thermostat.set_on_off(${v})`);
+      } else if (cmd === 'key_lock') {
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        simState.keyLock = v;
+        generateAndDisplayWriteFrame(22, [v], `thermostat.set_key_lock(${v})`);
+      } else if (cmd === 'set_temp') {
+        const v = parseInt(document.getElementById('param-val').value) || 21;
+        simState.setTemp = v;
+        generateAndDisplayWriteFrame(18, [v], `thermostat.set_temperature(${v})`);
+      } else if (cmd === 'holiday') {
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        simState.holidayHours = v;
+        generateAndDisplayWriteFrame(24, [v & 0xff, (v >> 8) & 0xff], `thermostat.set_holiday_hours(${v})`);
+      } else if (cmd === 'countdown') {
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        simState.countdownMinutes = v;
+        selectModel('tm1');
+        generateAndDisplayWriteFrame(26, [v & 0xff, (v >> 8) & 0xff], `tm1.set_countdown_timer(${v})`);
+      } else if (cmd === 'override') {
+        const v = parseInt(document.getElementById('param-val').value) || 0;
+        simState.timerState = v;
+        selectModel('tm1');
+        generateAndDisplayWriteFrame(42, [v], `tm1.set_timer_state(${v})`);
+      }
+
+      flashCommBlip();
+      evaluateThermostat();
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      // Restore layout preference
+      const savedLayout = localStorage.getItem('hm_layout_mode') || (window.innerWidth >= 1250 ? 'split' : 'docs');
+      setLayoutMode(savedLayout);
+
+      updateCalcFields();
+      evaluateThermostat();
+
+      // Real-time Clock simulation
+      setInterval(() => {
+        const now = new Date();
+        const timeStr = [now.getHours(), now.getMinutes(), now.getSeconds()]
+          .map(n => String(n).padStart(2, '0')).join(':');
+        const clockEl = document.getElementById('lcd-clock-time');
+        if (clockEl) clockEl.textContent = timeStr;
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

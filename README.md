@@ -7,6 +7,10 @@ If you fancy taking the maintenance off my hands, please get in touch and I'll s
 the pypi ownership to the org.  Please see the ADRs in docs/adrs for decisions made since losing access to the physical thermostats.
 
 [![Build Status](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://andylockran.github.io/heatmiserv3/)
+
+📖 **[View the Complete Protocol & Library Documentation Website](https://andylockran.github.io/heatmiserv3/)**
+Includes an interactive **Visual Test Harness (Digital Twin)** with simulated backlit LCD, physical relay contacts, underfloor overheat safety cutouts, real-world environment sliders, and live RS485 bytecode packet inspector.
 
 This library has been created from the work carried out by 
 Neil Trimboy in 2011 here:

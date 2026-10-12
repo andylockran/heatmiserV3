@@ -56,7 +56,8 @@ class HeatmiserUH1(object):
     def registerThermostat(self, thermostat):
         """Registers a thermostat with the UH1"""
         try:
-            type(thermostat) == heatmiser.HeatmiserThermostat
+            if not isinstance(thermostat, heatmiser.HeatmiserThermostat):
+                raise TypeError("You're not adding a HeatmiserThermostat Object")
             if thermostat.address in self.thermostats.keys():
                 raise ValueError("Key already present")
             else:
