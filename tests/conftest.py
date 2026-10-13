@@ -178,6 +178,7 @@ class FakeUH1:
         self.payload = payload
         self.model = model
         self.serial = None
+        self.reopened = False
 
     def registerThermostat(self, thermostat):
         if thermostat.address in self.thermostats:
@@ -185,6 +186,48 @@ class FakeUH1:
         self.thermostats[thermostat.address] = thermostat
         self.serial = FakeSerial(thermostat.address, payload=self.payload, model=self.model)
         return self.serial
+
+    def reopen(self, force=False):
+        self.reopened = True
+        return True
+
+
+def build_prt_default_dcb():
+    """Build default 73-byte PRT DCB for testing HeatmiserThermostat."""
+    dcb = [0] * 73
+    dcb[0] = 0        # DCB length high
+    dcb[1] = 73       # DCB length low
+    dcb[2] = 0        # Vendor ID (0=Heatmiser)
+    dcb[3] = 10       # Version 10
+    dcb[4] = 1        # Model (PRT=1)
+    dcb[5] = 0        # Temperature format: 0=C, 1=F
+    dcb[6] = 1        # Switch diff
+    dcb[7] = 0        # Frost protection mode
+    dcb[11] = 1       # Address
+    dcb[13] = 0       # Sensor selection (0 = Built in air sensor)
+    dcb[16] = 0       # Program mode (0 = 5/2 mode)
+    dcb[17] = 12      # Frost protect temp (12 C)
+    dcb[18] = 21      # Set room temp / target temp (21 C)
+    dcb[19] = 28      # Floor max limit (28 C)
+    dcb[20] = 0       # Floor max limit enable
+    dcb[21] = 1       # On/off (1=on)
+    dcb[22] = 0       # Key lock (0=unlock)
+    dcb[23] = 1       # Run mode / heating (1=heating)
+    dcb[31] = 240     # Floor temp (24.0 C, /10 = 24.0)
+    dcb[33] = 215     # Built-in air temp (21.5 C, /10 = 21.5)
+    dcb[34] = 0       # Error code
+    dcb[35] = 1       # Current state
+    return dcb
+
+
+@pytest.fixture
+def fake_uh1_prt():
+    return FakeUH1(payload=build_prt_default_dcb(), model="prt")
+
+
+@pytest.fixture
+def prt_thermostat(fake_uh1_prt):
+    return heatmiser.HeatmiserThermostat(1, "prt", fake_uh1_prt)
 
 
 @pytest.fixture

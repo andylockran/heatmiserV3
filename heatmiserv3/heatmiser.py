@@ -2,17 +2,20 @@
 # Neil Trimboy 2011
 # Assume Python 2.7.x +
 #
+import logging
 import sys
 import serial
 import yaml
-import logging
 from . import constants
-import importlib_resources
 
-config_yml = importlib_resources.files('heatmiserv3').joinpath('config.yml')
+try:
+    from importlib.resources import files as resource_files
+except ImportError:
+    from importlib_resources import files as resource_files
 
+config_yml = resource_files('heatmiserv3').joinpath('config.yml')
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 #
 # Believe this is known as CCITT (0xFFFF)
@@ -93,18 +96,19 @@ class CRC16:
         return [self.low, self.high]
 
 
-class HeatmiserThermostat(object):
+class HeatmiserThermostat:
     """Initialises a heatmiser thermostat, by taking an address and model."""
 
     def __init__(self, address, model, uh1):
         self.address = address
         self.model = model
+        self.uh1 = uh1
         try:
             with open(config_yml) as config_file:
                 cfg = yaml.safe_load(config_file)
                 self.config = cfg[model] if model in cfg else cfg[model.lower()]
         except yaml.YAMLError as exc:
-            logging.info("The YAML file is invalid: %s", exc)
+            logger.info("The YAML file is invalid: %s", exc)
         self.conn = uh1.registerThermostat(self)
         self.dcb = ""
         self.read_dcb()
@@ -160,14 +164,17 @@ class HeatmiserThermostat(object):
         assert expectedLength == expectedLength
         badresponse = 0
         if protocol == constants.HMV3_ID:
+            if len(datal) < 7:
+                logger.error("Response is too short to contain a valid frame")
+                return False
             checksum = datal[len(datal) - 2:]
             rxmsg = datal[: len(datal) - 2]
             crc = CRC16()  # Initialises the CRC
             expectedchecksum = crc.run(rxmsg)
             if expectedchecksum == checksum:
-                logging.info("CRC is correct")
+                logger.info("CRC is correct")
             else:
-                logging.error("CRC is INCORRECT")
+                logger.error("CRC is INCORRECT")
                 serror = "Incorrect CRC"
                 sys.stderr.write(serror)
                 badresponse += 1
@@ -179,70 +186,55 @@ class HeatmiserThermostat(object):
             func_code = datal[4]
 
             if dest_addr != 129 and dest_addr != 160:
-                logging.info("dest_addr is ILLEGAL")
+                logger.info("dest_addr is ILLEGAL")
                 serror = "Illegal Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if dest_addr != thermostat_id:
-                logging.info("dest_addr is INCORRECT")
+                logger.info("dest_addr is INCORRECT")
                 serror = "Incorrect Dest Addr: %s\n" % (dest_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if source_addr < 1 or source_addr > 32:
-                logging.info("source_addr is ILLEGAL")
+                logger.info("source_addr is ILLEGAL")
                 serror = "Illegal Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if source_addr != source:
-                logging.info("source addr is INCORRECT")
+                logger.info("source addr is INCORRECT")
                 serror = "Incorrect Src Addr: %s\n" % (source_addr)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code != constants.FUNC_WRITE and func_code != constants.FUNC_READ:
-                logging.info("Func Code is UNKNWON")
+                logger.info("Func Code is UNKNWON")
                 serror = "Unknown Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code != expectedFunction:
-                logging.info("Func Code is UNEXPECTED")
+                logger.info("Func Code is UNEXPECTED")
                 serror = "Unexpected Func Code: %s\n" % (func_code)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if func_code == constants.FUNC_WRITE and frame_len != 7:
                 # Reply to Write is always 7 long
-                logging.info("response length is INCORRECT")
+                logger.info("response length is INCORRECT")
                 serror = "Incorrect length: %s\n" % (frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
             if len(datal) != frame_len:
-                logging.info("response length MISMATCHES header")
+                logger.info("response length MISMATCHES header")
                 serror = "Mismatch length: %s %s\n" % (len(datal), frame_len)
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            # if (func_code == constants.FUNC_READ and
-            #   expectedLength !=len(datal) ):
-            #   # Read response length is wrong
-            #   logging.info("response length
-            #    not EXPECTED value")
-            #   logging.info("Got %s when expecting %s",
-            #   len(datal), expectedLength)
-            #   logging.info("Data is:\n %s", datal)
-            #   s = "Incorrect length: %s\n" % (frame_len)
-            #   sys.stderr.write(s)
-            #   badresponse += 1
-
-            if badresponse == 0:
-                return True
-            else:
-                return False
+            return badresponse == 0
 
         else:
             assert 0, "Un-supported protocol found %s" % protocol
@@ -256,13 +248,15 @@ class HeatmiserThermostat(object):
             serror = "Write timeout error: \n"
             sys.stderr.write(serror)
         # Now wait for reply
+        byteread = b""
         try:
             byteread = self.conn.read(159)
-        except serial.serialutil.SerialException:
-            logging.error("Connection failed, attempting reconnect")
-            self.uh1.reopen(force=True)
+        except (serial.serialutil.SerialException, AttributeError):
+            logger.error("Connection failed, attempting reconnect")
+            if hasattr(self, "uh1") and self.uh1 is not None and hasattr(self.uh1, "reopen"):
+                self.uh1.reopen(force=True)
         # NB max return is 75 in 5/2 mode or 159 in 7day mode
-        datal = list(byteread)
+        datal = list(byteread) if byteread else []
         return datal
 
     def _hm_send_address(self, thermostat_id, address, state, readwrite):
@@ -290,14 +284,14 @@ class HeatmiserThermostat(object):
                 0x81, pro, thermostat_id, readwrite, 1, datal
             )
             if verification is False:
-                logging.info("OH DEAR BAD RESPONSE")
+                logger.info("OH DEAR BAD RESPONSE")
             return datal
         else:
             verification = self._hm_verify_message_crc_uk(
                 0x81, pro, thermostat_id, readwrite, len(datal), datal
             )
             if verification is False:
-                logging.info("OH DEAR BAD RESPONSE")
+                logger.info("OH DEAR BAD RESPONSE")
             return datal
 
     def _hm_read_address(self):
@@ -312,7 +306,7 @@ class HeatmiserThermostat(object):
                 ddata = response[i + offset]
                 keydata[i] = {"label": kdata, "value": ddata}
             except IndexError:
-                logging.info("Finished processing at %d", i)
+                logger.info("Finished processing at %d", i)
         return keydata
 
     def read_dcb(self):
@@ -320,7 +314,7 @@ class HeatmiserThermostat(object):
         Returns the full DCB, only use for non read-only operations
         Use self.dcb for read-only operations.
         """
-        logging.info("Getting latest data from DCB....")
+        logger.info("Getting latest data from DCB....")
         self.dcb = self._hm_read_address()
         return self.dcb
 
@@ -353,7 +347,7 @@ class HeatmiserThermostat(object):
 
     def get_temperature_format(self):
         temp_format = self.dcb[5]["value"]
-        if temp_format == 00:
+        if temp_format == 0:
             return "C"
         else:
             return "F"
@@ -400,8 +394,8 @@ class HeatmiserThermostat(object):
         return True
 
     def set_frost_protect_temp(self, frost_temp):
-        if 17 < frost_temp < 7:
-            logging.info("Refusing to set temp outside of allowed range")
+        if not (7 <= frost_temp <= 17):
+            logger.info("Refusing to set temp outside of allowed range")
             return False
         else:
             self._hm_send_address(self.address, 17, frost_temp, 1)
@@ -411,16 +405,16 @@ class HeatmiserThermostat(object):
         """
         Sets the target temperature, to the requested int
         """
-        if 35 < temperature < 5:
-            logging.info("Refusing to set temp outside of allowed range")
+        if not (5 <= temperature <= 35):
+            logger.info("Refusing to set temp outside of allowed range")
             return False
         else:
             self._hm_send_address(self.address, 18, temperature, 1)
             return True
 
     def set_floormax_temp(self, floor_max):
-        if 45 < floor_max < 20:
-            logging.info("Refusing to set temp outside of allowed range")
+        if not (20 <= floor_max <= 45):
+            logger.info("Refusing to set temp outside of allowed range")
             return False
         else:
             self._hm_send_address(self.address, 19, floor_max, 1)
