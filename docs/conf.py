@@ -8,7 +8,7 @@ sys.path.insert(0, os.path.abspath(".."))
 project = "heatmiserv3"
 copyright = "2026, Andy Loughran"
 author = "Andy Loughran"
-release = "2.0.6"
+release = "3.0.0"
 
 extensions = [
     "myst_parser",
