@@ -132,3 +132,10 @@ COM_SIZE = serial.EIGHTBITS
 COM_PARITY = serial.PARITY_NONE
 COM_STOP = serial.STOPBITS_ONE
 COM_TIMEOUT = 3
+
+#
+# RS485 Bus Timing & Arbitration Constants (Protocol Section 1.3)
+#
+BUS_INTER_COMMAND_DELAY = 0.035  # 35 ms minimum idle time between transactions
+BUS_RECOVERY_PAUSE = 0.100       # 100 ms bus recovery silence on comm error
+DEFAULT_CACHE_TTL = 3.0          # 3.0 seconds default DCB telemetry cache TTL

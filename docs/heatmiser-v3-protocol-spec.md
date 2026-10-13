@@ -111,8 +111,55 @@ Acknowledgment returned by the thermostat after successfully parsing a write:
 
 The protocol uses a 16-bit CRC algorithm (polynomial `0xA001`, initial state `0xFFFF`). The calculated checksum is appended as two bytes: `[Low Byte, High Byte]`.
 
-### C Reference Implementation (Appendix A of Protocol Spec)
+### Code Reference in `heatmiserv3`
+The Python implementation in this repository is located at [`heatmiserv3/heatmiser.py` (lines 26–96)](../heatmiserv3/heatmiser.py#L26-L96) under the [`CRC16`](../heatmiserv3/heatmiser.py#L26-L96) class.
+
+---
+
+### Reference Implementations Across Languages
+
+#### 1. Python (`heatmiserv3/heatmiser.py`)
+```python
+# heatmiserv3/heatmiser.py lines 26-96
+class CRC16:
+    """CRC hashing mechanism used by the V3 protocol."""
+
+    LookupHigh = [
+        0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+        0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+    ]
+    LookupLow = [
+        0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+        0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+    ]
+
+    def __init__(self):
+        self.high = 0xFF
+        self.low = 0xFF
+
+    def extract_bits(self, val):
+        """Extracts 4 bits, XORs message data, and does table lookups."""
+        thisval = (self.high >> 4) ^ val
+        self.high = ((self.high << 4) | (self.low >> 4)) & 0xFF
+        self.low = (self.low << 4) & 0xFF
+        self.high = (self.high ^ self.LookupHigh[thisval]) & 0xFF
+        self.low = (self.low ^ self.LookupLow[thisval]) & 0xFF
+
+    def update(self, val):
+        """Updates the CRC value using bitwise operations."""
+        self.extract_bits(val >> 4)    # High nibble first
+        self.extract_bits(val & 0x0F)  # Low nibble
+
+    def run(self, message):
+        """Calculates CRC-16 over a byte sequence, returning [low, high]."""
+        for value in message:
+            self.update(value)
+        return [self.low, self.high]
+```
+
+#### 2. C (Appendix A of Protocol Spec)
 ```c
+/* Heatmiser V3 Protocol Specification - Appendix A */
 static const unsigned char CRC16_LookupHigh[16] = {
     0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
     0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1
@@ -122,18 +169,146 @@ static const unsigned char CRC16_LookupLow[16] = {
     0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF
 };
 
+static unsigned char CRC16_High = 0xFF;
+static unsigned char CRC16_Low  = 0xFF;
+
+void CRC16_Init(void) {
+    CRC16_High = 0xFF;
+    CRC16_Low  = 0xFF;
+}
+
 void CRC16_Update4Bits(unsigned char val) {
-    unsigned char t = CRC16_High >> 4;
-    t = t ^ val;
-    CRC16_High = (CRC16_High << 4) | (CRC16_Low >> 4);
-    CRC16_Low = CRC16_Low << 4;
-    CRC16_High = CRC16_High ^ CRC16_LookupHigh[t];
-    CRC16_Low = CRC16_Low ^ CRC16_LookupLow[t];
+    unsigned char t = (CRC16_High >> 4) ^ val;
+    CRC16_High = (unsigned char)((CRC16_High << 4) | (CRC16_Low >> 4));
+    CRC16_Low  = (unsigned char)(CRC16_Low << 4);
+    CRC16_High ^= CRC16_LookupHigh[t];
+    CRC16_Low  ^= CRC16_LookupLow[t];
 }
 
 void CRC16_Update(unsigned char val) {
-    CRC16_Update4Bits(val >> 4);   // High nibble first
-    CRC16_Update4Bits(val & 0x0f);  // Low nibble
+    CRC16_Update4Bits(val >> 4);   /* High nibble first */
+    CRC16_Update4Bits(val & 0x0F); /* Low nibble */
+}
+
+void CRC16_Calculate(const unsigned char *data, size_t len, unsigned char *out_low, unsigned char *out_high) {
+    CRC16_Init();
+    for (size_t i = 0; i < len; ++i) {
+        CRC16_Update(data[i]);
+    }
+    *out_low  = CRC16_Low;
+    *out_high = CRC16_High;
+}
+```
+
+#### 3. JavaScript / TypeScript (Digital Twin & Browser)
+```typescript
+const CRC16_LOOKUP_HIGH = [
+  0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+  0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1
+];
+const CRC16_LOOKUP_LOW = [
+  0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+  0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF
+];
+
+export function calculateCRC16(data: Uint8Array | number[]): [number, number] {
+  let high = 0xFF;
+  let low = 0xFF;
+
+  function update4Bits(val: number) {
+    const t = ((high >> 4) ^ val) & 0x0F;
+    high = (((high << 4) | (low >> 4)) ^ CRC16_LOOKUP_HIGH[t]) & 0xFF;
+    low = ((low << 4) ^ CRC16_LOOKUP_LOW[t]) & 0xFF;
+  }
+
+  for (let i = 0; i < data.length; i++) {
+    const byte = data[i];
+    update4Bits((byte >> 4) & 0x0F); // High nibble first
+    update4Bits(byte & 0x0F);        // Low nibble
+  }
+
+  return [low, high]; // Returns [Low Byte, High Byte]
+}
+```
+
+#### 4. Rust
+```rust
+const CRC16_LOOKUP_HIGH: [u8; 16] = [
+    0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+    0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+];
+const CRC16_LOOKUP_LOW: [u8; 16] = [
+    0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+    0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+];
+
+pub struct HeatmiserCrc16 {
+    high: u8,
+    low: u8,
+}
+
+impl HeatmiserCrc16 {
+    pub fn new() -> Self {
+        Self { high: 0xFF, low: 0xFF }
+    }
+
+    fn update_4bits(&mut self, val: u8) {
+        let t = ((self.high >> 4) ^ val) as usize;
+        self.high = (self.high << 4) | (self.low >> 4);
+        self.low <<= 4;
+        self.high ^= CRC16_LOOKUP_HIGH[t];
+        self.low ^= CRC16_LOOKUP_LOW[t];
+    }
+
+    pub fn update(&mut self, val: u8) {
+        self.update_4bits(val >> 4);
+        self.update_4bits(val & 0x0F);
+    }
+
+    pub fn calculate(data: &[u8]) -> [u8; 2] {
+        let mut crc = Self::new();
+        for &b in data {
+            crc.update(b);
+        }
+        [crc.low, crc.high] // [Low Byte, High Byte]
+    }
+}
+```
+
+#### 5. Go
+```go
+package heatmiserv3
+
+var (
+    crcLookupHigh = [16]byte{
+        0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+        0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+    }
+    crcLookupLow = [16]byte{
+        0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+        0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+    }
+)
+
+// CalculateCRC16 computes the Heatmiser V3 CRC-16 checksum returning (low, high).
+func CalculateCRC16(data []byte) (byte, byte) {
+    high := byte(0xFF)
+    low := byte(0xFF)
+
+    update4Bits := func(val byte) {
+        t := (high >> 4) ^ val
+        high = (high << 4) | (low >> 4)
+        low = low << 4
+        high ^= crcLookupHigh[t]
+        low ^= crcLookupLow[t]
+    }
+
+    for _, b := range data {
+        update4Bits(b >> 4)    // High nibble first
+        update4Bits(b & 0x0F)  // Low nibble
+    }
+
+    return low, high
 }
 ```
 
@@ -271,6 +446,20 @@ When configured for Mode `02`, `03`, or `04`:
 4. If the floor probe becomes disconnected while in Mode 2, 3, or 4:
    * Diagnostic Error `E1` is raised (DCB byte 34 = `0xE1`).
    * Heating relay is safely held open.
+
+### 6.3 Temperature Resolution, Quantization, and Display vs. Wire Representation
+
+A key nuance when integrating Heatmiser thermostats across automation systems (Home Assistant, custom scripts, digital twins) is understanding the distinction between the **wire protocol capability** and the **physical thermostat hardware behavior**:
+
+| Aspect | Wire Protocol (RS485 DCB) | Physical Thermostat (PRT-1 / Slimline LCD) |
+| :--- | :--- | :--- |
+| **Current / Ambient Temp** | 16-bit Big-Endian, scaled $\times 10$ (`value / 10`), **0.1°C resolution** | Quantized to **0.5°C increments** (or whole degrees), $\pm 0.5^\circ\text{C}$ to $\pm 1.0^\circ\text{C}$ accuracy |
+| **Can it report `16.7°C`?** | **Yes** over the bus (raw integer `167`), supported by wire format | **No on LCD**; display quantizes `16.7°C` to **`16.5°C`** (or `17.0°C`) |
+| **Set Room Temp (Addr 18)** | 1-Byte integer setpoint (`5` to `35` °C) | Adjustable in `0.5°C` or `1.0°C` button steps |
+| **Switching Differential (Addr 6)** | 1-Byte integer (`1` to `3` °C hysteresis) | Feature 02: `1.0°C` default (or `0.5°C` on select revisions) |
+
+* **Protocol Layer**: Raw ADC values can technically populate DCB bytes 28–33 with fractional tenths (`value / 10`).
+* **Physical Hardware Layer**: The LCD panel utilizes fixed 7-segment digits with a fractional `.5` annunciator segment. The internal firmware quantizes ambient room measurements to 0.5°C steps for display and regulation decisions. On the wall unit, users see 16.5°C or 17.0°C, never 16.7°C.
 
 ---
 

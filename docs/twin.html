@@ -1112,7 +1112,7 @@
       <div class="brand-badge">HM</div>
       <div class="brand-text">
         <h1>Heatmiser V3 Whole-Home Digital Twin</h1>
-        <div class="subtext">4x PRT-1 Underfloor Heating + 1x TM1 Hot Water &bull; UH1 8-Zone Hub &bull; RS485 &bull; Home Assistant</div>
+        <div class="subtext">4x PRT-1 Underfloor Heating + 1x TM1 Hot Water • UH1 8-Zone Hub • RS485 • Home Assistant</div>
       </div>
     </div>
 
@@ -1183,7 +1183,7 @@
               <!-- Badge Info -->
               <rect class="room-badge-pill" x="35" y="32" width="125" height="42" />
               <text class="room-label-title" x="43" y="48">BEDROOM 1</text>
-              <text class="room-label-sub" x="43" y="64" id="fp-badge-0">19.5°C &bull; SET 20.0°C</text>
+              <text class="room-label-sub" x="43" y="64" id="fp-badge-0">19.5°C • SET 20.0°C</text>
               <circle cx="235" cy="40" r="5" id="fp-dot-0" fill="#475569" />
             </g>
 
@@ -1199,7 +1199,7 @@
               <!-- Badge Info -->
               <rect class="room-badge-pill" x="285" y="32" width="125" height="42" />
               <text class="room-label-title" x="293" y="48">BEDROOM 2</text>
-              <text class="room-label-sub" x="293" y="64" id="fp-badge-1">20.0°C &bull; SET 19.0°C</text>
+              <text class="room-label-sub" x="293" y="64" id="fp-badge-1">20.0°C • SET 19.0°C</text>
               <circle cx="485" cy="40" r="5" id="fp-dot-1" fill="#475569" />
             </g>
 
@@ -1219,7 +1219,7 @@
               <!-- Badge Info -->
               <rect class="room-badge-pill" x="535" y="32" width="135" height="42" />
               <text class="room-label-title" x="543" y="48">BATHROOM (UFH)</text>
-              <text class="room-label-sub" x="543" y="64" id="fp-badge-2">21.5°C &bull; FLR 26.8°C</text>
+              <text class="room-label-sub" x="543" y="64" id="fp-badge-2">21.5°C • FLR 27.0°C</text>
               <circle cx="755" cy="40" r="5" id="fp-dot-2" fill="#475569" />
             </g>
 
@@ -1236,7 +1236,7 @@
               <!-- Badge Info -->
               <rect class="room-badge-pill" x="35" y="272" width="150" height="42" />
               <text class="room-label-title" x="43" y="288">KITCHEN / LIVING</text>
-              <text class="room-label-sub" x="43" y="304" id="fp-badge-3">19.2°C &bull; SET 21.0°C</text>
+              <text class="room-label-sub" x="43" y="304" id="fp-badge-3">19.5°C • SET 21.0°C</text>
               <circle cx="485" cy="280" r="5" id="fp-dot-3" fill="#475569" />
             </g>
 
@@ -1572,8 +1572,8 @@
               </div>
               <div class="env-slider-row" id="row-floor-slider" style="display: none;">
                 <span>Floor Probe Temp:</span>
-                <input type="range" id="slider-floor-temp" min="15" max="45" step="0.5" value="26.8" oninput="onEnvSliderChange()">
-                <strong id="val-slider-floor">26.8°C</strong>
+                <input type="range" id="slider-floor-temp" min="15" max="45" step="0.5" value="27.0" oninput="onEnvSliderChange()">
+                <strong id="val-slider-floor">27.0°C</strong>
               </div>
             </div>
           </div>
@@ -1730,7 +1730,7 @@
         address: 3,
         setTemp: 23.0,
         roomTemp: 21.5,
-        floorTemp: 26.8,
+        floorTemp: 27.0,
         floorLimit: 32.0,
         sensorMode: 3, // Built-in + Floor Limit
         runMode: 1,
@@ -1747,7 +1747,7 @@
         modelName: "PRT-1",
         address: 4,
         setTemp: 21.0,
-        roomTemp: 19.2,
+        roomTemp: 19.5,
         floorTemp: 21.0,
         floorLimit: 32.0,
         sensorMode: 0, // Built-in Air
@@ -1800,6 +1800,15 @@
       return [low, high];
     }
 
+    // 0.5°C Quantization & Display Formatting Helpers
+    function roundToHalf(val) {
+      return Math.round(val * 2) / 2;
+    }
+
+    function formatTemp(val) {
+      return (Math.round(val * 2) / 2).toFixed(1);
+    }
+
     // Select Active Zone
     function selectZone(idx) {
       activeZoneIdx = idx;
@@ -1821,13 +1830,13 @@
 
       // Slider updates
       document.getElementById('slider-room-temp').value = z.roomTemp;
-      document.getElementById('val-slider-room').textContent = `${z.roomTemp.toFixed(1)}°C`;
+      document.getElementById('val-slider-room').textContent = `${formatTemp(z.roomTemp)}°C`;
 
       const floorRow = document.getElementById('row-floor-slider');
       if (z.sensorMode >= 2) {
         floorRow.style.display = 'flex';
         document.getElementById('slider-floor-temp').value = z.floorTemp;
-        document.getElementById('val-slider-floor').textContent = `${z.floorTemp.toFixed(1)}°C`;
+        document.getElementById('val-slider-floor').textContent = `${formatTemp(z.floorTemp)}°C`;
       } else {
         floorRow.style.display = 'none';
       }
@@ -1882,11 +1891,11 @@
         const badgeTxt = document.getElementById(`fp-badge-${i}`);
         if (badgeTxt) {
           if (z.model === 'tm1') {
-            badgeTxt.textContent = z.relayHeat ? 'BOOST ON &bull; 55°C' : 'AUTO &bull; 55°C';
+            badgeTxt.textContent = z.relayHeat ? 'BOOST ON • 55.0°C' : 'AUTO • 55.0°C';
           } else if (z.sensorMode >= 2) {
-            badgeTxt.textContent = `${z.roomTemp.toFixed(1)}°C &bull; FLR ${z.floorTemp.toFixed(1)}°C`;
+            badgeTxt.textContent = `${formatTemp(z.roomTemp)}°C • FLR ${formatTemp(z.floorTemp)}°C`;
           } else {
-            badgeTxt.textContent = `${z.roomTemp.toFixed(1)}°C &bull; SET ${z.setTemp.toFixed(1)}°C`;
+            badgeTxt.textContent = `${formatTemp(z.roomTemp)}°C • SET ${formatTemp(z.setTemp)}°C`;
           }
         }
 
@@ -1912,9 +1921,9 @@
           }
         }
         const haCur = document.getElementById(`ha-cur-${i}`);
-        if (haCur) haCur.textContent = (z.model === 'tm1') ? '55.0°C' : `${z.roomTemp.toFixed(1)}°C`;
+        if (haCur) haCur.textContent = (z.model === 'tm1') ? '55.0°C' : `${formatTemp(z.roomTemp)}°C`;
         const haTar = document.getElementById(`ha-tar-${i}`);
-        if (haTar) haTar.textContent = `${z.setTemp.toFixed(1)}°C`;
+        if (haTar) haTar.textContent = `${formatTemp(z.setTemp)}°C`;
       });
 
       // Hot Water tank visuals
@@ -1967,11 +1976,11 @@
         setpointEl.textContent = (z.timerState === 1) ? 'OVERRIDE ON' : (z.timerState === 2) ? 'OVERRIDE OFF' : 'AUTO SCHEDULE';
         floorEl.style.display = 'none';
       } else {
-        digitsEl.innerHTML = `${z.roomTemp.toFixed(1)}<span class="temp-unit">°C</span>`;
-        setpointEl.textContent = `SET ${z.setTemp.toFixed(1)}°C`;
+        digitsEl.innerHTML = `${formatTemp(z.roomTemp)}<span class="temp-unit">°C</span>`;
+        setpointEl.textContent = `SET ${formatTemp(z.setTemp)}°C`;
         if (z.sensorMode >= 2) {
           floorEl.style.display = 'inline-block';
-          floorEl.textContent = `FLR ${z.floorTemp.toFixed(1)}°C`;
+          floorEl.textContent = `FLR ${formatTemp(z.floorTemp)}°C`;
           if (z.floorTemp >= z.floorLimit) {
             floorEl.style.color = '#ef4444';
             floorEl.style.fontWeight = '900';
@@ -2016,16 +2025,16 @@
           z.countdownMins = Math.max(0, z.countdownMins - 15);
           logWriteFrame(z.address, 26, [z.countdownMins & 0xff, 0], `set_countdown_timer(${z.countdownMins})`);
         } else {
-          z.setTemp = Math.max(5, z.setTemp - 0.5);
-          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${z.setTemp})`);
+          z.setTemp = Math.max(5, roundToHalf(z.setTemp - 0.5));
+          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${formatTemp(z.setTemp)})`);
         }
       } else if (btn === 'up') {
         if (z.model === 'tm1') {
           z.countdownMins = Math.min(1800, z.countdownMins + 15);
           logWriteFrame(z.address, 26, [z.countdownMins & 0xff, 0], `set_countdown_timer(${z.countdownMins})`);
         } else {
-          z.setTemp = Math.min(35, z.setTemp + 0.5);
-          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${z.setTemp})`);
+          z.setTemp = Math.min(35, roundToHalf(z.setTemp + 0.5));
+          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${formatTemp(z.setTemp)})`);
         }
       } else if (btn === 'h') {
         z.holidayHours = (z.holidayHours === 0) ? 168 : 0;
@@ -2096,8 +2105,8 @@
     // Home Assistant Target Stepper
     function nudgeTarget(zoneIdx, delta) {
       const z = ZONES[zoneIdx];
-      z.setTemp = Math.max(5, Math.min(35, z.setTemp + delta));
-      logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `HA service: climate.set_temperature(${z.setTemp})`);
+      z.setTemp = Math.max(5, Math.min(35, roundToHalf(z.setTemp + delta)));
+      logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `HA service: climate.set_temperature(${formatTemp(z.setTemp)})`);
       evaluateAllZones();
     }
 
@@ -2111,11 +2120,11 @@
     // Environmental Sliders
     function onEnvSliderChange() {
       const z = ZONES[activeZoneIdx];
-      z.roomTemp = parseFloat(document.getElementById('slider-room-temp').value);
-      document.getElementById('val-slider-room').textContent = `${z.roomTemp.toFixed(1)}°C`;
+      z.roomTemp = roundToHalf(parseFloat(document.getElementById('slider-room-temp').value));
+      document.getElementById('val-slider-room').textContent = `${formatTemp(z.roomTemp)}°C`;
       if (z.sensorMode >= 2) {
-        z.floorTemp = parseFloat(document.getElementById('slider-floor-temp').value);
-        document.getElementById('val-slider-floor').textContent = `${z.floorTemp.toFixed(1)}°C`;
+        z.floorTemp = roundToHalf(parseFloat(document.getElementById('slider-floor-temp').value));
+        document.getElementById('val-slider-floor').textContent = `${formatTemp(z.floorTemp)}°C`;
       }
       evaluateAllZones();
     }
@@ -2126,16 +2135,16 @@
       btn.classList.add('active');
       document.getElementById('weather-badge').textContent = `🌡️ Outside: ${temp.toFixed(1)}°C`;
 
-      // Passive heat loss simulation
+      // Passive heat loss simulation quantized to 0.5°C increments
       ZONES.forEach(z => {
         if (z.model !== 'tm1') {
-          if (temp < 0) z.roomTemp = Math.max(12, z.roomTemp - 0.8);
-          else if (temp < 10) z.roomTemp = Math.max(14, z.roomTemp - 0.4);
-          else z.roomTemp = Math.min(24, z.roomTemp + 0.5);
+          if (temp < 0) z.roomTemp = Math.max(12, roundToHalf(z.roomTemp - 1.0));
+          else if (temp < 10) z.roomTemp = Math.max(14, roundToHalf(z.roomTemp - 0.5));
+          else z.roomTemp = Math.min(24, roundToHalf(z.roomTemp + 0.5));
         }
       });
       document.getElementById('slider-room-temp').value = ZONES[activeZoneIdx].roomTemp;
-      document.getElementById('val-slider-room').textContent = `${ZONES[activeZoneIdx].roomTemp.toFixed(1)}°C`;
+      document.getElementById('val-slider-room').textContent = `${formatTemp(ZONES[activeZoneIdx].roomTemp)}°C`;
       evaluateAllZones();
     }
 
@@ -2265,10 +2274,10 @@
             </div>
             <div class="lcd-center" style="margin: 0.8rem 0;">
               <div class="lcd-digits-temp" style="font-size: 2.3rem;">
-                ${(z.model === 'tm1') ? (z.relayHeat ? 'BOOST' : 'AUTO') : z.roomTemp.toFixed(1) + '<span class="temp-unit">°C</span>'}
+                ${(z.model === 'tm1') ? (z.relayHeat ? 'BOOST' : 'AUTO') : formatTemp(z.roomTemp) + '<span class="temp-unit">°C</span>'}
               </div>
               <div class="lcd-sub-readout">
-                <span class="lcd-setpoint-pill">${(z.model === 'tm1') ? '55.0°C' : 'SET ' + z.setTemp.toFixed(1) + '°C'}</span>
+                <span class="lcd-setpoint-pill">${(z.model === 'tm1') ? '55.0°C' : 'SET ' + formatTemp(z.setTemp) + '°C'}</span>
               </div>
             </div>
             <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center;">

@@ -38,6 +38,12 @@ test = [
     "pytest-cov>=7.0.0,<8",
     "pytest>=9.0.2,<10",
 ]
+docs = [
+    "myst-parser>=4.0.0",
+    "sphinx>=8.0.0",
+    "sphinx-copybutton>=0.5.2",
+    "sphinx-rtd-theme>=3.0.0",
+]
 
 [tool.uv]
 default-groups = ["test"]

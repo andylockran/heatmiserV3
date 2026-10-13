@@ -4,6 +4,7 @@
 #
 import logging
 import sys
+import time
 import serial
 import yaml
 from . import constants
@@ -99,10 +100,17 @@ class CRC16:
 class HeatmiserThermostat:
     """Initialises a heatmiser thermostat, by taking an address and model."""
 
-    def __init__(self, address, model, uh1):
+    def __init__(self, address, model, uh1, cache_ttl=None):
         self.address = address
         self.model = model
         self.uh1 = uh1
+        self.cache_ttl = (
+            float(cache_ttl)
+            if cache_ttl is not None
+            else constants.DEFAULT_CACHE_TTL
+        )
+        self._dcb_cache = None
+        self._dcb_timestamp = 0.0
         try:
             with open(config_yml) as config_file:
                 cfg = yaml.safe_load(config_file)
@@ -241,6 +249,13 @@ class HeatmiserThermostat:
 
     def _hm_send_msg(self, message):
         """This is the only interface to the serial connection."""
+        if hasattr(self, "uh1") and self.uh1 is not None and hasattr(self.uh1, "transact"):
+            try:
+                return self.uh1.transact(message, 159)
+            except Exception as e:
+                logger.error("UH1 transaction error: %s", e)
+                return []
+
         try:
             serial_message = message
             self.conn.write(serial_message)  # Write a string
@@ -280,6 +295,7 @@ class HeatmiserThermostat:
         datal = self._hm_send_msg(string)
         pro = protocol
         if readwrite == 1:
+            self.invalidate_cache()
             verification = self._hm_verify_message_crc_uk(
                 0x81, pro, thermostat_id, readwrite, 1, datal
             )
@@ -294,8 +310,27 @@ class HeatmiserThermostat:
                 logger.info("OH DEAR BAD RESPONSE")
             return datal
 
-    def _hm_read_address(self):
+    def invalidate_cache(self):
+        """Invalidates the cached DCB telemetry."""
+        self._dcb_cache = None
+        self._dcb_timestamp = 0.0
+
+    def set_cache_ttl(self, ttl_seconds):
+        """Sets the DCB cache TTL in seconds (0 to disable caching)."""
+        if ttl_seconds < 0:
+            raise ValueError("cache_ttl must be non-negative")
+        self.cache_ttl = float(ttl_seconds)
+
+    def _hm_read_address(self, force=False):
         """Reads from the DCB and maps to yaml config file."""
+        now = time.monotonic()
+        if (
+            not force
+            and self._dcb_cache is not None
+            and (now - self._dcb_timestamp) < self.cache_ttl
+        ):
+            return self._dcb_cache
+
         response = self._hm_send_address(self.address, 0, 0, 0)
         lookup = self.config["keys"]
         offset = self.config["offset"]
@@ -307,15 +342,18 @@ class HeatmiserThermostat:
                 keydata[i] = {"label": kdata, "value": ddata}
             except IndexError:
                 logger.info("Finished processing at %d", i)
+        self._dcb_cache = keydata
+        self._dcb_timestamp = now
+        self.dcb = keydata
         return keydata
 
-    def read_dcb(self):
+    def read_dcb(self, force=False):
         """
-        Returns the full DCB, only use for non read-only operations
-        Use self.dcb for read-only operations.
+        Returns the full DCB. If cached and valid within cache_ttl,
+        returns cached data. Set force=True to query fresh wire telemetry.
         """
         logger.info("Getting latest data from DCB....")
-        self.dcb = self._hm_read_address()
+        self.dcb = self._hm_read_address(force=force)
         return self.dcb
 
     def get_frost_temp(self):
@@ -615,8 +653,8 @@ class TM1Thermostat(HeatmiserThermostat):
     Based on Section 3.5 of Heatmiser V3 System Protocol 3.9.
     """
 
-    def __init__(self, address, uh1, model="tm1"):
-        super(TM1Thermostat, self).__init__(address, model, uh1)
+    def __init__(self, address, uh1, model="tm1", cache_ttl=None):
+        super(TM1Thermostat, self).__init__(address, model, uh1, cache_ttl=cache_ttl)
 
     def form_write_message(self, address, payload):
         """Forms a write bytecode frame including CRC."""
@@ -842,8 +880,8 @@ class PRTHWThermostat(HeatmiserThermostat):
     Based on Section 3.4 of Heatmiser V3 System Protocol 3.9.
     """
 
-    def __init__(self, address, uh1, model="prt-hw"):
-        super(PRTHWThermostat, self).__init__(address, model, uh1)
+    def __init__(self, address, uh1, model="prt-hw", cache_ttl=None):
+        super(PRTHWThermostat, self).__init__(address, model, uh1, cache_ttl=cache_ttl)
 
     def set_sensor_selection(self, sensor_mode):
         """

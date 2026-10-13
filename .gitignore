@@ -33,3 +33,6 @@ htmlcov/
 
 # Documents / Binaries
 *.pdf
+
+# Documentation build output
+docs/_build/

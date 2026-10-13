@@ -1,6 +1,6 @@
 """Tests for HeatmiserThermostat and CRC Methods."""
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call, patch
 import serial
 from heatmiserv3 import heatmiser, constants
 from tests.conftest import FakeUH1, build_prt_default_dcb
@@ -423,3 +423,62 @@ class TestPRTHWThermostatMethods(unittest.TestCase):
         self.thermostat.dcb[36] = {"value": 0, "label": "Current Hot water state"}
         assert self.thermostat.get_heating_state() == 1
         assert self.thermostat.get_hot_water_state() == 0
+
+
+class TestHeatmiserThermostatCachingAndDelegation(unittest.TestCase):
+    """Tests for DCB caching, TTL, invalidation, and UH1 bus delegation."""
+
+    def setUp(self):
+        self.dcb_data = build_prt_default_dcb()
+        self.fake_uh1 = FakeUH1(payload=self.dcb_data, model="prt")
+        self.thermostat = heatmiser.HeatmiserThermostat(1, "prt", self.fake_uh1, cache_ttl=2.0)
+
+    def test_dcb_cache_hit(self):
+        with patch.object(self.thermostat, "_hm_send_address") as mock_send:
+            dcb1 = self.thermostat.read_dcb()
+            dcb2 = self.thermostat.read_dcb()
+            assert dcb1 is dcb2
+            mock_send.assert_not_called()
+
+    def test_dcb_cache_force_refresh(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb(force=True)
+            mock_send.assert_called_once()
+
+    def test_dcb_cache_invalidation(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb()
+            mock_send.reset_mock()
+            self.thermostat.invalidate_cache()
+            self.thermostat.read_dcb()
+            mock_send.assert_called_once()
+
+    def test_write_operation_invalidates_cache(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb()
+            mock_send.reset_mock()
+            self.thermostat.set_target_temp(21)
+            self.thermostat.read_dcb()
+            assert mock_send.call_count == 2
+
+    def test_set_cache_ttl(self):
+        self.thermostat.set_cache_ttl(10.5)
+        assert self.thermostat.cache_ttl == 10.5
+        import pytest
+        with pytest.raises(ValueError):
+            self.thermostat.set_cache_ttl(-1.0)
+
+    def test_delegation_to_uh1_transact(self):
+        mock_uh1 = MagicMock()
+        mock_uh1.transact.return_value = [0x81, 7, 0, 1, 1, 0xb0, 0xeb]
+        stat = heatmiser.HeatmiserThermostat(1, "prt", mock_uh1)
+        res = stat._hm_send_msg(b"test")
+        assert res == [0x81, 7, 0, 1, 1, 0xb0, 0xeb]
+        assert mock_uh1.transact.call_args_list[-1] == call(b"test", 159)
+
+    def test_delegation_to_uh1_transact_exception_handled(self):
+        mock_uh1 = MagicMock()
+        mock_uh1.transact.side_effect = serial.serialutil.SerialException("Port disconnected")
+        stat = heatmiser.HeatmiserThermostat(1, "prt", mock_uh1)
+        res = stat._hm_send_msg(b"test")
+        assert res == []
