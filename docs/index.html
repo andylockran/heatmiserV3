@@ -2316,9 +2316,9 @@
         <div class="calc-row">
           <div class="calc-field">
             <label for="calc-thermostat">Target Model</label>
-            <select id="calc-thermostat" onchange="updateCalcFields()">
+            <select id="calc-thermostat" onchange="onCalcModelChange()">
               <option value="tm1">TM1 (Timer Thermostat)</option>
-              <option value="prt">PRT (Heating Thermostat)</option>
+              <option value="prt" selected>PRT (Heating Thermostat)</option>
             </select>
           </div>
           <div class="calc-field">
@@ -2332,12 +2332,12 @@
               <option value="override">Set Timer Override (Addr 42)</option>
               <option value="clock">Set Real Time Clock (Addr 43)</option>
               <option value="prog_mode">Set Program Mode (Addr 16)</option>
-              <option value="set_temp">Set Room Temp (Addr 18 - PRT)</option>
+              <option value="set_temp" selected>Set Room Temp (Addr 18 - PRT)</option>
             </select>
           </div>
           <div class="calc-field">
             <label for="calc-dest">Thermostat Address [1–32 or 255]</label>
-            <input type="number" id="calc-dest" value="1" min="1" max="255" oninput="generateBytecode()">
+            <input type="number" id="calc-dest" value="1" min="1" max="255" oninput="onCalcDestChange()">
           </div>
         </div>
 
@@ -2674,18 +2674,18 @@ tm1.set_weekday_schedule(weekday_schedule)
           <div class="calc-row" style="grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
             <div class="calc-field">
               <label for="dcb-input-settemp">Setpoint (Addr 18)</label>
-              <input type="number" id="dcb-input-settemp" min="5" max="35" value="22" oninput="applyDCBForm()">
+              <input type="number" id="dcb-input-settemp" min="5" max="35" value="22" oninput="applyDCBForm('settemp')">
             </div>
             <div class="calc-field">
               <label for="dcb-input-runmode">Power State (Addr 21)</label>
-              <select id="dcb-input-runmode" onchange="applyDCBForm()">
+              <select id="dcb-input-runmode" onchange="applyDCBForm('runmode')">
                 <option value="1" selected>1: Thermostat ON</option>
                 <option value="0">0: Standby (OFF)</option>
               </select>
             </div>
             <div class="calc-field">
               <label for="dcb-input-keylock">Keypad Lock (Addr 22)</label>
-              <select id="dcb-input-keylock" onchange="applyDCBForm()">
+              <select id="dcb-input-keylock" onchange="applyDCBForm('keylock')">
                 <option value="0" selected>0: Unlocked</option>
                 <option value="1">1: Full Lock</option>
                 <option value="2">2: Partial Lock</option>
@@ -2693,7 +2693,7 @@ tm1.set_weekday_schedule(weekday_schedule)
             </div>
             <div class="calc-field">
               <label for="dcb-input-diff">Differential (Addr 27)</label>
-              <select id="dcb-input-diff" onchange="applyDCBForm()">
+              <select id="dcb-input-diff" onchange="applyDCBForm('diff')">
                 <option value="1" selected>1°C Differential</option>
                 <option value="2">2°C Differential</option>
                 <option value="3">3°C Differential</option>
@@ -2701,7 +2701,7 @@ tm1.set_weekday_schedule(weekday_schedule)
             </div>
             <div class="calc-field">
               <label for="dcb-input-sensormode">Sensor Mode (Addr 28)</label>
-              <select id="dcb-input-sensormode" onchange="applyDCBForm()">
+              <select id="dcb-input-sensormode" onchange="applyDCBForm('sensormode')">
                 <option value="0">0: Internal Only</option>
                 <option value="1">1: Remote Air</option>
                 <option value="2">2: Floor Only</option>
@@ -2710,15 +2710,15 @@ tm1.set_weekday_schedule(weekday_schedule)
             </div>
             <div class="calc-field">
               <label for="dcb-input-floorlimit">Floor Max (Addr 29)</label>
-              <input type="number" id="dcb-input-floorlimit" min="20" max="45" value="32" oninput="applyDCBForm()">
+              <input type="number" id="dcb-input-floorlimit" min="20" max="45" value="32" oninput="applyDCBForm('floorlimit')">
             </div>
             <div class="calc-field">
               <label for="dcb-input-holiday">Holiday Hours (Addr 24)</label>
-              <input type="number" id="dcb-input-holiday" min="0" max="999" value="0" oninput="applyDCBForm()">
+              <input type="number" id="dcb-input-holiday" min="0" max="999" value="0" oninput="applyDCBForm('holiday')">
             </div>
             <div class="calc-field" id="dcb-field-model-specific">
               <label for="dcb-input-extra" id="dcb-label-extra">Hot Water State (Addr 41)</label>
-              <select id="dcb-input-extra" onchange="applyDCBForm()">
+              <select id="dcb-input-extra" onchange="applyDCBForm('extra')">
                 <option value="0">0: Auto / Off</option>
                 <option value="1">1: Boost ON</option>
               </select>
@@ -3051,12 +3051,23 @@ tm1.set_weekday_schedule(weekday_schedule)
       if (dock) dock.classList.toggle('dock-open');
     }
 
+    function updateDockBadge() {
+      const badge = document.getElementById('dock-comm-badge');
+      if (badge) badge.textContent = `RS485: ADDR ${String(simState.address).padStart(2, '0')}`;
+    }
+
     // Model & Backlight Selection
     function selectModel(model) {
       simState.model = model;
       document.querySelectorAll('.model-pill').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.getElementById('pill-' + model.replace('-', ''));
       if (activeBtn) activeBtn.classList.add('active');
+
+      const calcModelSelect = document.getElementById('calc-thermostat');
+      if (calcModelSelect && calcModelSelect.value !== (model === 'tm1' ? 'tm1' : 'prt')) {
+        calcModelSelect.value = (model === 'tm1' ? 'tm1' : 'prt');
+        updateCalcFields();
+      }
 
       const extraField = document.getElementById('dcb-field-model-specific');
       const extraLabel = document.getElementById('dcb-label-extra');
@@ -3099,6 +3110,20 @@ tm1.set_weekday_schedule(weekday_schedule)
       }
 
       evaluateThermostat();
+    }
+
+    function onCalcModelChange() {
+      const m = document.getElementById('calc-thermostat').value;
+      selectModel(m);
+      updateCalcFields();
+    }
+
+    function onCalcDestChange() {
+      const dest = parseInt(document.getElementById('calc-dest').value) || 1;
+      simState.address = dest;
+      updateDockBadge();
+      generateBytecode();
+      renderDCBHexGrid();
     }
 
     function setBacklight(theme) {
@@ -3213,6 +3238,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       renderRelays();
       renderDCBHexGrid();
       syncDCBForm();
+      updateDockBadge();
     }
 
     // Render LCD Screen
@@ -3267,11 +3293,13 @@ tm1.set_weekday_schedule(weekday_schedule)
       document.getElementById('icon-tap').classList.toggle('active', s.hotWaterRelay);
       document.getElementById('icon-hold').classList.toggle('active', s.tempHoldHours > 0);
 
-      // Environment Sliders Badges
+      // Environment Sliders Badges & values
       document.getElementById('badge-room-temp').textContent = `${s.roomTemp.toFixed(1)}°C`;
       document.getElementById('badge-floor-temp').textContent = `${s.floorTemp.toFixed(1)}°C`;
-      document.getElementById('slider-room-temp').value = s.roomTemp;
-      document.getElementById('slider-floor-temp').value = s.floorTemp;
+      const sliderRoom = document.getElementById('slider-room-temp');
+      if (sliderRoom && document.activeElement !== sliderRoom) sliderRoom.value = s.roomTemp;
+      const sliderFloor = document.getElementById('slider-floor-temp');
+      if (sliderFloor && document.activeElement !== sliderFloor) sliderFloor.value = s.floorTemp;
     }
 
     // Render Relays & Physical Equipment
@@ -3332,56 +3360,67 @@ tm1.set_weekday_schedule(weekday_schedule)
       }
     }
 
-    // Render DCB Memory Buffer Hex Map
+    // Render DCB Memory Buffer Hex Map per protocol v3.9
     function renderDCBHexGrid() {
       const s = simState;
       const totalBytes = (s.model === 'tm1') ? 43 : 73;
       const buffer = new Array(totalBytes).fill(0);
 
-      // Populate DCB fields according to model
-      buffer[0] = s.address;
-      buffer[1] = totalBytes;
-      buffer[2] = 0x81; // UH1 Master
+      // Header fields
+      buffer[0] = 0x00;        // Length High
+      buffer[1] = totalBytes;  // Length Low
+      buffer[2] = 0x00;        // Vendor ID (0=Heatmiser)
 
       if (s.model === 'tm1') {
-        buffer[3] = 0x05; // Model TM1
+        buffer[3] = 0x0A; // Version 10
+        buffer[4] = 0x05; // Model TM1
+        buffer[5] = s.address;
         buffer[6] = s.progMode;
-        buffer[21] = s.keyLock;
-        buffer[23] = (s.holidayHours >> 8) & 0xff; // Big-endian on read!
-        buffer[24] = s.holidayHours & 0xff;
-        buffer[25] = s.timerState;
-        buffer[26] = (s.countdownMinutes >> 8) & 0xff;
-        buffer[27] = s.countdownMinutes & 0xff;
-        buffer[28] = s.runMode;
+        buffer[8] = s.runMode; // On/off
+        buffer[9] = s.keyLock;
+        buffer[10] = (s.holidayHours >> 8) & 0xff;
+        buffer[11] = s.holidayHours & 0xff;
+        buffer[12] = (s.countdownMinutes >> 8) & 0xff;
+        buffer[13] = s.countdownMinutes & 0xff;
+        buffer[14] = s.timerState;
       } else {
-        buffer[3] = (s.model === 'prt-hw') ? 0x02 : 0x01;
+        buffer[3] = 0x0A; // Version 10
+        buffer[4] = (s.model === 'prt-hw') ? 0x02 : 0x01; // Model
+        buffer[5] = 0x00; // Temp format (0=C, 1=F)
+        buffer[6] = Math.round(s.differential);
+        buffer[7] = 0x00; // Frost protect mode
+        buffer[11] = s.address;
+        buffer[13] = s.sensorMode;
         buffer[16] = 0x00; // 5/2 mode
         buffer[17] = Math.round(s.frostTemp);
         buffer[18] = Math.round(s.setTemp);
+        buffer[19] = Math.round(s.floorMaxLimit);
+        buffer[20] = (s.sensorMode === 2 || s.sensorMode === 3) ? 1 : 0;
         buffer[21] = s.runMode;
         buffer[22] = s.keyLock;
-        buffer[23] = (s.holidayHours >> 8) & 0xff;
-        buffer[24] = s.holidayHours & 0xff;
-        buffer[25] = Math.round(s.floorMaxLimit);
-        buffer[26] = 0; // Opt Start
-        buffer[27] = Math.round(s.differential);
-        buffer[28] = s.sensorMode;
+        buffer[23] = s.heatingRelay ? 1 : 0;
+        buffer[24] = (s.holidayHours >> 8) & 0xff;
+        buffer[25] = s.holidayHours & 0xff;
+        buffer[26] = (s.tempHoldHours * 60) & 0xff;
 
         // 16-bit Scaled Temp Words (T * 10)
         const flrWord = s.floorConnected ? Math.round(s.floorTemp * 10) : 0xFFFF;
-        buffer[29] = (flrWord >> 8) & 0xff;
-        buffer[30] = flrWord & 0xff;
+        buffer[30] = (flrWord >> 8) & 0xff;
+        buffer[31] = flrWord & 0xff;
 
         const roomWord = Math.round(s.roomTemp * 10);
-        buffer[33] = (roomWord >> 8) & 0xff;
-        buffer[34] = roomWord & 0xff;
+        buffer[32] = (roomWord >> 8) & 0xff;
+        buffer[33] = roomWord & 0xff;
+
+        buffer[34] = s.sensorFault ? 2 : 0;
+        buffer[35] = s.heatingRelay ? 1 : 0;
 
         if (s.model === 'prt-hw') {
-          buffer[37] = s.hotWaterState;
+          buffer[41] = s.hotWaterState;
         }
       }
 
-      // CRC16
+      // CRC16 Checksum
       const crc = calculateCRC16(buffer.slice(0, totalBytes - 2));
       buffer[totalBytes - 2] = crc[0];
       buffer[totalBytes - 1] = crc[1];
@@ -3399,17 +3438,23 @@ tm1.set_weekday_schedule(weekday_schedule)
         }
 
         let label = `Index ${idx}: 0x${hex} (${byteVal})`;
-        if (idx === 0) label += ' [Dest Addr]';
-        else if (idx === 1) label += ' [DCB Length]';
-        else if (idx === 3) label += ' [Model ID]';
-        else if (idx === 18 && s.model !== 'tm1') label += ' [Set Temp]';
-        else if (idx === 21) label += ' [Run Mode / Key Lock]';
-        else if (idx === 22) label += ' [Keypad Lock]';
-        else if (idx === 23 || idx === 24) label += ' [Holiday Hours]';
-        else if (idx === 25 && s.model !== 'tm1') label += ' [Floor Max Limit]';
-        else if (idx === 25 && s.model === 'tm1') label += ' [Timer Override State]';
-        else if (idx === 29 || idx === 30) label += ' [Floor Temp * 10]';
-        else if (idx === 33 || idx === 34) label += ' [Room Temp * 10]';
+        if (idx === 1) label += ' [DCB Length]';
+        else if (idx === 4) label += ' [Model ID]';
+        else if (idx === 6 && s.model !== 'tm1') label += ' [Switch Differential]';
+        else if (idx === 11) label += ' [Thermostat Address]';
+        else if (idx === 13 && s.model !== 'tm1') label += ' [Sensor Selection]';
+        else if (idx === 17 && s.model !== 'tm1') label += ' [Frost Protect Temp]';
+        else if (idx === 18 && s.model !== 'tm1') label += ' [Set Room Temp]';
+        else if (idx === 19 && s.model !== 'tm1') label += ' [Floor Max Limit]';
+        else if (idx === 21 && s.model !== 'tm1') label += ' [On/Off State]';
+        else if (idx === 22 && s.model !== 'tm1') label += ' [Keypad Lock]';
+        else if (idx === 23 && s.model !== 'tm1') label += ' [Heating Relay Active]';
+        else if (idx === 24 || idx === 25) label += ' [Holiday Hours]';
+        else if (idx === 30 || idx === 31) label += ' [Floor Temp * 10]';
+        else if (idx === 32 || idx === 33) label += ' [Room Temp * 10]';
+        else if (idx === 34) label += ' [Sensor Error Code]';
+        else if (idx === 41 && s.model === 'prt-hw') label += ' [Hot Water Boost State]';
+        else if (idx === 14 && s.model === 'tm1') label += ' [Timer Override State]';
         else if (idx >= totalBytes - 2) label += ' [CRC16 Checksum]';
 
         cell.title = label;
@@ -3422,44 +3467,81 @@ tm1.set_weekday_schedule(weekday_schedule)
     function syncDCBForm() {
       const s = simState;
       const setInput = document.getElementById('dcb-input-settemp');
-      if (setInput) setInput.value = Math.round(s.setTemp);
+      if (setInput && document.activeElement !== setInput) setInput.value = Math.round(s.setTemp);
       const runInput = document.getElementById('dcb-input-runmode');
-      if (runInput) runInput.value = s.runMode;
+      if (runInput && document.activeElement !== runInput) runInput.value = s.runMode;
       const lockInput = document.getElementById('dcb-input-keylock');
-      if (lockInput) lockInput.value = s.keyLock;
+      if (lockInput && document.activeElement !== lockInput) lockInput.value = s.keyLock;
       const diffInput = document.getElementById('dcb-input-diff');
-      if (diffInput) diffInput.value = Math.round(s.differential);
+      if (diffInput && document.activeElement !== diffInput) diffInput.value = Math.round(s.differential);
       const sensorInput = document.getElementById('dcb-input-sensormode');
-      if (sensorInput) sensorInput.value = s.sensorMode;
+      if (sensorInput && document.activeElement !== sensorInput) sensorInput.value = s.sensorMode;
       const floorInput = document.getElementById('dcb-input-floorlimit');
-      if (floorInput) floorInput.value = Math.round(s.floorMaxLimit);
+      if (floorInput && document.activeElement !== floorInput) floorInput.value = Math.round(s.floorMaxLimit);
       const holInput = document.getElementById('dcb-input-holiday');
-      if (holInput) holInput.value = s.holidayHours;
+      if (holInput && document.activeElement !== holInput) holInput.value = s.holidayHours;
       const extra = document.getElementById('dcb-input-extra');
-      if (extra) {
+      if (extra && document.activeElement !== extra) {
         extra.value = (s.model === 'tm1') ? s.timerState : s.hotWaterState;
       }
     }
 
     // Apply Changes from DCB Mutator Form
-    function applyDCBForm() {
+    function applyDCBForm(field) {
       const s = simState;
-      s.setTemp = parseFloat(document.getElementById('dcb-input-settemp').value) || 21;
-      s.runMode = parseInt(document.getElementById('dcb-input-runmode').value);
-      s.keyLock = parseInt(document.getElementById('dcb-input-keylock').value);
-      s.differential = parseFloat(document.getElementById('dcb-input-diff').value) || 1;
-      s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
-      s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
-      s.holidayHours = parseInt(document.getElementById('dcb-input-holiday').value) || 0;
-      
-      const extra = document.getElementById('dcb-input-extra');
-      if (extra) {
-        if (s.model === 'tm1') s.timerState = parseInt(extra.value);
-        else s.hotWaterState = parseInt(extra.value);
+      flashCommBlip();
+
+      if (field === 'settemp') {
+        s.setTemp = parseFloat(document.getElementById('dcb-input-settemp').value) || 21;
+        s.lastModifiedIndex = 18;
+        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${Math.round(s.setTemp)})`);
+      } else if (field === 'runmode') {
+        s.runMode = parseInt(document.getElementById('dcb-input-runmode').value);
+        s.lastModifiedIndex = 21;
+        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})`);
+      } else if (field === 'keylock') {
+        s.keyLock = parseInt(document.getElementById('dcb-input-keylock').value);
+        s.lastModifiedIndex = 22;
+        generateAndDisplayWriteFrame(22, [s.keyLock], `thermostat.set_key_lock(${s.keyLock})`);
+      } else if (field === 'diff') {
+        s.differential = parseFloat(document.getElementById('dcb-input-diff').value) || 1;
+        s.lastModifiedIndex = 6;
+        generateAndDisplayWriteFrame(27, [Math.round(s.differential)], `thermostat.set_differential(${Math.round(s.differential)})`);
+      } else if (field === 'sensormode') {
+        s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
+        s.lastModifiedIndex = 13;
+        generateAndDisplayWriteFrame(28, [s.sensorMode], `thermostat.set_sensor_mode(${s.sensorMode})`);
+      } else if (field === 'floorlimit') {
+        s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
+        s.lastModifiedIndex = 19;
+        generateAndDisplayWriteFrame(29, [Math.round(s.floorMaxLimit)], `thermostat.set_floor_max(${Math.round(s.floorMaxLimit)})`);
+      } else if (field === 'holiday') {
+        s.holidayHours = parseInt(document.getElementById('dcb-input-holiday').value) || 0;
+        s.lastModifiedIndex = 24;
+        generateAndDisplayWriteFrame(24, [s.holidayHours & 0xff, (s.holidayHours >> 8) & 0xff], `thermostat.set_holiday_hours(${s.holidayHours})`);
+      } else if (field === 'extra') {
+        const extraVal = parseInt(document.getElementById('dcb-input-extra').value) || 0;
+        if (s.model === 'tm1') {
+          s.timerState = extraVal;
+          s.lastModifiedIndex = 14;
+          generateAndDisplayWriteFrame(42, [s.timerState], `tm1.set_timer_state(${s.timerState})`);
+        } else {
+          s.hotWaterState = extraVal;
+          s.lastModifiedIndex = 41;
+          generateAndDisplayWriteFrame(41, [s.hotWaterState], `prt_hw.set_hot_water_boost(${s.hotWaterState})`);
+        }
+      } else {
+        s.setTemp = parseFloat(document.getElementById('dcb-input-settemp').value) || 21;
+        s.runMode = parseInt(document.getElementById('dcb-input-runmode').value);
+        s.keyLock = parseInt(document.getElementById('dcb-input-keylock').value);
+        s.differential = parseFloat(document.getElementById('dcb-input-diff').value) || 1;
+        s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
+        s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
+        s.holidayHours = parseInt(document.getElementById('dcb-input-holiday').value) || 0;
+        s.lastModifiedIndex = 18;
+        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${Math.round(s.setTemp)})`);
       }
 
-      flashCommBlip();
-      generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${Math.round(s.setTemp)})`);
       evaluateThermostat();
     }
 
@@ -3478,13 +3560,25 @@ tm1.set_weekday_schedule(weekday_schedule)
       flashCommBlip();
 
       if (btn === 'up') {
-        s.setTemp = Math.min(35, s.setTemp + 0.5);
-        s.lastModifiedIndex = 18;
-        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+        if (s.model === 'tm1') {
+          s.countdownMinutes = Math.min(1800, s.countdownMinutes + 15);
+          s.lastModifiedIndex = 12;
+          generateAndDisplayWriteFrame(26, [s.countdownMinutes & 0xff, (s.countdownMinutes >> 8) & 0xff], `tm1.set_countdown_timer(${s.countdownMinutes})`);
+        } else {
+          s.setTemp = Math.min(35, s.setTemp + 0.5);
+          s.lastModifiedIndex = 18;
+          generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+        }
       } else if (btn === 'down') {
-        s.setTemp = Math.max(5, s.setTemp - 0.5);
-        s.lastModifiedIndex = 18;
-        generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+        if (s.model === 'tm1') {
+          s.countdownMinutes = Math.max(0, s.countdownMinutes - 15);
+          s.lastModifiedIndex = 12;
+          generateAndDisplayWriteFrame(26, [s.countdownMinutes & 0xff, (s.countdownMinutes >> 8) & 0xff], `tm1.set_countdown_timer(${s.countdownMinutes})`);
+        } else {
+          s.setTemp = Math.max(5, s.setTemp - 0.5);
+          s.lastModifiedIndex = 18;
+          generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+        }
       } else if (btn === 'power') {
         s.runMode = (s.runMode === 1) ? 0 : 1;
         s.lastModifiedIndex = 21;
@@ -3492,10 +3586,9 @@ tm1.set_weekday_schedule(weekday_schedule)
       } else if (btn === 'hold') {
         s.tempHoldHours = (s.tempHoldHours > 0) ? 0 : 2;
         s.tempHoldSetTemp = s.setTemp;
-        s.lastModifiedIndex = 31;
+        s.lastModifiedIndex = 26;
         generateAndDisplayWriteFrame(32, [s.tempHoldHours & 0xff, 0], `thermostat.set_temp_hold(${s.tempHoldHours}, ${s.setTemp})`);
       } else if (btn === 'mode') {
-        // Cycle program view / model
         const models = ['prt', 'prt-hw', 'tm1', 'hcen'];
         const nextIdx = (models.indexOf(s.model) + 1) % models.length;
         selectModel(models[nextIdx]);
@@ -3531,13 +3624,12 @@ tm1.set_weekday_schedule(weekday_schedule)
     // One-Click Real-World Test Scenarios
     function runScenario(name) {
       const s = simState;
-      // Auto open dock on small screens
       const dock = document.getElementById('device-dock');
       if (window.innerWidth < 1250 && dock && !dock.classList.contains('dock-open')) {
         dock.classList.add('dock-open');
       }
 
-      // Default baseline values to prevent cross-scenario interference
+      // Reset baseline to prevent cross-scenario pollution
       s.runMode = 1;
       s.keyLock = 0;
       s.holidayHours = 0;
@@ -3555,43 +3647,51 @@ tm1.set_weekday_schedule(weekday_schedule)
         selectModel('prt');
         s.setTemp = 21.0;
         s.roomTemp = 19.0;
+        s.lastModifiedIndex = 18;
         generateAndDisplayWriteFrame(18, [21], 'thermostat.set_temperature(21)  # Room is 19°C -> Heating Relay 1/2 Closes');
       } else if (name === 'temp_reached') {
         selectModel('prt');
         s.setTemp = 21.0;
         s.roomTemp = 21.2;
+        s.lastModifiedIndex = 18;
         generateAndDisplayWriteFrame(18, [21], 'thermostat.set_temperature(21)  # Room is 21.2°C >= Setpoint -> Relay Opens');
       } else if (name === 'floor_overheat') {
         selectModel('prt');
-        s.sensorMode = 3; // Int + Floor
+        s.sensorMode = 3;
         s.floorMaxLimit = 32.0;
         s.setTemp = 24.0;
-        s.roomTemp = 18.0; // Cold room!
-        s.floorTemp = 36.0; // Exceeds limit!
+        s.roomTemp = 18.0;
+        s.floorTemp = 36.0;
+        s.lastModifiedIndex = 19;
         generateAndDisplayWriteFrame(29, [32], 'thermostat.set_floor_max(32)  # Floor is 36°C -> SAFETY CUTOUT TRIPS RELAY!');
       } else if (name === 'tm1_countdown') {
         selectModel('tm1');
         s.countdownMinutes = 120;
+        s.lastModifiedIndex = 12;
         generateAndDisplayWriteFrame(26, [120, 0], 'tm1.set_countdown_timer(120)  # Relay Closes for 120 mins');
       } else if (name === 'holiday_mode') {
         selectModel('prt');
-        s.holidayHours = 168; // 7 days
+        s.holidayHours = 168;
         s.frostTemp = 12.0;
         s.roomTemp = 18.0;
+        s.lastModifiedIndex = 24;
         generateAndDisplayWriteFrame(24, [168 & 0xff, 0], 'thermostat.set_holiday_hours(168)  # Setback to 12°C Frost Protect');
       } else if (name === 'keypad_lock') {
         selectModel('prt');
         s.keyLock = 1;
+        s.lastModifiedIndex = 22;
         generateAndDisplayWriteFrame(22, [1], 'thermostat.set_key_lock(1)  # Front panel buttons disabled');
       } else if (name === 'hw_boost') {
         selectModel('prt-hw');
         s.hotWaterState = 1;
+        s.lastModifiedIndex = 41;
         generateAndDisplayWriteFrame(41, [1], 'prt_hw.set_hot_water_boost(1)  # Terminals 3 & 4 Close immediately');
       } else if (name === 'frost_protect') {
         selectModel('prt');
-        s.runMode = 0; // Standby
+        s.runMode = 0;
         s.frostTemp = 12.0;
-        s.roomTemp = 4.0; // Freezing!
+        s.roomTemp = 4.0;
+        s.lastModifiedIndex = 21;
         generateAndDisplayWriteFrame(21, [0], '# Thermostat OFF, but ambient is 4°C -> Emergency Frost Heat engaged!');
       }
 
@@ -3619,64 +3719,92 @@ tm1.set_weekday_schedule(weekday_schedule)
       simState.lastTxFrame = fullFrame;
       simState.pySnippet = pySnippet;
 
-      // Render wire display
       const container = document.getElementById('wire-frame-display');
-      container.innerHTML = fullFrame.map((b, i) => {
-        const hex = '0x' + b.toString(16).toUpperCase().padStart(2, '0');
-        if (i >= fullFrame.length - 2) return `<span style="color: var(--accent-amber); font-weight:700;">${hex}</span>`;
-        if (i >= 8) return `<span style="color: var(--accent-emerald); font-weight:700;">${hex}</span>`;
-        return `<span>${hex}</span>`;
-      }).join(' ');
+      if (container) {
+        container.innerHTML = fullFrame.map((b, i) => {
+          const hex = '0x' + b.toString(16).toUpperCase().padStart(2, '0');
+          if (i >= fullFrame.length - 2) return `<span style="color: var(--accent-amber); font-weight:700;">${hex}</span>`;
+          if (i >= 8) return `<span style="color: var(--accent-emerald); font-weight:700;">${hex}</span>`;
+          return `<span>${hex}</span>`;
+        }).join(' ');
+      }
 
-      document.getElementById('py-code-snippet').textContent = pySnippet;
+      const pyEl = document.getElementById('py-code-snippet');
+      if (pyEl) pyEl.textContent = pySnippet;
     }
 
     function flashCommBlip() {
       const blip = document.getElementById('lcd-blip');
-      blip.classList.add('active');
-      setTimeout(() => blip.classList.remove('active'), 250);
+      if (blip) {
+        blip.classList.add('active');
+        setTimeout(() => blip.classList.remove('active'), 250);
+      }
     }
 
     function copySnippet() {
       navigator.clipboard.writeText(simState.pySnippet).then(() => {
         const btn = document.querySelector('.copy-btn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 1200);
+        if (btn) {
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.textContent = 'Copy', 1200);
+        }
       });
     }
 
-    // Hook: Transmit Bytecode Calculator Frame to Virtual Thermostat
+    // Transmit Bytecode Calculator Frame to Virtual Thermostat Twin
     function transmitCalcFrameToSim() {
       const cmd = document.getElementById('calc-command').value;
       const dest = parseInt(document.getElementById('calc-dest').value) || 1;
       simState.address = dest;
+      updateDockBadge();
 
       if (cmd === 'on_off') {
-        const v = parseInt(document.getElementById('param-val').value) || 0;
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
         simState.runMode = v;
+        simState.lastModifiedIndex = 21;
         generateAndDisplayWriteFrame(21, [v], `thermostat.set_on_off(${v})`);
       } else if (cmd === 'key_lock') {
-        const v = parseInt(document.getElementById('param-val').value) || 0;
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
         simState.keyLock = v;
+        simState.lastModifiedIndex = 22;
         generateAndDisplayWriteFrame(22, [v], `thermostat.set_key_lock(${v})`);
       } else if (cmd === 'set_temp') {
-        const v = parseInt(document.getElementById('param-val').value) || 21;
+        const v = parseInt(document.getElementById('param-val')?.value) || 21;
         simState.setTemp = v;
+        simState.lastModifiedIndex = 18;
         generateAndDisplayWriteFrame(18, [v], `thermostat.set_temperature(${v})`);
       } else if (cmd === 'holiday') {
-        const v = parseInt(document.getElementById('param-val').value) || 0;
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
         simState.holidayHours = v;
+        simState.lastModifiedIndex = 24;
         generateAndDisplayWriteFrame(24, [v & 0xff, (v >> 8) & 0xff], `thermostat.set_holiday_hours(${v})`);
       } else if (cmd === 'countdown') {
-        const v = parseInt(document.getElementById('param-val').value) || 0;
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
         simState.countdownMinutes = v;
         selectModel('tm1');
+        simState.lastModifiedIndex = 12;
         generateAndDisplayWriteFrame(26, [v & 0xff, (v >> 8) & 0xff], `tm1.set_countdown_timer(${v})`);
       } else if (cmd === 'override') {
-        const v = parseInt(document.getElementById('param-val').value) || 0;
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
         simState.timerState = v;
         selectModel('tm1');
+        simState.lastModifiedIndex = 14;
         generateAndDisplayWriteFrame(42, [v], `tm1.set_timer_state(${v})`);
+      } else if (cmd === 'prog_mode') {
+        const v = parseInt(document.getElementById('param-val')?.value) || 0;
+        simState.progMode = v;
+        selectModel('tm1');
+        simState.lastModifiedIndex = 6;
+        generateAndDisplayWriteFrame(16, [v], `tm1.set_program_mode(${v})`);
+      } else if (cmd === 'clock') {
+        const w = parseInt(document.getElementById('param-week')?.value) || 1;
+        const h = parseInt(document.getElementById('param-hour')?.value) || 0;
+        const m = parseInt(document.getElementById('param-min')?.value) || 0;
+        const s = parseInt(document.getElementById('param-sec')?.value) || 0;
+        generateAndDisplayWriteFrame(43, [w, h, m, s], `thermostat.set_clock(week=${w}, time="${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}")`);
+      } else if (cmd === 'read_all') {
+        simState.lastModifiedIndex = 0;
+        generateAndDisplayWriteFrame(0, [], `thermostat.read_dcb()`);
       }
 
       flashCommBlip();
@@ -3685,7 +3813,6 @@ tm1.set_weekday_schedule(weekday_schedule)
 
     // Initialize on load
     window.addEventListener('DOMContentLoaded', () => {
-      // Restore layout preference
       const savedLayout = localStorage.getItem('hm_layout_mode') || (window.innerWidth >= 1250 ? 'split' : 'docs');
       setLayoutMode(savedLayout);
 
