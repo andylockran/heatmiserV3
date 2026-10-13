@@ -1295,6 +1295,167 @@
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.3);
     }
 
+    /* Popout to Standalone Twin Screen */
+    .dock-popout-btn {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff !important;
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .dock-popout-btn:hover {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(2, 132, 199, 0.35);
+    }
+
+    /* Multi-Button Chords & Gesture Panel (Single-Mouse Solution) */
+    .chord-shortcuts-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chord-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .chord-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chord-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(2, 132, 199, 0.15);
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .chord-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+
+    .chord-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .chord-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+      font-family: inherit;
+      width: 100%;
+    }
+
+    .chord-action-btn:hover {
+      background: rgba(2, 132, 199, 0.08);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .chord-keys {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .kbadge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font-size: 0.72rem;
+      color: var(--text-main);
+    }
+
+    .chord-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      flex-grow: 1;
+    }
+
+    .chord-meta strong {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .chord-meta small {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* Toast Notification */
+    .tamper-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid var(--accent-blue);
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .tamper-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
     /* ==========================================================================
        Physical Relay Terminal Board (Real-World Actuator)
        ========================================================================== */
@@ -1837,6 +1998,7 @@
         <li><a class="nav-link" href="#how-it-works">How the Library Works</a></li>
         <li><a class="nav-link" href="#dcb-specifications">Thermostat DCB Register Tables</a></li>
         <li><a class="nav-link" href="#visual-harness">⚡ Visual Test Harness (Digital Twin)</a></li>
+        <li><a class="nav-link" href="twin.html" target="_blank" style="color: #38bdf8; font-weight: 700;">🖥️ Separate Screen: 5-Zone Twin &rarr;</a></li>
         <li><a class="nav-link" href="#bytecode-inspector">Bytecode Frame Inspector</a></li>
         <li><a class="nav-link" href="#clarifications">Pitfalls & Clarifications</a></li>
         <li><a class="nav-link" href="#api-examples">Python API Reference</a></li>
@@ -2341,6 +2503,16 @@
       <p>
         Writing register values to a Heatmiser thermostat over RS485 does not merely alter memory bytes in the Device Control Block (DCB)—it orchestrates physical relays, drives safety interlocks, updates LCD annunciators, and modulates HVAC heating loops in the real world.
       </p>
+
+      <div class="rtd-admonition note" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin: 1.25rem 0;">
+        <div style="flex: 1; min-width: 280px;">
+          <div class="rtd-admonition-title" style="font-size: 1rem;">🖥️ Multi-Screen Digital Twin Demo (Whole-Home Simulation)</div>
+          <div style="font-size: 0.88rem; line-height: 1.5; color: var(--text-main);">
+            Run the dedicated whole-home digital twin on a separate screen or monitor: <strong>4x PRT-1 underfloor heating thermostats</strong> (Bedroom 1, Bedroom 2, Bathroom, Kitchen/Living), <strong>1x TM1 Hot Water controller</strong>, an <strong>interactive floorplan with heating loops</strong>, connected to a <strong>Heatmiser UH1 8-zone wiring centre</strong> and an <strong>RS485 Raspberry Pi running Home Assistant</strong>. Includes multi-button hardware chord shortcuts (simulating simultaneous 2-finger presses).
+          </div>
+        </div>
+        <a href="twin.html" target="_blank" class="dock-popout-btn" style="padding: 0.65rem 1.25rem; font-size: 0.88rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">🚀 Launch 5-Zone Twin (Separate Screen) &rarr;</a>
+      </div>
 
       <div class="callout callout-info">
         <div class="callout-title">Live Adjacent Digital Twin</div>
@@ -3061,7 +3233,10 @@ tm1.set_weekday_schedule(weekday_schedule)
           <span class="dock-title">⚡ Virtual Thermostat Twin</span>
           <span class="dock-status-badge" id="dock-comm-badge">RS485: ADDR 01</span>
         </div>
-        <button class="dock-close-btn" onclick="toggleDockDrawer()" title="Close Dock">✕</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="twin.html" target="_blank" class="dock-popout-btn" title="Open 5-Thermostat Whole-Home Digital Twin on Separate Screen">🖥️ Pop Out (5 Zones)</a>
+          <button class="dock-close-btn" onclick="toggleDockDrawer()" title="Close Dock">✕</button>
+        </div>
       </div>
 
       <div class="dock-body">
@@ -3144,6 +3319,54 @@ tm1.set_weekday_schedule(weekday_schedule)
             <button class="keypad-btn" onclick="onKeypadPress('a')" title="A: Accept / Confirm / Auxiliary Boost">A</button>
             <button class="keypad-btn" onclick="onKeypadPress('down')" title="Down Arrow: Decrease Setpoint / Value">▼</button>
             <button class="keypad-btn" onclick="onKeypadPress('up')" title="Up Arrow: Increase Setpoint / Value">▲</button>
+          </div>
+        </div>
+
+        <!-- Multi-Button Chords & Physical Gesture Panel (Single-Mouse Solution) -->
+        <div class="chord-shortcuts-card">
+          <div class="chord-header">
+            <span class="chord-title">Multi-Button Chords</span>
+            <span class="chord-badge" title="Simulates hardware 2-finger chords impossible with a single mouse">Single-Mouse Helper</span>
+          </div>
+          <p class="chord-desc">
+            Certain Heatmiser functions require pressing multiple tactile buttons simultaneously or long-pressing switches. Since a single mouse cursor cannot click two buttons at once, use these dedicated shortcuts:
+          </p>
+          <div class="chord-list">
+            <button class="chord-action-btn" onclick="onComboPress('power_clock')" title="Simulates pressing Power and Clock simultaneously">
+              <div class="chord-keys"><span class="kbadge">⏻</span>+<span class="kbadge">🕒</span></div>
+              <div class="chord-meta">
+                <strong>Power + Clock: Setup Menu</strong>
+                <small>Cycles Sensor Mode (0..4), Diff, &deg;C/&deg;F</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('down_up')" title="Simulates pressing Down and Up simultaneously">
+              <div class="chord-keys"><span class="kbadge">▼</span>+<span class="kbadge">▲</span></div>
+              <div class="chord-meta">
+                <strong>Down + Up: Keypad Lock</strong>
+                <small>Toggles Tamper Lockout (Addr 22)</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('hold_power')" title="Simulates holding the Power button for 3 seconds">
+              <div class="chord-keys"><span class="kbadge">⏻</span> (3s)</div>
+              <div class="chord-meta">
+                <strong>Hold Power: Standby</strong>
+                <small>Switches On / Frost Protection (Addr 21)</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('h_a')" title="Simulates pressing H and A simultaneously">
+              <div class="chord-keys"><span class="kbadge">H</span>+<span class="kbadge">A</span></div>
+              <div class="chord-meta">
+                <strong>H + A: Comfort / Boost</strong>
+                <small>Engages 2-hr Hold / HW Boost</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('hold_clock')" title="Simulates holding the Clock button for 3 seconds">
+              <div class="chord-keys"><span class="kbadge">🕒</span> (3s)</div>
+              <div class="chord-meta">
+                <strong>Hold Clock: Set RTC Time</strong>
+                <small>Syncs Clock to System RTC (Addr 43)</small>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -4253,6 +4476,106 @@ tm1.set_weekday_schedule(weekday_schedule)
           s.lastModifiedIndex = 18;
           generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
         }
+      }
+
+      evaluateThermostat();
+    }
+
+    // Floating Toast Notification
+    function showTamperToast(msg) {
+      let toast = document.getElementById('tamper-toast-el');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'tamper-toast-el';
+        toast.className = 'tamper-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // Multi-Button Chords & Physical Gesture Handlers (Single-Mouse Solution)
+    function onComboPress(combo) {
+      const s = simState;
+      flashCommBlip();
+
+      if (combo === 'power_clock') {
+        // Power + Clock: Feature Setup Menu (cycles sensor modes or differential)
+        if (s.model !== 'prt-hw' && s.model !== 'tm1') {
+          s.sensorMode = (s.sensorMode + 1) % 5;
+          const modes = [
+            'Built-in Air (Mode 0)',
+            'Remote Air (Mode 1)',
+            'Floor Only (Mode 2)',
+            'Built-in + Floor Limit (Mode 3)',
+            'Remote + Floor Limit (Mode 4)'
+          ];
+          const selEl = document.getElementById('dcb-input-sensormode') || document.getElementById('select-sensor-mode');
+          if (selEl) selEl.value = s.sensorMode;
+          s.lastModifiedIndex = 13;
+          generateAndDisplayWriteFrame(13, [s.sensorMode], `thermostat.set_sensor_selection(${s.sensorMode})  # Power+Clock Setup Menu`);
+          showTamperToast(`⚙️ Setup Menu: Sensor set to ${modes[s.sensorMode]}`);
+        } else {
+          s.differential = (s.differential === 1.0) ? 2.0 : (s.differential === 2.0) ? 3.0 : 1.0;
+          const diffEl = document.getElementById('dcb-input-diff') || document.getElementById('select-switching-diff');
+          if (diffEl) diffEl.value = s.differential;
+          s.lastModifiedIndex = 6;
+          generateAndDisplayWriteFrame(6, [Math.round(s.differential)], `thermostat.set_differential(${Math.round(s.differential)})  # Setup Menu`);
+          showTamperToast(`⚙️ Setup Menu: Switching Diff = ${s.differential}°C`);
+        }
+      } else if (combo === 'down_up') {
+        // Down + Up: Anti-Tamper Keypad Lock Toggle (Addr 22)
+        s.keyLock = (s.keyLock > 0) ? 0 : 1;
+        const lockEl = document.getElementById('dcb-input-keylock') || document.getElementById('select-key-lock');
+        if (lockEl) lockEl.value = s.keyLock;
+        s.lastModifiedIndex = 22;
+        generateAndDisplayWriteFrame(22, [s.keyLock], `thermostat.set_key_lock(${s.keyLock})  # Down+Up Keypad Lock Toggle`);
+        showTamperToast(s.keyLock > 0 ? "🔒 Keypad Locked (Down + Up Pressed)" : "🔓 Keypad Unlocked (Down + Up Pressed)");
+      } else if (combo === 'hold_power') {
+        // Hold Power 3s: Standby / Frost Protection Toggle (Addr 21)
+        s.runMode = (s.runMode === 1) ? 0 : 1;
+        const runEl = document.getElementById('dcb-input-runmode');
+        if (runEl) runEl.value = s.runMode;
+        s.lastModifiedIndex = 21;
+        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})  # Hold Power (3s Standby Toggle)`);
+        showTamperToast(s.runMode === 1 ? "⏻ Thermostat Switched ON (Hold Power)" : "❄️ Standby / Frost Protection Active (Hold Power)");
+      } else if (combo === 'h_a') {
+        // H + A: Comfort Hold / Hot Water Boost Toggle
+        if (s.model === 'prt-hw') {
+          s.hotWaterState = (s.hotWaterState === 1) ? 0 : 1;
+          const hwEl = document.getElementById('dcb-input-extra');
+          if (hwEl) hwEl.value = s.hotWaterState;
+          s.lastModifiedIndex = 41;
+          generateAndDisplayWriteFrame(41, [s.hotWaterState], `prt_hw.set_hot_water_boost(${s.hotWaterState})  # H+A HW Boost Toggle`);
+          showTamperToast(s.hotWaterState === 1 ? "🚿 Hot Water Boost ON (H + A Pressed)" : "🚿 Hot Water Boost OFF (H + A Pressed)");
+        } else if (s.model === 'tm1') {
+          s.timerState = (s.timerState === 1) ? 0 : 1;
+          const tmEl = document.getElementById('dcb-input-extra');
+          if (tmEl) tmEl.value = s.timerState;
+          s.lastModifiedIndex = 14;
+          generateAndDisplayWriteFrame(42, [s.timerState], `tm1.set_timer_state(${s.timerState})  # H+A Timer Override Toggle`);
+          showTamperToast(s.timerState === 1 ? "⏱️ TM1 Timer Overridden ON (H + A Pressed)" : "⏱️ TM1 Timer Auto Schedule (H + A Pressed)");
+        } else {
+          s.tempHoldHours = (s.tempHoldHours > 0) ? 0 : 2;
+          s.tempHoldSetTemp = (s.tempHoldHours > 0) ? Math.min(35, s.setTemp + 2) : s.setTemp;
+          s.lastModifiedIndex = 26;
+          generateAndDisplayWriteFrame(26, [s.tempHoldHours, 0], `thermostat.set_temp_hold(${s.tempHoldHours}, ${s.tempHoldSetTemp})  # H+A Quick Boost`);
+          showTamperToast(s.tempHoldHours > 0 ? `🏠 2-Hour Comfort Hold Active (${s.tempHoldSetTemp}°C)` : "🏠 Comfort Hold Cancelled");
+        }
+      } else if (combo === 'hold_clock') {
+        // Hold Clock 3s: Synchronize Real Time Clock (Addr 43)
+        const now = new Date();
+        const week = (now.getDay() === 0) ? 7 : now.getDay();
+        const hr = now.getHours();
+        const min = now.getMinutes();
+        const sec = now.getSeconds();
+        s.lastModifiedIndex = 43;
+        generateAndDisplayWriteFrame(43, [week, hr, min, sec], `thermostat.set_time(week=${week}, hr=${hr}, min=${min}, sec=${sec})  # Hold Clock Sync`);
+        showTamperToast(`🕒 Clock Synchronized to ${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
       }
 
       evaluateThermostat();
