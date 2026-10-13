@@ -13,22 +13,51 @@ class HeatmiserUH1:
     connection, and can have multiple thermostats
     """
 
-    def __init__(self, ipaddress, port):
-        self.ipaddress = ipaddress
-        self.port = str(port)
+    def __init__(self, ipaddress=None, port=None, dev=None):
+        if dev is not None:
+            if ipaddress is not None or port is not None:
+                raise ValueError("Specify either dev or both ipaddress and port")
+            if not isinstance(dev, str) or not dev.strip():
+                raise ValueError("dev must be a non-empty serial device path")
+            self._serial_url = dev
+            self.ipaddress = None
+            self.port = None
+            self.dev = dev
+        else:
+            if not isinstance(ipaddress, str) or not ipaddress.strip():
+                raise ValueError(
+                    "ipaddress must be provided when dev is not specified"
+                )
+            if (
+                port is None
+                or (isinstance(port, str) and not port.strip())
+                or not isinstance(port, (str, int))
+            ):
+                raise ValueError(
+                    "port must be provided when dev is not specified"
+                )
+            self.ipaddress = ipaddress
+            self.port = str(port)
+            self.dev = None
+            self._serial_url = f"socket://{self.ipaddress}:{self.port}"
+
         self.thermostats = {}
-        self._serport = serial.serial_for_url("socket://" + self.ipaddress + ":" + self.port)
-        # Ensures that the serial port has not
-        # been left hanging around by a previous process.
-        serport_response = self._serport.close()
-        logger.info("SerialPortResponse: %s", serport_response)
-        self._serport.baudrate = constants.COM_BAUD
-        self._serport.bytesize = constants.COM_SIZE
-        self._serport.parity = constants.COM_PARITY
-        self._serport.stopbits = constants.COM_STOP
-        self._serport.timeout = constants.COM_TIMEOUT
+        self._serport = self._new_serial_port()
         self.status = False
         self._open()
+
+    def _new_serial_port(self):
+        serport = serial.serial_for_url(self._serial_url)
+        # Ensures that the serial port has not
+        # been left hanging around by a previous process.
+        serport_response = serport.close()
+        logger.info("SerialPortResponse: %s", serport_response)
+        serport.baudrate = constants.COM_BAUD
+        serport.bytesize = constants.COM_SIZE
+        serport.parity = constants.COM_PARITY
+        serport.stopbits = constants.COM_STOP
+        serport.timeout = constants.COM_TIMEOUT
+        return serport
 
     def _open(self):
         if not self.status:
@@ -48,12 +77,13 @@ class HeatmiserUH1:
                     serport.close()
                 except Exception:
                     pass
-            self._serport = serial.serial_for_url("socket://" + self.ipaddress + ":" + self.port)
+            self._serport = self._new_serial_port()
             self._serport.open()
             self.status = True
             return self.status
         else:
             logger.error("Cannot open serial port")
+            return None
 
     def __del__(self):
         logger.info("Closing serial port.")

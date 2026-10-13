@@ -1721,7 +1721,7 @@
       </div>
 
       <p>
-        In modern home automation setups, the UH1 or RS485 converter provides a TCP socket server (e.g. <code>socket://192.168.1.57:102</code>). The <code>heatmiserv3</code> library establishes a connection to this bridge via <code>HeatmiserUH1</code> and coordinates session arbitration, frame formatting, CRC calculation, and response parsing.
+        In modern home automation setups, the UH1 or RS485 converter connects either via a direct local serial device (e.g. <code>/dev/ttyACM0</code>) or a TCP socket server (e.g. <code>socket://192.168.1.57:102</code>). The <code>heatmiserv3</code> library establishes a connection to this interface via <code>HeatmiserUH1</code> and coordinates session arbitration, frame formatting, CRC calculation, and response parsing.
       </p>
     </section>
 
@@ -2414,8 +2414,8 @@
       <div class="code-header"><span>Example: TM1 Timer Thermostat Automation</span><span>Python</span></div>
       <pre><code>from heatmiserv3 import heatmiser, connection
 
-# 1. Connect to UH1 wiring centre over TCP/Serial bridge
-uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")
+# 1. Connect to UH1 wiring centre over TCP/Serial bridge or direct serial device
+uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")  # or dev="/dev/ttyACM0"
 
 # 2. Instantiate TM1 thermostat (Address 1)
 tm1 = heatmiser.TM1Thermostat(address=1, uh1=uh1)

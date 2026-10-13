@@ -73,8 +73,10 @@ uv add heatmiserv3
 ```python
 from heatmiserv3 import connection, heatmiser
 
-# 1. Connect to Heatmiser UH1 wiring centre over TCP/IP
+# 1. Connect to Heatmiser UH1 wiring centre over TCP/IP or local serial device:
 uh1 = connection.HeatmiserUH1("192.168.1.57", 8068)
+# Alternatively, connect via a direct local RS485 serial adapter:
+# uh1 = connection.HeatmiserUH1(dev="/dev/ttyACM0")
 
 # 2. Register a thermostat attached to the UH1 bus at RS485 address 1
 thermo1 = heatmiser.HeatmiserThermostat(1, "prt", uh1)
