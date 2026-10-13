@@ -10,7 +10,7 @@ dependencies = [
     "appdirs>=1.4.4,<2",
     "pyserial>=3.5,<4",
     "pyyaml>=6.0.1,<7",
-    "importlib-resources>=6.1.1,<7",
+    "importlib-resources>=7.1.0,<8",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
