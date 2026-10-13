@@ -38,7 +38,7 @@ test = [
     "flake8>=7.0.0,<8",
     "mock>=5.1.0,<6",
     "pytest-cov>=7.0.0,<8",
-    "pytest>=9.0.2,<10",
+    "pytest>=9.0.3,<10",
 ]
 docs = [
     "myst-parser>=4.0.0",
