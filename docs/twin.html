@@ -1,0 +1,2309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Heatmiser V3 Multi-Zone Digital Twin & Home Topology</title>
+  <style>
+    :root {
+      --bg-primary: #0b1120;
+      --bg-secondary: #0f172a;
+      --bg-tertiary: #1e293b;
+      --bg-card: #182234;
+      --border-color: #334155;
+      --border-focus: #0284c7;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      --accent-purple: #a855f7;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    [data-theme="light"] {
+      --bg-primary: #f8fafc;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-color: #cbd5e1;
+      --border-focus: #0284c7;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --accent-blue: #0284c7;
+      --accent-emerald: #059669;
+      --accent-amber: #d97706;
+      --accent-rose: #e11d48;
+      --accent-purple: #7c3aed;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg-primary);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Application Bar */
+    header.app-topbar {
+      background-color: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .brand-badge {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 800;
+      font-size: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-text .subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .topology-badges {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .badge-node {
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border: 1px solid var(--border-color);
+      background: var(--bg-tertiary);
+    }
+
+    .badge-node.pulse-green {
+      border-color: rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.12);
+      color: var(--accent-emerald);
+    }
+
+    .badge-node.pulse-blue {
+      border-color: rgba(56, 189, 248, 0.4);
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--accent-blue);
+    }
+
+    .comm-indicator-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--accent-emerald);
+      display: inline-block;
+      animation: commBlink 1.2s infinite;
+    }
+
+    @keyframes commBlink {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-top {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 0.45rem 0.8rem;
+      border-radius: 7px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+
+    .btn-top:hover {
+      background: var(--border-color);
+      border-color: var(--accent-blue);
+    }
+
+    .btn-top.active {
+      background: var(--accent-blue);
+      color: #fff;
+      border-color: var(--accent-blue);
+    }
+
+    /* Main Container */
+    main.app-layout {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      max-width: 1920px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (max-width: 1300px) {
+      main.app-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Column Panels */
+    .left-panel, .right-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+      padding-bottom: 0.65rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-badge {
+      font-size: 0.7rem;
+      font-family: var(--font-mono);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      background: rgba(2, 132, 199, 0.15);
+      color: var(--accent-blue);
+      font-weight: 700;
+    }
+
+    /* ====================================================================
+       Interactive House Floorplan (SVG Architectural Blueprint)
+       ==================================================================== */
+    .floorplan-container {
+      position: relative;
+      background: linear-gradient(145deg, #090e17, #131c2e);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.75rem;
+      overflow: hidden;
+    }
+
+    [data-theme="light"] .floorplan-container {
+      background: linear-gradient(145deg, #f8fafc, #edf2f7);
+    }
+
+    .floorplan-svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Floorplan interactive room zones */
+    .room-zone {
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .room-rect {
+      fill: rgba(30, 41, 59, 0.6);
+      stroke: #475569;
+      stroke-width: 2;
+      transition: all 0.25s ease;
+    }
+
+    [data-theme="light"] .room-rect {
+      fill: rgba(241, 245, 249, 0.7);
+      stroke: #94a3b8;
+    }
+
+    .room-zone:hover .room-rect {
+      stroke: var(--accent-blue);
+      stroke-width: 3;
+      filter: drop-shadow(0 0 6px rgba(56, 189, 248, 0.3));
+    }
+
+    .room-zone.active .room-rect {
+      stroke: #0284c7;
+      stroke-width: 3.5;
+      fill: rgba(2, 132, 199, 0.12);
+    }
+
+    /* Underfloor heating coil glow */
+    .ufh-pipe {
+      fill: none;
+      stroke: #334155;
+      stroke-width: 2.2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: 4, 3;
+      opacity: 0.45;
+      transition: all 0.4s ease;
+    }
+
+    .ufh-pipe.heating-active {
+      stroke: #f97316;
+      stroke-width: 3;
+      opacity: 0.95;
+      stroke-dasharray: none;
+      filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.7));
+      animation: heatPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes heatPulse {
+      0%, 100% { stroke: #f97316; filter: drop-shadow(0 0 5px rgba(249, 115, 22, 0.6)); }
+      50% { stroke: #ef4444; filter: drop-shadow(0 0 9px rgba(239, 68, 68, 0.85)); }
+    }
+
+    /* Hot water tank animation */
+    .hw-tank-body {
+      fill: #1e293b;
+      stroke: #64748b;
+      stroke-width: 2;
+      transition: all 0.3s ease;
+    }
+
+    .hw-tank-body.heating-active {
+      stroke: #f59e0b;
+      fill: #451a03;
+      filter: drop-shadow(0 0 8px rgba(245, 158, 11, 0.6));
+    }
+
+    .hw-element {
+      stroke: #475569;
+      stroke-width: 3;
+      fill: none;
+    }
+
+    .hw-element.heating-active {
+      stroke: #f59e0b;
+      animation: elementGlow 1.2s infinite alternate;
+    }
+
+    @keyframes elementGlow {
+      from { stroke: #f59e0b; filter: drop-shadow(0 0 4px #f59e0b); }
+      to { stroke: #ef4444; filter: drop-shadow(0 0 8px #ef4444); }
+    }
+
+    /* Floorplan Room Labels */
+    .room-label-title {
+      font-family: var(--font-sans);
+      font-size: 11px;
+      font-weight: 700;
+      fill: var(--text-main);
+      letter-spacing: 0.04em;
+    }
+
+    .room-label-sub {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      fill: var(--text-muted);
+    }
+
+    .room-badge-pill {
+      rx: 5;
+      ry: 5;
+      fill: #0f172a;
+      stroke: #334155;
+      stroke-width: 1;
+    }
+
+    [data-theme="light"] .room-badge-pill {
+      fill: #ffffff;
+      stroke: #cbd5e1;
+    }
+
+    /* RS485 Bus Trace Line */
+    .bus-trace {
+      fill: none;
+      stroke: #38bdf8;
+      stroke-width: 2;
+      stroke-dasharray: 6, 4;
+      animation: busFlow 1.5s linear infinite;
+    }
+
+    @keyframes busFlow {
+      from { stroke-dashoffset: 20; }
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* Quick Weather Presets */
+    .env-presets-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .preset-pill {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .preset-pill:hover, .preset-pill.active {
+      background: rgba(2, 132, 199, 0.15);
+      border-color: var(--accent-blue);
+      color: var(--text-main);
+    }
+
+    /* ====================================================================
+       UH1 Wiring Centre & Physical Relays Live Panel
+       ==================================================================== */
+    .uh1-panel-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .uh1-zone-block {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.65rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+    }
+
+    .uh1-zone-block.relay-on {
+      border-color: rgba(245, 158, 11, 0.5);
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .uh1-block-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .uh1-zone-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--text-main);
+    }
+
+    .led-relay {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #475569;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
+      transition: all 0.2s ease;
+    }
+
+    .led-relay.on {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+
+    .uh1-zone-name {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .uh1-zone-status {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .uh1-zone-block.relay-on .uh1-zone-status {
+      color: var(--accent-amber);
+    }
+
+    /* Interlock Summary Strip */
+    .interlock-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 0.9rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--border-color);
+      flex-wrap: wrap;
+    }
+
+    .interlock-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .led-interlock {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #475569;
+      transition: all 0.2s ease;
+    }
+
+    .led-interlock.on-green {
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .led-interlock.on-red {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    /* ====================================================================
+       Home Assistant Dashboard Lovelace Panel
+       ==================================================================== */
+    .ha-entities-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .ha-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .ha-card:hover {
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .ha-card.selected {
+      border-color: #0284c7;
+      background: rgba(2, 132, 199, 0.08);
+      box-shadow: 0 0 0 1px #0284c7;
+    }
+
+    .ha-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .ha-entity-id {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .ha-state-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+    }
+
+    .ha-state-heat { background: rgba(245, 158, 11, 0.15); color: var(--accent-amber); }
+    .ha-state-idle { background: rgba(148, 163, 184, 0.15); color: var(--text-muted); }
+
+    .ha-card-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .ha-card-body {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .ha-current-temp {
+      font-size: 1.4rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+    }
+
+    .ha-target-stepper {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .ha-btn-step {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .ha-btn-step:hover {
+      background: var(--border-color);
+    }
+
+    .ha-target-val {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+    }
+
+    /* ====================================================================
+       Right Panel: Thermostat Focus Console
+       ==================================================================== */
+    .zone-tabs-bar {
+      display: flex;
+      gap: 0.4rem;
+      overflow-x: auto;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+    }
+
+    .zone-tab-btn {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.4rem 0.75rem;
+      border-radius: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+    }
+
+    .zone-tab-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-main);
+    }
+
+    .zone-tab-btn.active {
+      background: #0284c7;
+      color: #fff;
+      border-color: #0284c7;
+    }
+
+    /* Dual Column Layout inside Focus Console: Twin Faceplate + Side Chords */
+    .console-split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .console-split-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Thermostat Faceplate */
+    .thermostat-casing {
+      background: linear-gradient(145deg, #1e293b, #0f172a);
+      border: 3px solid #475569;
+      border-radius: 18px;
+      padding: 1.25rem;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.1), 0 15px 35px rgba(0, 0, 0, 0.5);
+      position: relative;
+    }
+
+    [data-theme="light"] .thermostat-casing {
+      background: linear-gradient(145deg, #ffffff, #f1f5f9);
+      border-color: #cbd5e1;
+      box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.8), 0 15px 35px rgba(0, 0, 0, 0.12);
+    }
+
+    .casing-badge {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.55rem;
+    }
+
+    .brand-heatmiser {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+
+    .casing-model-tag {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: var(--accent-blue);
+      background: rgba(56, 189, 248, 0.12);
+      padding: 0.1rem 0.45rem;
+      border-radius: 4px;
+    }
+
+    /* Backlit LCD Screen */
+    .thermostat-screen {
+      border: 3px solid #0f172a;
+      border-radius: 12px;
+      padding: 1rem 0.85rem;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+      overflow: hidden;
+      box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.4);
+      user-select: none;
+    }
+
+    .backlight-cyan { background-color: #082f49; color: #38bdf8; }
+    .backlight-green { background-color: #064e3b; color: #34d399; }
+    .backlight-amber { background-color: #451a03; color: #fbbf24; }
+    .backlight-mono { background-color: #1e293b; color: #cbd5e1; }
+
+    .lcd-tamper-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.94);
+      color: #ef4444;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 800;
+      z-index: 10;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .lcd-tamper-overlay.show { display: flex; }
+
+    .lcd-topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .lcd-days {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .day-item { opacity: 0.25; font-weight: 700; }
+    .day-item.active { opacity: 1; text-decoration: underline; }
+
+    .lcd-clock-group {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-weight: 700;
+    }
+
+    .lcd-comm-blip {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.2;
+    }
+
+    .lcd-comm-blip.flash { opacity: 1; transform: scale(1.4); }
+
+    .lcd-center {
+      text-align: center;
+      margin: 0.6rem 0;
+    }
+
+    .lcd-digits-temp {
+      font-family: var(--font-mono);
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      text-shadow: 0 0 10px currentColor;
+    }
+
+    .temp-unit {
+      font-size: 1.3rem;
+      font-weight: 500;
+      vertical-align: super;
+      margin-left: 0.2rem;
+    }
+
+    .lcd-sub-readout {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 0.35rem;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .lcd-setpoint-pill {
+      border: 1px solid currentColor;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+    }
+
+    .lcd-floor-readout { opacity: 0.9; }
+
+    .lcd-icons-bar {
+      display: flex;
+      justify-content: space-around;
+      font-size: 1.1rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      padding-top: 0.35rem;
+    }
+
+    .lcd-icon { opacity: 0.15; transition: opacity 0.15s ease; }
+    .lcd-icon.active { opacity: 1; filter: drop-shadow(0 0 6px currentColor); }
+
+    /* Keypad 6-Button Slimline Layout */
+    .thermostat-keypad {
+      display: flex;
+      justify-content: center;
+      gap: 0.45rem;
+      margin-top: 1rem;
+    }
+
+    .keypad-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: linear-gradient(145deg, #334155, #1e293b);
+      border: 1px solid #475569;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      transition: all 0.1s ease;
+      user-select: none;
+    }
+
+    [data-theme="light"] .keypad-btn {
+      background: linear-gradient(145deg, #ffffff, #e2e8f0);
+      border-color: #cbd5e1;
+      color: #0f172a;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .keypad-btn:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent-blue);
+    }
+
+    .keypad-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    }
+
+    /* ====================================================================
+       Multi-Button Chords & Gesture Panel (Side of the Twin)
+       ==================================================================== */
+    .chord-shortcuts-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+    }
+
+    .chord-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chord-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+    }
+
+    .chord-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(2, 132, 199, 0.18);
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .chord-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .chord-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .chord-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+      font-family: inherit;
+      width: 100%;
+    }
+
+    .chord-action-btn:hover {
+      background: rgba(2, 132, 199, 0.1);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .chord-keys {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .kbadge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      font-size: 0.72rem;
+    }
+
+    .chord-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      flex-grow: 1;
+    }
+
+    .chord-meta strong {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .chord-meta small {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* Environmental Control Sliders */
+    .room-env-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 0.9rem;
+      margin-top: 0.75rem;
+    }
+
+    .env-slider-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+      font-size: 0.78rem;
+    }
+
+    .env-slider-row input[type="range"] {
+      flex: 1;
+      margin: 0 0.75rem;
+      accent-color: #0284c7;
+    }
+
+    /* ====================================================================
+       RS485 Bus Packet Sniffer & Bytecode Stream Log
+       ==================================================================== */
+    .bus-log-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.15rem;
+    }
+
+    .bus-log-stream {
+      background: #060b13;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      height: 180px;
+      overflow-y: auto;
+      padding: 0.75rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .bus-msg-line {
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      line-height: 1.4;
+    }
+
+    .bus-ts { color: #64748b; }
+    .bus-dir-tx { color: #38bdf8; font-weight: 700; }
+    .bus-dir-rx { color: #10b981; font-weight: 700; }
+    .bus-bytes { color: #f1f5f9; word-break: break-all; }
+    .bus-note { color: #e2e8f0; opacity: 0.85; }
+
+    /* ====================================================================
+       5-Screen Wall Gallery View (All 5 Live)
+       ==================================================================== */
+    .wall-gallery-grid {
+      display: none;
+      grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+      gap: 1.25rem;
+      width: 100%;
+    }
+
+    .wall-gallery-grid.active {
+      display: grid;
+    }
+
+    .console-mode-wrapper.hidden {
+      display: none;
+    }
+
+    /* Toast Notification */
+    .tamper-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid var(--accent-blue);
+      padding: 0.75rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+
+    .tamper-toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top App Bar -->
+  <header class="app-topbar">
+    <div class="brand-section">
+      <div class="brand-badge">HM</div>
+      <div class="brand-text">
+        <h1>Heatmiser V3 Whole-Home Digital Twin</h1>
+        <div class="subtext">4x PRT-1 Underfloor Heating + 1x TM1 Hot Water • UH1 8-Zone Hub • RS485 • Home Assistant</div>
+      </div>
+    </div>
+
+    <!-- Bus & Network Topology Badges -->
+    <div class="topology-badges">
+      <div class="badge-node pulse-green" title="Master Controller: Raspberry Pi 4 running Home Assistant OS">
+        <span class="comm-indicator-dot"></span>
+        <span>🍓 RPi Home Assistant (Online)</span>
+      </div>
+      <div class="badge-node pulse-blue" title="RS485 Half-Duplex Bus: 4800 Baud, 8 Data Bits, 1 Stop Bit, No Parity">
+        <span>⚡ RS485 Bus (/dev/ttyUSB0)</span>
+      </div>
+      <div class="badge-node" title="Heatmiser UH1 8-Zone Wiring Centre Hub">
+        <span>🎛️ UH1 Wiring Centre (Addr 01..05)</span>
+      </div>
+      <div class="badge-node" id="weather-badge">
+        <span>🌡️ Outside: 8.5°C</span>
+      </div>
+    </div>
+
+    <!-- Mode Switcher & Quick Links -->
+    <div class="top-controls">
+      <button class="btn-top active" id="btn-view-console" onclick="setViewMode('console')">🖥️ Console View</button>
+      <button class="btn-top" id="btn-view-gallery" onclick="setViewMode('gallery')">📱 5-Screen Wall</button>
+      <button class="btn-top" onclick="toggleTheme()" id="theme-btn">☀️ Theme</button>
+      <a href="index.html" class="btn-top" title="Back to Protocol Documentation">📖 Spec Docs</a>
+    </div>
+  </header>
+
+  <!-- Main View: Console Mode -->
+  <main class="app-layout" id="console-view-container">
+
+    <!-- Left Column: Floorplan, UH1 Wiring Centre, Home Assistant Dashboard -->
+    <div class="left-panel">
+
+      <!-- Card 1: Architectural Floorplan -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🏡 Whole-Home Heating &amp; Hot Water Floorplan</span>
+          </div>
+          <span class="card-badge">Click any room to focus thermostat</span>
+        </div>
+
+        <div class="floorplan-container">
+          <!-- SVG House Floorplan Blueprint -->
+          <svg class="floorplan-svg" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <!-- Drop shadows and filters -->
+              <filter id="glow-heat" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="4" result="blur" />
+                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+              </filter>
+            </defs>
+
+            <!-- Outer House Envelope Walls -->
+            <rect x="15" y="15" width="770" height="490" rx="6" fill="#080e1a" stroke="#475569" stroke-width="4" />
+
+            <!-- ================= ROOM 1: BEDROOM 1 (Zone 1 - PRT) ================= -->
+            <g class="room-zone" id="fp-room-0" onclick="selectZone(0)">
+              <rect class="room-rect" x="20" y="20" width="240" height="230" />
+              <!-- Serpentine UFH Coils -->
+              <path class="ufh-pipe" id="pipe-zone-0" d="
+                M 35,45 H 245 V 70 H 35 V 95 H 245 V 120 H 35 V 145 H 245 V 170 H 35 V 195 H 245 V 220 H 35
+              " />
+              <!-- Bed furniture outline -->
+              <rect x="90" y="35" width="100" height="110" rx="4" fill="rgba(71,85,105,0.25)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3,3"/>
+              <!-- Badge Info -->
+              <rect class="room-badge-pill" x="35" y="32" width="125" height="42" />
+              <text class="room-label-title" x="43" y="48">BEDROOM 1</text>
+              <text class="room-label-sub" x="43" y="64" id="fp-badge-0">19.5°C • SET 20.0°C</text>
+              <circle cx="235" cy="40" r="5" id="fp-dot-0" fill="#475569" />
+            </g>
+
+            <!-- ================= ROOM 2: BEDROOM 2 (Zone 2 - PRT) ================= -->
+            <g class="room-zone" id="fp-room-1" onclick="selectZone(1)">
+              <rect class="room-rect" x="270" y="20" width="240" height="230" />
+              <!-- Serpentine UFH Coils -->
+              <path class="ufh-pipe" id="pipe-zone-1" d="
+                M 285,45 H 495 V 70 H 285 V 95 H 495 V 120 H 285 V 145 H 495 V 170 H 285 V 195 H 495 V 220 H 285
+              " />
+              <!-- Furniture: Desk & Single Bed -->
+              <rect x="340" y="35" width="90" height="110" rx="4" fill="rgba(71,85,105,0.25)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3,3"/>
+              <!-- Badge Info -->
+              <rect class="room-badge-pill" x="285" y="32" width="125" height="42" />
+              <text class="room-label-title" x="293" y="48">BEDROOM 2</text>
+              <text class="room-label-sub" x="293" y="64" id="fp-badge-1">20.0°C • SET 19.0°C</text>
+              <circle cx="485" cy="40" r="5" id="fp-dot-1" fill="#475569" />
+            </g>
+
+            <!-- ================= ROOM 3: BATHROOM (Zone 3 - PRT-E) ================= -->
+            <g class="room-zone" id="fp-room-2" onclick="selectZone(2)">
+              <rect class="room-rect" x="520" y="20" width="260" height="230" />
+              <!-- Serpentine UFH Coils with floor probe embedded -->
+              <path class="ufh-pipe" id="pipe-zone-2" d="
+                M 535,45 H 765 V 70 H 535 V 95 H 765 V 120 H 535 V 145 H 765 V 170 H 535 V 195 H 765 V 220 H 535
+              " />
+              <!-- Bathtub & Shower Graphics -->
+              <rect x="680" y="35" width="85" height="50" rx="8" fill="rgba(2,132,199,0.15)" stroke="#0284c7" stroke-width="1.5" />
+              <rect x="710" y="150" width="55" height="55" rx="4" fill="rgba(2,132,199,0.15)" stroke="#0284c7" stroke-width="1.5" />
+              <!-- Floor probe marker -->
+              <circle cx="620" cy="130" r="4" fill="#f43f5e" />
+              <text x="628" y="133" font-size="8" font-family="var(--font-mono)" fill="#f43f5e" font-weight="700">PROBE</text>
+              <!-- Badge Info -->
+              <rect class="room-badge-pill" x="535" y="32" width="135" height="42" />
+              <text class="room-label-title" x="543" y="48">BATHROOM (UFH)</text>
+              <text class="room-label-sub" x="543" y="64" id="fp-badge-2">21.5°C • FLR 27.0°C</text>
+              <circle cx="755" cy="40" r="5" id="fp-dot-2" fill="#475569" />
+            </g>
+
+            <!-- ================= ROOM 4: KITCHEN & LIVING (Zone 4 - PRT) ================= -->
+            <g class="room-zone" id="fp-room-3" onclick="selectZone(3)">
+              <rect class="room-rect" x="20" y="260" width="490" height="240" />
+              <!-- Large Serpentine UFH Coils -->
+              <path class="ufh-pipe" id="pipe-zone-3" d="
+                M 35,285 H 495 V 310 H 35 V 335 H 495 V 360 H 35 V 385 H 495 V 410 H 35 V 435 H 495 V 460 H 35 V 485 H 495
+              " />
+              <!-- Kitchen Island & Sofa furniture -->
+              <rect x="60" y="300" width="110" height="55" rx="4" fill="rgba(71,85,105,0.25)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3,3" />
+              <rect x="260" y="320" width="150" height="70" rx="6" fill="rgba(71,85,105,0.25)" stroke="#64748b" stroke-width="1.2" stroke-dasharray="3,3" />
+              <!-- Badge Info -->
+              <rect class="room-badge-pill" x="35" y="272" width="150" height="42" />
+              <text class="room-label-title" x="43" y="288">KITCHEN / LIVING</text>
+              <text class="room-label-sub" x="43" y="304" id="fp-badge-3">19.5°C • SET 21.0°C</text>
+              <circle cx="485" cy="280" r="5" id="fp-dot-3" fill="#475569" />
+            </g>
+
+            <!-- ================= ROOM 5: UTILITY & PLANT ROOM (Zone 5 - TM1 + UH1 + RPi) ================= -->
+            <g class="room-zone" id="fp-room-4" onclick="selectZone(4)">
+              <rect class="room-rect" x="520" y="260" width="260" height="240" />
+              
+              <!-- Hot Water Cylinder Tank Graphic -->
+              <g id="tank-graphic" transform="translate(540, 290)">
+                <rect class="hw-tank-body" id="hw-tank-rect" x="0" y="0" width="70" height="110" rx="14" />
+                <path class="hw-element" id="hw-element-path" d="M 15,35 Q 35,45 55,35 Q 35,65 15,55 Q 35,85 55,75" />
+                <text x="35" y="100" text-anchor="middle" font-family="var(--font-mono)" font-size="9" font-weight="700" fill="#94a3b8" id="tank-temp-txt">55°C</text>
+                <text x="35" y="125" text-anchor="middle" font-size="9" font-weight="700" fill="var(--text-main)">CYLINDER</text>
+              </g>
+
+              <!-- Heatmiser UH1 Wiring Centre Box Graphic -->
+              <g transform="translate(640, 280)">
+                <rect x="0" y="0" width="125" height="85" rx="6" fill="#1e293b" stroke="#0284c7" stroke-width="1.5" />
+                <text x="10" y="18" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="#38bdf8">UH1 WIRING HUB</text>
+                <!-- 8 Zone LEDs in 2 rows -->
+                <circle cx="20" cy="35" r="4" id="uh1-fp-led-1" fill="#475569" /><text x="27" y="38" font-size="8" fill="#94a3b8">Z1</text>
+                <circle cx="55" cy="35" r="4" id="uh1-fp-led-2" fill="#475569" /><text x="62" y="38" font-size="8" fill="#94a3b8">Z2</text>
+                <circle cx="90" cy="35" r="4" id="uh1-fp-led-3" fill="#475569" /><text x="97" y="38" font-size="8" fill="#94a3b8">Z3</text>
+                
+                <circle cx="20" cy="55" r="4" id="uh1-fp-led-4" fill="#475569" /><text x="27" y="58" font-size="8" fill="#94a3b8">Z4</text>
+                <circle cx="55" cy="55" r="4" id="uh1-fp-led-5" fill="#475569" /><text x="62" y="58" font-size="8" fill="#94a3b8">HW</text>
+                <circle cx="90" cy="55" r="4" id="uh1-fp-led-boiler" fill="#475569" /><text x="97" y="58" font-size="8" fill="#94a3b8">BLR</text>
+                
+                <text x="10" y="76" font-size="8" font-family="var(--font-mono)" fill="#64748b">8-Zone Relay Base</text>
+              </g>
+
+              <!-- Raspberry Pi 4 Graphic with Home Assistant Logo -->
+              <g transform="translate(640, 395)">
+                <rect x="0" y="0" width="125" height="85" rx="6" fill="#111827" stroke="#10b981" stroke-width="1.5" />
+                <text x="10" y="18" font-family="var(--font-mono)" font-size="9" font-weight="800" fill="#34d399">RASPBERRY PI</text>
+                <text x="10" y="32" font-size="8" fill="#94a3b8">Home Assistant OS</text>
+                <circle cx="15" cy="48" r="4" fill="#10b981" />
+                <text x="25" y="51" font-size="8" font-family="var(--font-mono)" fill="#10b981">RS485 Master</text>
+                <rect x="10" y="62" width="105" height="15" rx="3" fill="#1f2937" />
+                <text x="15" y="73" font-size="8" font-family="var(--font-mono)" fill="#38bdf8">/dev/ttyUSB0</text>
+              </g>
+
+              <!-- Animated RS485 Twisted Pair Bus Cable -->
+              <path class="bus-trace" d="M 700, 365 V 395" />
+            </g>
+
+          </svg>
+        </div>
+
+        <!-- Ambient Outside Weather Presets -->
+        <div class="env-presets-bar">
+          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-right: 0.25rem;">Outside Temp:</span>
+          <button class="preset-pill active" onclick="setOutsideTemp(8.5, this)">🍂 Mild Autumn (8.5°C)</button>
+          <button class="preset-pill" onclick="setOutsideTemp(2.0, this)">❄️ Cold Winter (2.0°C)</button>
+          <button class="preset-pill" onclick="setOutsideTemp(-3.0, this)">🧊 Freezing Frost (-3.0°C)</button>
+          <button class="preset-pill" onclick="setOutsideTemp(18.0, this)">☀️ Warm Spring (18.0°C)</button>
+        </div>
+      </div>
+
+      <!-- Card 2: Heatmiser UH1 8-Zone Wiring Centre -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🎛️ Heatmiser UH1 Wiring Centre Status</span>
+          </div>
+          <span class="card-badge">RS485 Slave Nodes 01..05</span>
+        </div>
+
+        <div class="uh1-panel-grid">
+          <!-- Zone 1 -->
+          <div class="uh1-zone-block" id="uh1-card-0">
+            <div class="uh1-block-top">
+              <span class="uh1-zone-label">ZONE 1</span>
+              <span class="led-relay" id="uh1-led-0"></span>
+            </div>
+            <span class="uh1-zone-name">Bedroom 1 (UFH)</span>
+            <span class="uh1-zone-status" id="uh1-status-0">ACTUATOR OPEN</span>
+          </div>
+
+          <!-- Zone 2 -->
+          <div class="uh1-zone-block" id="uh1-card-1">
+            <div class="uh1-block-top">
+              <span class="uh1-zone-label">ZONE 2</span>
+              <span class="led-relay" id="uh1-led-1"></span>
+            </div>
+            <span class="uh1-zone-name">Bedroom 2 (UFH)</span>
+            <span class="uh1-zone-status" id="uh1-status-1">IDLE</span>
+          </div>
+
+          <!-- Zone 3 -->
+          <div class="uh1-zone-block" id="uh1-card-2">
+            <div class="uh1-block-top">
+              <span class="uh1-zone-label">ZONE 3</span>
+              <span class="led-relay" id="uh1-led-2"></span>
+            </div>
+            <span class="uh1-zone-name">Bathroom (UFH)</span>
+            <span class="uh1-zone-status" id="uh1-status-2">ACTUATOR OPEN</span>
+          </div>
+
+          <!-- Zone 4 -->
+          <div class="uh1-zone-block" id="uh1-card-3">
+            <div class="uh1-block-top">
+              <span class="uh1-zone-label">ZONE 4</span>
+              <span class="led-relay" id="uh1-led-3"></span>
+            </div>
+            <span class="uh1-zone-name">Kitchen/Living (UFH)</span>
+            <span class="uh1-zone-status" id="uh1-status-3">ACTUATOR OPEN</span>
+          </div>
+
+          <!-- Zone 5 -->
+          <div class="uh1-zone-block" id="uh1-card-4">
+            <div class="uh1-block-top">
+              <span class="uh1-zone-label">ZONE 5</span>
+              <span class="led-relay" id="uh1-led-4"></span>
+            </div>
+            <span class="uh1-zone-name">Hot Water Cylinder</span>
+            <span class="uh1-zone-status" id="uh1-status-4">VALVE OPEN</span>
+          </div>
+        </div>
+
+        <!-- Master Interlocks -->
+        <div class="interlock-strip">
+          <div class="interlock-item">
+            <span class="led-interlock on-green" id="led-boiler-call"></span>
+            <span>Boiler Call Relay: <strong id="txt-boiler-relay">ENERGIZED (Heat Required)</strong></span>
+          </div>
+          <div class="interlock-item">
+            <span class="led-interlock on-green" id="led-pump-call"></span>
+            <span>UFH Manifold Pump: <strong id="txt-pump-relay">RUNNING (Circulating)</strong></span>
+          </div>
+          <div class="interlock-item">
+            <span class="led-interlock on-green"></span>
+            <span>RS485 Bus: <strong>4800 Baud / 8N1 OK</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Raspberry Pi Home Assistant Dashboard Cards -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🍓 Home Assistant Climate Entities (Lovelace Cards)</span>
+          </div>
+          <span class="card-badge">Integration: heatmiserv3</span>
+        </div>
+
+        <div class="ha-entities-grid">
+          <!-- HA Entity 1 -->
+          <div class="ha-card" id="ha-card-0" onclick="selectZone(0)">
+            <div class="ha-card-header">
+              <span class="ha-entity-id">climate.bedroom_1</span>
+              <span class="ha-state-badge ha-state-heat" id="ha-badge-0">heating</span>
+            </div>
+            <div class="ha-card-title">Bedroom 1</div>
+            <div class="ha-card-body">
+              <span class="ha-current-temp" id="ha-cur-0">19.5°C</span>
+              <div class="ha-target-stepper">
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(0, -0.5)">-</button>
+                <span class="ha-target-val" id="ha-tar-0">20.0°C</span>
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(0, +0.5)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HA Entity 2 -->
+          <div class="ha-card" id="ha-card-1" onclick="selectZone(1)">
+            <div class="ha-card-header">
+              <span class="ha-entity-id">climate.bedroom_2</span>
+              <span class="ha-state-badge ha-state-idle" id="ha-badge-1">idle</span>
+            </div>
+            <div class="ha-card-title">Bedroom 2</div>
+            <div class="ha-card-body">
+              <span class="ha-current-temp" id="ha-cur-1">20.0°C</span>
+              <div class="ha-target-stepper">
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(1, -0.5)">-</button>
+                <span class="ha-target-val" id="ha-tar-1">19.0°C</span>
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(1, +0.5)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HA Entity 3 -->
+          <div class="ha-card" id="ha-card-2" onclick="selectZone(2)">
+            <div class="ha-card-header">
+              <span class="ha-entity-id">climate.bathroom</span>
+              <span class="ha-state-badge ha-state-heat" id="ha-badge-2">heating</span>
+            </div>
+            <div class="ha-card-title">Bathroom</div>
+            <div class="ha-card-body">
+              <span class="ha-current-temp" id="ha-cur-2">21.5°C</span>
+              <div class="ha-target-stepper">
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(2, -0.5)">-</button>
+                <span class="ha-target-val" id="ha-tar-2">23.0°C</span>
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(2, +0.5)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HA Entity 4 -->
+          <div class="ha-card" id="ha-card-3" onclick="selectZone(3)">
+            <div class="ha-card-header">
+              <span class="ha-entity-id">climate.kitchen_living</span>
+              <span class="ha-state-badge ha-state-heat" id="ha-badge-3">heating</span>
+            </div>
+            <div class="ha-card-title">Kitchen / Living</div>
+            <div class="ha-card-body">
+              <span class="ha-current-temp" id="ha-cur-3">19.2°C</span>
+              <div class="ha-target-stepper">
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(3, -0.5)">-</button>
+                <span class="ha-target-val" id="ha-tar-3">21.0°C</span>
+                <button class="ha-btn-step" onclick="event.stopPropagation(); nudgeTarget(3, +0.5)">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- HA Entity 5 -->
+          <div class="ha-card" id="ha-card-4" onclick="selectZone(4)">
+            <div class="ha-card-header">
+              <span class="ha-entity-id">water_heater.hot_water</span>
+              <span class="ha-state-badge ha-state-heat" id="ha-badge-4">boost</span>
+            </div>
+            <div class="ha-card-title">Hot Water Cylinder</div>
+            <div class="ha-card-body">
+              <span class="ha-current-temp" id="ha-cur-4">55.0°C</span>
+              <div class="ha-target-stepper">
+                <button class="ha-btn-step" style="width: auto; padding: 0 0.5rem; font-size: 0.72rem;" onclick="event.stopPropagation(); toggleHWBoost()">BOOST</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Right Column: Focused Thermostat Console & Side Chords Panel -->
+    <div class="right-panel">
+
+      <!-- Thermostat Focus Console -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span id="active-zone-title">Active Thermostat: Bedroom 1 (PRT-1)</span>
+          </div>
+          <span class="card-badge" id="active-zone-addr">RS485 ADDR: 01</span>
+        </div>
+
+        <!-- Zone Selector Tabs -->
+        <div class="zone-tabs-bar">
+          <button class="zone-tab-btn active" id="tab-zone-0" onclick="selectZone(0)">Zone 1: Bed 1</button>
+          <button class="zone-tab-btn" id="tab-zone-1" onclick="selectZone(1)">Zone 2: Bed 2</button>
+          <button class="zone-tab-btn" id="tab-zone-2" onclick="selectZone(2)">Zone 3: Bathroom</button>
+          <button class="zone-tab-btn" id="tab-zone-3" onclick="selectZone(3)">Zone 4: Living</button>
+          <button class="zone-tab-btn" id="tab-zone-4" onclick="selectZone(4)">Zone 5: Hot Water (TM1)</button>
+        </div>
+
+        <!-- Two-Column Grid: Faceplate on left, Side Chords on right -->
+        <div class="console-split-grid">
+          
+          <!-- Column 1: Physical Faceplate -->
+          <div>
+            <div class="thermostat-casing">
+              <div class="casing-badge">
+                <span class="brand-heatmiser">HEATMISER</span>
+                <span class="casing-model-tag" id="screen-model-tag">PRT-1 (v3.9)</span>
+              </div>
+
+              <!-- Backlit Screen -->
+              <div class="thermostat-screen backlight-cyan" id="virtual-screen">
+                <!-- Tamper Alert Overlay -->
+                <div class="lcd-tamper-overlay" id="lcd-tamper-alert">
+                  <div style="font-size: 1.5rem; margin-bottom: 0.25rem;">🔒</div>
+                  <div style="font-size: 0.9rem;">KEYPAD LOCKED</div>
+                  <div style="font-size: 0.7rem; opacity: 0.85; margin-top: 0.2rem;">Anti-Tamper Lockout (Addr 22)</div>
+                </div>
+
+                <!-- Screen Top Bar -->
+                <div class="lcd-topbar">
+                  <div class="lcd-days">
+                    <span class="day-item active">MON</span>
+                    <span class="day-item">TUE</span>
+                    <span class="day-item">WED</span>
+                    <span class="day-item">THU</span>
+                    <span class="day-item">FRI</span>
+                    <span class="day-item">SAT</span>
+                    <span class="day-item">SUN</span>
+                  </div>
+                  <div class="lcd-clock-group">
+                    <span class="lcd-comm-blip" id="lcd-blip"></span>
+                    <span id="lcd-clock-time">14:35:00</span>
+                  </div>
+                </div>
+
+                <!-- Screen Center Readout -->
+                <div class="lcd-center">
+                  <div class="lcd-digits-temp" id="lcd-room-temp">
+                    19.5<span class="temp-unit">°C</span>
+                  </div>
+                  <div class="lcd-sub-readout">
+                    <span class="lcd-setpoint-pill" id="lcd-setpoint-pill">SET 20.0°C</span>
+                    <span class="lcd-floor-readout" id="lcd-floor-readout" style="display: none;">FLR 26.8°C</span>
+                  </div>
+                </div>
+
+                <!-- Status Icons Bar -->
+                <div class="lcd-icons-bar">
+                  <span class="lcd-icon active" id="icon-flame" title="Flame (Heating Call)">🔥</span>
+                  <span class="lcd-icon" id="icon-frost" title="Snowflake (Frost Protection)">❄️</span>
+                  <span class="lcd-icon" id="icon-lock" title="Padlock (Keypad Lock)">🔒</span>
+                  <span class="lcd-icon" id="icon-holiday" title="Suitcase (Holiday Mode)">🧳</span>
+                  <span class="lcd-icon" id="icon-timer" title="Countdown Timer (TM1)">⏱️</span>
+                  <span class="lcd-icon" id="icon-tap" title="Tap (Hot Water HW)">🚿</span>
+                  <span class="lcd-icon" id="icon-hold" title="House (Temperature Hold)">🏠</span>
+                </div>
+              </div>
+
+              <!-- Authentic 6-Button Keypad -->
+              <div class="thermostat-keypad">
+                <button class="keypad-btn" onclick="onKeypadPress('power')" title="Power / Standby">⏻</button>
+                <button class="keypad-btn" onclick="onKeypadPress('clock')" title="Clock Programming">🕒</button>
+                <button class="keypad-btn" onclick="onKeypadPress('h')" title="Hold / Holiday">H</button>
+                <button class="keypad-btn" onclick="onKeypadPress('a')" title="Accept / Boost">A</button>
+                <button class="keypad-btn" onclick="onKeypadPress('down')" title="Decrease Setpoint">▼</button>
+                <button class="keypad-btn" onclick="onKeypadPress('up')" title="Increase Setpoint">▲</button>
+              </div>
+            </div>
+
+            <!-- Environmental Slider for this zone -->
+            <div class="room-env-card">
+              <div class="env-slider-row">
+                <span>Room Ambient Temp:</span>
+                <input type="range" id="slider-room-temp" min="10" max="32" step="0.5" value="19.5" oninput="onEnvSliderChange()">
+                <strong id="val-slider-room">19.5°C</strong>
+              </div>
+              <div class="env-slider-row" id="row-floor-slider" style="display: none;">
+                <span>Floor Probe Temp:</span>
+                <input type="range" id="slider-floor-temp" min="15" max="45" step="0.5" value="27.0" oninput="onEnvSliderChange()">
+                <strong id="val-slider-floor">27.0°C</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Column 2: Multi-Button Chords Panel (Directly on the side of the twin!) -->
+          <div>
+            <div class="chord-shortcuts-card">
+              <div class="chord-header">
+                <span class="chord-title">Multi-Button Chords</span>
+                <span class="chord-badge">Single-Mouse Helper</span>
+              </div>
+              <p class="chord-desc">
+                Heatmiser hardware requires pressing multiple tactile buttons simultaneously or long-pressing switches. Because a single mouse cursor cannot physically click two buttons at once, use these dedicated shortcuts:
+              </p>
+
+              <div class="chord-list">
+                <!-- Chord 1: Power + Clock -->
+                <button class="chord-action-btn" onclick="onComboPress('power_clock')" title="Press Power and Clock simultaneously">
+                  <div class="chord-keys"><span class="kbadge">⏻</span>+<span class="kbadge">🕒</span></div>
+                  <div class="chord-meta">
+                    <strong>Power + Clock: Setup Menu</strong>
+                    <small>Cycles Sensor Mode, Diff, &deg;C/&deg;F</small>
+                  </div>
+                </button>
+
+                <!-- Chord 2: Down + Up -->
+                <button class="chord-action-btn" onclick="onComboPress('down_up')" title="Press Down and Up simultaneously">
+                  <div class="chord-keys"><span class="kbadge">▼</span>+<span class="kbadge">▲</span></div>
+                  <div class="chord-meta">
+                    <strong>Down + Up: Keypad Lock</strong>
+                    <small>Toggles Tamper Lockout (Addr 22)</small>
+                  </div>
+                </button>
+
+                <!-- Chord 3: Hold Power -->
+                <button class="chord-action-btn" onclick="onComboPress('hold_power')" title="Hold Power for 3 seconds">
+                  <div class="chord-keys"><span class="kbadge">⏻</span> (3s)</div>
+                  <div class="chord-meta">
+                    <strong>Hold Power: Standby</strong>
+                    <small>Switches On / Frost Setback (Addr 21)</small>
+                  </div>
+                </button>
+
+                <!-- Chord 4: H + A -->
+                <button class="chord-action-btn" onclick="onComboPress('h_a')" title="Press H and A simultaneously">
+                  <div class="chord-keys"><span class="kbadge">H</span>+<span class="kbadge">A</span></div>
+                  <div class="chord-meta">
+                    <strong>H + A: Quick Boost / Hold</strong>
+                    <small>2-hr Comfort Hold or Hot Water Boost</small>
+                  </div>
+                </button>
+
+                <!-- Chord 5: Hold Clock -->
+                <button class="chord-action-btn" onclick="onComboPress('hold_clock')" title="Hold Clock for 3 seconds">
+                  <div class="chord-keys"><span class="kbadge">🕒</span> (3s)</div>
+                  <div class="chord-meta">
+                    <strong>Hold Clock: Set RTC</strong>
+                    <small>Syncs Real-Time Clock (Addr 43)</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- Backlight Selector -->
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 0.9rem; font-size: 0.78rem;">
+              <span style="color: var(--text-muted); font-weight: 600;">LCD Backlight:</span>
+              <div style="display: flex; gap: 0.4rem;">
+                <button style="width: 22px; height: 22px; border-radius: 50%; background: #38bdf8; border: none; cursor: pointer;" onclick="setBacklight('cyan')" title="Cyan"></button>
+                <button style="width: 22px; height: 22px; border-radius: 50%; background: #34d399; border: none; cursor: pointer;" onclick="setBacklight('green')" title="Emerald"></button>
+                <button style="width: 22px; height: 22px; border-radius: 50%; background: #fbbf24; border: none; cursor: pointer;" onclick="setBacklight('amber')" title="Amber"></button>
+                <button style="width: 22px; height: 22px; border-radius: 50%; background: #94a3b8; border: none; cursor: pointer;" onclick="setBacklight('mono')" title="Mono"></button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Live RS485 Bus Packet Sniffer -->
+      <div class="bus-log-card">
+        <div class="card-header" style="margin-bottom: 0.6rem; padding-bottom: 0.4rem;">
+          <div class="card-title" style="font-size: 0.85rem;">
+            <span>⚡ RS485 Bus Traffic Sniffer (/dev/ttyUSB0)</span>
+          </div>
+          <div style="display: flex; gap: 0.4rem;">
+            <button class="preset-pill" style="padding: 0.15rem 0.45rem;" onclick="toggleBusPause()" id="btn-bus-pause">Pause</button>
+            <button class="preset-pill" style="padding: 0.15rem 0.45rem;" onclick="clearBusLog()">Clear</button>
+          </div>
+        </div>
+
+        <div class="bus-log-stream" id="bus-stream">
+          <!-- Live packet entries will stream here -->
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Alternative View: 5-Screen Wall Gallery Mode -->
+  <div class="wall-gallery-grid" id="wall-gallery-container" style="padding: 1.5rem; max-width: 1920px; margin: 0 auto;">
+    <!-- Rendered via renderWallGallery() in JS -->
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="tamper-toast" id="tamper-toast-el">Notification</div>
+
+  <script>
+    // ========================================================================
+    // Heatmiser V3 Multi-Zone Digital Twin State Engine
+    // ========================================================================
+    const ZONES = [
+      {
+        id: 0,
+        name: "Bedroom 1",
+        model: "prt",
+        modelName: "PRT-1",
+        address: 1,
+        setTemp: 20.0,
+        roomTemp: 19.5,
+        floorTemp: 20.0,
+        floorLimit: 32.0,
+        sensorMode: 0, // Built-in Air
+        runMode: 1,    // On
+        keyLock: 0,    // Unlocked
+        diff: 1.0,
+        relayHeat: false,
+        tempHoldMins: 0,
+        holidayHours: 0
+      },
+      {
+        id: 1,
+        name: "Bedroom 2",
+        model: "prt",
+        modelName: "PRT-1",
+        address: 2,
+        setTemp: 19.0,
+        roomTemp: 20.0,
+        floorTemp: 20.0,
+        floorLimit: 32.0,
+        sensorMode: 0, // Built-in Air
+        runMode: 1,
+        keyLock: 0,
+        diff: 1.0,
+        relayHeat: false,
+        tempHoldMins: 0,
+        holidayHours: 0
+      },
+      {
+        id: 2,
+        name: "Bathroom",
+        model: "prt-e",
+        modelName: "PRT-E",
+        address: 3,
+        setTemp: 23.0,
+        roomTemp: 21.5,
+        floorTemp: 27.0,
+        floorLimit: 32.0,
+        sensorMode: 3, // Built-in + Floor Limit
+        runMode: 1,
+        keyLock: 0,
+        diff: 1.0,
+        relayHeat: false,
+        tempHoldMins: 0,
+        holidayHours: 0
+      },
+      {
+        id: 3,
+        name: "Kitchen / Living",
+        model: "prt",
+        modelName: "PRT-1",
+        address: 4,
+        setTemp: 21.0,
+        roomTemp: 19.5,
+        floorTemp: 21.0,
+        floorLimit: 32.0,
+        sensorMode: 0, // Built-in Air
+        runMode: 1,
+        keyLock: 0,
+        diff: 1.0,
+        relayHeat: false,
+        tempHoldMins: 0,
+        holidayHours: 0
+      },
+      {
+        id: 4,
+        name: "Hot Water Cylinder",
+        model: "tm1",
+        modelName: "TM1",
+        address: 5,
+        setTemp: 0,
+        roomTemp: 20.0,
+        waterTemp: 55.0,
+        timerState: 1, // 0=Auto, 1=On (Boosted), 2=Off
+        countdownMins: 0,
+        runMode: 1,
+        keyLock: 0,
+        diff: 1.0,
+        relayHeat: true, // HW relay active
+        holidayHours: 0
+      }
+    ];
+
+    let activeZoneIdx = 0;
+    let outsideTemp = 8.5;
+    let busPaused = false;
+    let activeBacklight = 'cyan';
+    let viewMode = 'console';
+
+    // CRC-16 Lookup Algorithm (Appendix A Protocol Spec)
+    function crc16(data) {
+      let high = 0xff, low = 0xff;
+      for (let i = 0; i < data.length; i++) {
+        let val = data[i];
+        let t1 = (val ^ low) & 0xff;
+        let t2 = (t1 ^ (t1 << 4)) & 0xff;
+        let t3 = ((t2 << 3) | (t2 >> 5)) & 0xff;
+        let t4 = (t2 ^ t3) & 0xff;
+        let t5 = (t4 & 0x0f) & 0xff;
+        let t6 = (t4 & 0xf0) & 0xff;
+        low = (high ^ t5 ^ (t6 << 4)) & 0xff;
+        high = (t2 ^ t6 ^ (t5 >> 4)) & 0xff;
+      }
+      return [low, high];
+    }
+
+    // 0.5°C Quantization & Display Formatting Helpers
+    function roundToHalf(val) {
+      return Math.round(val * 2) / 2;
+    }
+
+    function formatTemp(val) {
+      return (Math.round(val * 2) / 2).toFixed(1);
+    }
+
+    // Select Active Zone
+    function selectZone(idx) {
+      activeZoneIdx = idx;
+
+      // Update zone buttons
+      for (let i = 0; i < 5; i++) {
+        const tab = document.getElementById(`tab-zone-${i}`);
+        if (tab) tab.classList.toggle('active', i === idx);
+        const haCard = document.getElementById(`ha-card-${i}`);
+        if (haCard) haCard.classList.toggle('selected', i === idx);
+        const fpRoom = document.getElementById(`fp-room-${i}`);
+        if (fpRoom) fpRoom.classList.toggle('active', i === idx);
+      }
+
+      const z = ZONES[idx];
+      document.getElementById('active-zone-title').textContent = `Active Thermostat: ${z.name} (${z.modelName})`;
+      document.getElementById('active-zone-addr').textContent = `RS485 ADDR: 0${z.address}`;
+      document.getElementById('screen-model-tag').textContent = `${z.modelName} (v3.9)`;
+
+      // Slider updates
+      document.getElementById('slider-room-temp').value = z.roomTemp;
+      document.getElementById('val-slider-room').textContent = `${formatTemp(z.roomTemp)}°C`;
+
+      const floorRow = document.getElementById('row-floor-slider');
+      if (z.sensorMode >= 2) {
+        floorRow.style.display = 'flex';
+        document.getElementById('slider-floor-temp').value = z.floorTemp;
+        document.getElementById('val-slider-floor').textContent = `${formatTemp(z.floorTemp)}°C`;
+      } else {
+        floorRow.style.display = 'none';
+      }
+
+      evaluateAllZones();
+      flashCommBlip();
+    }
+
+    // Evaluate HVAC Relays, Interlocks, and Floorplan
+    function evaluateAllZones() {
+      let anyHeatingCall = false;
+      let anyUfhCall = false;
+
+      ZONES.forEach((z, i) => {
+        if (z.model === 'tm1') {
+          // TM1 Hot Water
+          z.relayHeat = (z.runMode === 1 && (z.timerState === 1 || z.countdownMins > 0));
+          if (z.relayHeat) anyHeatingCall = true;
+        } else {
+          // Heating Thermostat
+          if (z.runMode === 0) {
+            // Off / Frost Protection
+            z.relayHeat = (z.roomTemp <= 12.0);
+          } else {
+            // Check floor safety limit
+            let floorCutout = (z.sensorMode >= 2 && z.floorTemp >= z.floorLimit);
+            if (floorCutout) {
+              z.relayHeat = false;
+            } else {
+              let triggerTemp = z.setTemp - (z.diff / 2.0);
+              let cutTemp = z.setTemp + (z.diff / 2.0);
+              if (z.roomTemp <= triggerTemp) {
+                z.relayHeat = true;
+              } else if (z.roomTemp >= cutTemp) {
+                z.relayHeat = false;
+              }
+            }
+          }
+          if (z.relayHeat) {
+            anyHeatingCall = true;
+            anyUfhCall = true;
+          }
+        }
+
+        // Update Floorplan elements
+        const pipeEl = document.getElementById(`pipe-zone-${i}`);
+        if (pipeEl) pipeEl.classList.toggle('heating-active', z.relayHeat);
+
+        const badgeDot = document.getElementById(`fp-dot-${i}`);
+        if (badgeDot) badgeDot.setAttribute('fill', z.relayHeat ? '#f59e0b' : '#475569');
+
+        const badgeTxt = document.getElementById(`fp-badge-${i}`);
+        if (badgeTxt) {
+          if (z.model === 'tm1') {
+            badgeTxt.textContent = z.relayHeat ? 'BOOST ON • 55.0°C' : 'AUTO • 55.0°C';
+          } else if (z.sensorMode >= 2) {
+            badgeTxt.textContent = `${formatTemp(z.roomTemp)}°C • FLR ${formatTemp(z.floorTemp)}°C`;
+          } else {
+            badgeTxt.textContent = `${formatTemp(z.roomTemp)}°C • SET ${formatTemp(z.setTemp)}°C`;
+          }
+        }
+
+        // Update UH1 indicators
+        const uh1Card = document.getElementById(`uh1-card-${i}`);
+        if (uh1Card) uh1Card.classList.toggle('relay-on', z.relayHeat);
+        const uh1Led = document.getElementById(`uh1-led-${i}`);
+        if (uh1Led) uh1Led.classList.toggle('on', z.relayHeat);
+        const uh1FpLed = document.getElementById(`uh1-fp-led-${i+1}`);
+        if (uh1FpLed) uh1FpLed.setAttribute('fill', z.relayHeat ? '#f59e0b' : '#475569');
+        const uh1Stat = document.getElementById(`uh1-status-${i}`);
+        if (uh1Stat) uh1Stat.textContent = z.relayHeat ? (z.model === 'tm1' ? 'VALVE ENERGIZED' : 'ACTUATOR OPEN') : 'IDLE';
+
+        // Update Home Assistant Lovelace Cards
+        const haBadge = document.getElementById(`ha-badge-${i}`);
+        if (haBadge) {
+          if (z.model === 'tm1') {
+            haBadge.className = `ha-state-badge ${z.relayHeat ? 'ha-state-heat' : 'ha-state-idle'}`;
+            haBadge.textContent = z.relayHeat ? 'boost' : 'auto';
+          } else {
+            haBadge.className = `ha-state-badge ${z.relayHeat ? 'ha-state-heat' : 'ha-state-idle'}`;
+            haBadge.textContent = z.relayHeat ? 'heating' : 'idle';
+          }
+        }
+        const haCur = document.getElementById(`ha-cur-${i}`);
+        if (haCur) haCur.textContent = (z.model === 'tm1') ? '55.0°C' : `${formatTemp(z.roomTemp)}°C`;
+        const haTar = document.getElementById(`ha-tar-${i}`);
+        if (haTar) haTar.textContent = `${formatTemp(z.setTemp)}°C`;
+      });
+
+      // Hot Water tank visuals
+      const hwTank = document.getElementById('hw-tank-rect');
+      const hwElem = document.getElementById('hw-element-path');
+      const tm1Active = ZONES[4].relayHeat;
+      if (hwTank) hwTank.classList.toggle('heating-active', tm1Active);
+      if (hwElem) hwElem.classList.toggle('heating-active', tm1Active);
+      const uh1HwLed = document.getElementById('uh1-fp-led-5');
+      if (uh1HwLed) uh1HwLed.setAttribute('fill', tm1Active ? '#f59e0b' : '#475569');
+
+      // Master UH1 Boiler & Pump Interlocks
+      const ledBoiler = document.getElementById('led-boiler-call');
+      const txtBoiler = document.getElementById('txt-boiler-relay');
+      const uh1BoilerLed = document.getElementById('uh1-fp-led-boiler');
+      if (anyHeatingCall) {
+        if (ledBoiler) ledBoiler.className = 'led-interlock on-green';
+        if (txtBoiler) txtBoiler.textContent = 'ENERGIZED (Heat Required)';
+        if (uh1BoilerLed) uh1BoilerLed.setAttribute('fill', '#10b981');
+      } else {
+        if (ledBoiler) ledBoiler.className = 'led-interlock';
+        if (txtBoiler) txtBoiler.textContent = 'OPEN (Standby / Idle)';
+        if (uh1BoilerLed) uh1BoilerLed.setAttribute('fill', '#475569');
+      }
+
+      const ledPump = document.getElementById('led-pump-call');
+      const txtPump = document.getElementById('txt-pump-relay');
+      if (anyUfhCall) {
+        if (ledPump) ledPump.className = 'led-interlock on-green';
+        if (txtPump) txtPump.textContent = 'RUNNING (Manifold Flow)';
+      } else {
+        if (ledPump) ledPump.className = 'led-interlock';
+        if (txtPump) txtPump.textContent = 'STANDBY (Off)';
+      }
+
+      // Render Active Thermostat LCD
+      renderActiveThermostat();
+    }
+
+    // Render Active Focused Thermostat LCD Screen
+    function renderActiveThermostat() {
+      const z = ZONES[activeZoneIdx];
+
+      const digitsEl = document.getElementById('lcd-room-temp');
+      const setpointEl = document.getElementById('lcd-setpoint-pill');
+      const floorEl = document.getElementById('lcd-floor-readout');
+
+      if (z.model === 'tm1') {
+        digitsEl.innerHTML = (z.countdownMins > 0) ? `${z.countdownMins}<span class="temp-unit">min</span>` : `14:35`;
+        setpointEl.textContent = (z.timerState === 1) ? 'OVERRIDE ON' : (z.timerState === 2) ? 'OVERRIDE OFF' : 'AUTO SCHEDULE';
+        floorEl.style.display = 'none';
+      } else {
+        digitsEl.innerHTML = `${formatTemp(z.roomTemp)}<span class="temp-unit">°C</span>`;
+        setpointEl.textContent = `SET ${formatTemp(z.setTemp)}°C`;
+        if (z.sensorMode >= 2) {
+          floorEl.style.display = 'inline-block';
+          floorEl.textContent = `FLR ${formatTemp(z.floorTemp)}°C`;
+          if (z.floorTemp >= z.floorLimit) {
+            floorEl.style.color = '#ef4444';
+            floorEl.style.fontWeight = '900';
+          } else {
+            floorEl.style.color = '';
+            floorEl.style.fontWeight = '';
+          }
+        } else {
+          floorEl.style.display = 'none';
+        }
+      }
+
+      // Status Icons
+      document.getElementById('icon-flame').classList.toggle('active', z.relayHeat);
+      document.getElementById('icon-frost').classList.toggle('active', z.runMode === 0);
+      document.getElementById('icon-lock').classList.toggle('active', z.keyLock > 0);
+      document.getElementById('icon-holiday').classList.toggle('active', z.holidayHours > 0);
+      document.getElementById('icon-timer').classList.toggle('active', z.countdownMins > 0);
+      document.getElementById('icon-tap').classList.toggle('active', z.model === 'tm1' && z.relayHeat);
+      document.getElementById('icon-hold').classList.toggle('active', z.tempHoldMins > 0);
+
+      // Tamper alert overlay
+      document.getElementById('lcd-tamper-alert').classList.toggle('show', z.keyLock > 0);
+    }
+
+    // Tactile Keypad Button Presses
+    function onKeypadPress(btn) {
+      const z = ZONES[activeZoneIdx];
+
+      if (z.keyLock > 0) {
+        showTamperToast("🔒 Keypad is LOCKED! Use Down+Up chord on the side to unlock.");
+        return;
+      }
+
+      flashCommBlip();
+
+      if (btn === 'power') {
+        z.runMode = (z.runMode === 1) ? 0 : 1;
+        logWriteFrame(z.address, 21, [z.runMode], `set_on_off(${z.runMode})`);
+      } else if (btn === 'down') {
+        if (z.model === 'tm1') {
+          z.countdownMins = Math.max(0, z.countdownMins - 15);
+          logWriteFrame(z.address, 26, [z.countdownMins & 0xff, 0], `set_countdown_timer(${z.countdownMins})`);
+        } else {
+          z.setTemp = Math.max(5, roundToHalf(z.setTemp - 0.5));
+          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${formatTemp(z.setTemp)})`);
+        }
+      } else if (btn === 'up') {
+        if (z.model === 'tm1') {
+          z.countdownMins = Math.min(1800, z.countdownMins + 15);
+          logWriteFrame(z.address, 26, [z.countdownMins & 0xff, 0], `set_countdown_timer(${z.countdownMins})`);
+        } else {
+          z.setTemp = Math.min(35, roundToHalf(z.setTemp + 0.5));
+          logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `set_temperature(${formatTemp(z.setTemp)})`);
+        }
+      } else if (btn === 'h') {
+        z.holidayHours = (z.holidayHours === 0) ? 168 : 0;
+        logWriteFrame(z.address, 24, [z.holidayHours & 0xff, 0], `set_holiday_hours(${z.holidayHours})`);
+        showTamperToast(z.holidayHours > 0 ? "🧳 7-Day Holiday Setback Active" : "🧳 Holiday Mode Cancelled");
+      } else if (btn === 'a') {
+        if (z.model === 'tm1') {
+          z.timerState = (z.timerState + 1) % 3;
+          logWriteFrame(z.address, 42, [z.timerState], `set_timer_state(${z.timerState})`);
+        } else {
+          z.tempHoldMins = (z.tempHoldMins === 0) ? 120 : 0;
+          logWriteFrame(z.address, 26, [z.tempHoldMins & 0xff, 0], `set_temp_hold(${z.tempHoldMins})`);
+        }
+      }
+
+      evaluateAllZones();
+    }
+
+    // Multi-Button Chords & Gesture Shortcuts (Single-Mouse Solution)
+    function onComboPress(combo) {
+      const z = ZONES[activeZoneIdx];
+      flashCommBlip();
+
+      if (combo === 'power_clock') {
+        // Power + Clock: Feature Setup Menu
+        if (z.model !== 'tm1') {
+          z.sensorMode = (z.sensorMode + 1) % 5;
+          const modes = ['Built-in Air', 'Remote Air', 'Floor Only', 'Built-in + Floor', 'Remote + Floor'];
+          logWriteFrame(z.address, 13, [z.sensorMode], `set_sensor_selection(${z.sensorMode})`);
+          showTamperToast(`⚙️ Dual-Button Menu: Sensor set to ${modes[z.sensorMode]}`);
+        } else {
+          z.diff = (z.diff === 1.0) ? 2.0 : 1.0;
+          logWriteFrame(z.address, 6, [Math.round(z.diff)], `set_differential(${z.diff})`);
+          showTamperToast(`⚙️ Dual-Button Menu: Switching Diff = ${z.diff}°C`);
+        }
+      } else if (combo === 'down_up') {
+        // Down + Up: Anti-Tamper Keypad Lock Toggle (Addr 22)
+        z.keyLock = (z.keyLock > 0) ? 0 : 1;
+        logWriteFrame(z.address, 22, [z.keyLock], `set_key_lock(${z.keyLock})`);
+        showTamperToast(z.keyLock > 0 ? "🔒 Keypad Locked (Down + Up Triggered)" : "🔓 Keypad Unlocked (Down + Up Triggered)");
+      } else if (combo === 'hold_power') {
+        // Hold Power 3s: Standby Toggle (Addr 21)
+        z.runMode = (z.runMode === 1) ? 0 : 1;
+        logWriteFrame(z.address, 21, [z.runMode], `set_on_off(${z.runMode})  # Hold Power 3s`);
+        showTamperToast(z.runMode === 1 ? "⏻ Thermostat Switched ON" : "❄️ Standby / Frost Protection Active");
+      } else if (combo === 'h_a') {
+        // H + A: Quick Boost
+        if (z.model === 'tm1') {
+          z.timerState = (z.timerState === 1) ? 0 : 1;
+          logWriteFrame(z.address, 42, [z.timerState], `set_timer_state(${z.timerState})  # H+A HW Boost`);
+          showTamperToast(z.timerState === 1 ? "🚿 Hot Water Boost ON" : "🚿 Hot Water Boost Auto");
+        } else {
+          z.tempHoldMins = (z.tempHoldMins > 0) ? 0 : 120;
+          logWriteFrame(z.address, 26, [z.tempHoldMins & 0xff, 0], `set_temp_hold(${z.tempHoldMins})  # H+A Comfort`);
+          showTamperToast(z.tempHoldMins > 0 ? "🏠 2-Hour Comfort Hold Active" : "🏠 Comfort Hold Cancelled");
+        }
+      } else if (combo === 'hold_clock') {
+        // Hold Clock 3s: RTC Synchronize
+        const now = new Date();
+        const wk = (now.getDay() === 0) ? 7 : now.getDay();
+        logWriteFrame(z.address, 43, [wk, now.getHours(), now.getMinutes(), now.getSeconds()], "set_time()");
+        showTamperToast(`🕒 Real-Time Clock Synchronized to ${now.toLocaleTimeString()}`);
+      }
+
+      evaluateAllZones();
+    }
+
+    // Home Assistant Target Stepper
+    function nudgeTarget(zoneIdx, delta) {
+      const z = ZONES[zoneIdx];
+      z.setTemp = Math.max(5, Math.min(35, roundToHalf(z.setTemp + delta)));
+      logWriteFrame(z.address, 18, [Math.round(z.setTemp)], `HA service: climate.set_temperature(${formatTemp(z.setTemp)})`);
+      evaluateAllZones();
+    }
+
+    function toggleHWBoost() {
+      const z = ZONES[4];
+      z.timerState = (z.timerState === 1) ? 0 : 1;
+      logWriteFrame(z.address, 42, [z.timerState], `HA service: water_heater.set_operation_mode(${z.timerState})`);
+      evaluateAllZones();
+    }
+
+    // Environmental Sliders
+    function onEnvSliderChange() {
+      const z = ZONES[activeZoneIdx];
+      z.roomTemp = roundToHalf(parseFloat(document.getElementById('slider-room-temp').value));
+      document.getElementById('val-slider-room').textContent = `${formatTemp(z.roomTemp)}°C`;
+      if (z.sensorMode >= 2) {
+        z.floorTemp = roundToHalf(parseFloat(document.getElementById('slider-floor-temp').value));
+        document.getElementById('val-slider-floor').textContent = `${formatTemp(z.floorTemp)}°C`;
+      }
+      evaluateAllZones();
+    }
+
+    function setOutsideTemp(temp, btn) {
+      outsideTemp = temp;
+      document.querySelectorAll('.preset-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('weather-badge').textContent = `🌡️ Outside: ${temp.toFixed(1)}°C`;
+
+      // Passive heat loss simulation quantized to 0.5°C increments
+      ZONES.forEach(z => {
+        if (z.model !== 'tm1') {
+          if (temp < 0) z.roomTemp = Math.max(12, roundToHalf(z.roomTemp - 1.0));
+          else if (temp < 10) z.roomTemp = Math.max(14, roundToHalf(z.roomTemp - 0.5));
+          else z.roomTemp = Math.min(24, roundToHalf(z.roomTemp + 0.5));
+        }
+      });
+      document.getElementById('slider-room-temp').value = ZONES[activeZoneIdx].roomTemp;
+      document.getElementById('val-slider-room').textContent = `${formatTemp(ZONES[activeZoneIdx].roomTemp)}°C`;
+      evaluateAllZones();
+    }
+
+    // RS485 Protocol Sniffer Logging
+    function logWriteFrame(dest, addr, payload, note) {
+      if (busPaused) return;
+      const frameWithoutCrc = [dest, 10 + payload.length, 0x81, 1, addr & 0xff, 0, payload.length, 0, ...payload];
+      const crc = crc16(frameWithoutCrc);
+      const fullFrame = [...frameWithoutCrc, crc[0], crc[1]];
+      const hexStr = fullFrame.map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+      const stream = document.getElementById('bus-stream');
+      if (!stream) return;
+
+      const now = new Date();
+      const ts = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+
+      const el = document.createElement('div');
+      el.className = 'bus-msg-line';
+      el.innerHTML = `<span class="bus-ts">[${ts}]</span> <span class="bus-dir-tx">TX Master&rarr;0${dest}</span> <span class="bus-bytes">${hexStr}</span> <span class="bus-note"># ${note}</span>`;
+      stream.prepend(el);
+
+      // Trim stream
+      while (stream.children.length > 50) {
+        stream.removeChild(stream.lastChild);
+      }
+    }
+
+    function logPollFrame(dest) {
+      if (busPaused) return;
+      const query = [dest, 10, 0x81, 0, 0, 0, 0xff, 0xff];
+      const crc = crc16(query);
+      const hexQuery = [...query, crc[0], crc[1]].map(b => b.toString(16).padStart(2, '0').toUpperCase()).join(' ');
+
+      const stream = document.getElementById('bus-stream');
+      if (!stream) return;
+
+      const now = new Date();
+      const ts = now.toTimeString().split(' ')[0] + '.' + String(now.getMilliseconds()).padStart(3, '0');
+
+      const el = document.createElement('div');
+      el.className = 'bus-msg-line';
+      el.style.opacity = '0.7';
+      el.innerHTML = `<span class="bus-ts">[${ts}]</span> <span class="bus-dir-tx">TX Poll&rarr;0${dest}</span> <span class="bus-bytes">${hexQuery}</span> <span class="bus-note">(Read DCB)</span>`;
+      stream.prepend(el);
+
+      while (stream.children.length > 50) {
+        stream.removeChild(stream.lastChild);
+      }
+    }
+
+    let pollCounter = 0;
+    setInterval(() => {
+      pollCounter = (pollCounter % 5) + 1;
+      logPollFrame(pollCounter);
+    }, 2200);
+
+    function toggleBusPause() {
+      busPaused = !busPaused;
+      document.getElementById('btn-bus-pause').textContent = busPaused ? 'Resume' : 'Pause';
+    }
+
+    function clearBusLog() {
+      const stream = document.getElementById('bus-stream');
+      if (stream) stream.innerHTML = '';
+    }
+
+    // UI Helpers
+    function flashCommBlip() {
+      const blip = document.getElementById('lcd-blip');
+      if (blip) {
+        blip.classList.add('flash');
+        setTimeout(() => blip.classList.remove('flash'), 180);
+      }
+    }
+
+    function showTamperToast(msg) {
+      const toast = document.getElementById('tamper-toast-el');
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(window._toastTimer);
+        window._toastTimer = setTimeout(() => toast.classList.remove('show'), 2000);
+      }
+    }
+
+    function setBacklight(color) {
+      activeBacklight = color;
+      const scr = document.getElementById('virtual-screen');
+      if (scr) {
+        scr.className = `thermostat-screen backlight-${color}`;
+      }
+    }
+
+    function setViewMode(mode) {
+      viewMode = mode;
+      document.getElementById('btn-view-console').classList.toggle('active', mode === 'console');
+      document.getElementById('btn-view-gallery').classList.toggle('active', mode === 'gallery');
+
+      const consoleView = document.getElementById('console-view-container');
+      const galleryView = document.getElementById('wall-gallery-container');
+
+      if (mode === 'console') {
+        consoleView.style.display = 'grid';
+        galleryView.style.display = 'none';
+      } else {
+        consoleView.style.display = 'none';
+        galleryView.style.display = 'grid';
+        renderWallGallery();
+      }
+    }
+
+    function renderWallGallery() {
+      const gal = document.getElementById('wall-gallery-container');
+      if (!gal) return;
+
+      gal.innerHTML = ZONES.map((z, i) => `
+        <div class="card" onclick="selectZone(${i}); setViewMode('console');" style="cursor: pointer;">
+          <div class="card-header">
+            <span class="card-title">${z.name} (${z.modelName})</span>
+            <span class="card-badge">ADDR 0${z.address}</span>
+          </div>
+          <div class="thermostat-screen backlight-${activeBacklight}" style="min-height: 160px; pointer-events: none;">
+            <div class="lcd-topbar">
+              <span style="font-weight: 700;">MON 14:35</span>
+              <span>${z.relayHeat ? '🔥 HEATING' : 'IDLE'}</span>
+            </div>
+            <div class="lcd-center" style="margin: 0.8rem 0;">
+              <div class="lcd-digits-temp" style="font-size: 2.3rem;">
+                ${(z.model === 'tm1') ? (z.relayHeat ? 'BOOST' : 'AUTO') : formatTemp(z.roomTemp) + '<span class="temp-unit">°C</span>'}
+              </div>
+              <div class="lcd-sub-readout">
+                <span class="lcd-setpoint-pill">${(z.model === 'tm1') ? '55.0°C' : 'SET ' + formatTemp(z.setTemp) + '°C'}</span>
+              </div>
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted); text-align: center;">
+              Click to control this zone in console &rarr;
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleTheme() {
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      if (isLight) {
+        document.body.removeAttribute('data-theme');
+        document.getElementById('theme-btn').textContent = '☀️ Theme';
+      } else {
+        document.body.setAttribute('data-theme', 'light');
+        document.getElementById('theme-btn').textContent = '🌙 Dark';
+      }
+    }
+
+    // Initialize
+    window.addEventListener('DOMContentLoaded', () => {
+      selectZone(0);
+      evaluateAllZones();
+    });
+  </script>
+</body>
+</html>

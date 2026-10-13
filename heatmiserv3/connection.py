@@ -1,5 +1,7 @@
 """This module is effectively a singleton for serial comms"""
 import logging
+import threading
+import time
 import serial
 from . import constants
 from heatmiserv3 import heatmiser
@@ -13,7 +15,14 @@ class HeatmiserUH1:
     connection, and can have multiple thermostats
     """
 
-    def __init__(self, ipaddress=None, port=None, dev=None):
+    def __init__(
+        self,
+        ipaddress=None,
+        port=None,
+        dev=None,
+        inter_command_delay=None,
+        recovery_pause=None,
+    ):
         if dev is not None:
             if ipaddress is not None or port is not None:
                 raise ValueError("Specify either dev or both ipaddress and port")
@@ -40,6 +49,19 @@ class HeatmiserUH1:
             self.port = str(port)
             self.dev = None
             self._serial_url = f"socket://{self.ipaddress}:{self.port}"
+
+        self.inter_command_delay = (
+            float(inter_command_delay)
+            if inter_command_delay is not None
+            else constants.BUS_INTER_COMMAND_DELAY
+        )
+        self.recovery_pause = (
+            float(recovery_pause)
+            if recovery_pause is not None
+            else constants.BUS_RECOVERY_PAUSE
+        )
+        self._bus_lock = threading.Lock()
+        self._last_bus_activity = 0.0
 
         self.thermostats = {}
         self._serport = self._new_serial_port()
@@ -87,6 +109,74 @@ class HeatmiserUH1:
             logger.error("Cannot open serial port")
             return None
 
+    def bus_recovery(self):
+        """Flushes serial buffers and observes bus quiet period after a communication failure."""
+        logger.warning(
+            "Performing RS485 bus recovery pause (%.3fs)", self.recovery_pause
+        )
+        serport = getattr(self, "_serport", None)
+        if serport is not None:
+            try:
+                if hasattr(serport, "reset_input_buffer"):
+                    serport.reset_input_buffer()
+                if hasattr(serport, "reset_output_buffer"):
+                    serport.reset_output_buffer()
+            except Exception as e:
+                logger.debug("Error while resetting serial buffers: %s", e)
+        if self.recovery_pause > 0:
+            time.sleep(self.recovery_pause)
+        self._last_bus_activity = time.monotonic()
+
+    def transact(self, message, read_length=159):
+        """
+        Thread-safe RS485 bus transaction executor.
+        Acquires the bus lock, enforces inter-transaction turnaround quiet time,
+        transmits the frame, reads the reply, and executes bus recovery on failure.
+        """
+        with self._bus_lock:
+            # Enforce RS485 half-duplex turnaround time
+            now = time.monotonic()
+            elapsed = now - self._last_bus_activity
+            if elapsed < self.inter_command_delay:
+                time.sleep(self.inter_command_delay - elapsed)
+
+            serport = getattr(self, "_serport", None)
+            if serport is None:
+                raise serial.serialutil.SerialException("Serial port is not initialized")
+
+            # Transmit frame
+            try:
+                serport.write(message)
+            except serial.SerialTimeoutException as e:
+                logger.error("Serial write timeout error: %s", e)
+                self.bus_recovery()
+                return []
+            except Exception as e:
+                logger.error("Serial write error: %s", e)
+                self.bus_recovery()
+                raise
+
+            # Read reply
+            byteread = b""
+            try:
+                byteread = serport.read(read_length)
+            except (serial.serialutil.SerialException, AttributeError) as e:
+                logger.error("Connection failed during read: %s, attempting reconnect", e)
+                self.bus_recovery()
+                self.reopen(force=True)
+                return []
+            except Exception as e:
+                logger.error("Unexpected read exception: %s", e)
+                self.bus_recovery()
+                raise
+            finally:
+                self._last_bus_activity = time.monotonic()
+
+            datal = list(byteread) if byteread else []
+            if not datal:
+                self.bus_recovery()
+            return datal
+
     def __del__(self):
         logger.info("Closing serial port.")
         serport = getattr(self, "_serport", None)
@@ -105,6 +195,7 @@ class HeatmiserUH1:
                 raise ValueError("Key already present")
             else:
                 self.thermostats[thermostat.address] = thermostat
+                thermostat.uh1 = self
         except ValueError:
             pass
         except Exception as e:

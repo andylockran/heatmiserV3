@@ -435,6 +435,258 @@
       margin-top: 0;
     }
 
+    /* CRC-16 Multi-Language Code Tabs & Live Calculator */
+    .crc-tab-bar {
+      display: flex;
+      gap: 0.35rem;
+      border-bottom: 2px solid var(--border-color);
+      margin-top: 1.25rem;
+      margin-bottom: 0;
+      overflow-x: auto;
+      padding-bottom: 0px;
+    }
+    .crc-tab-btn {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-bottom: none;
+      padding: 0.5rem 1.1rem;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .crc-tab-btn:hover {
+      background: var(--bg-secondary);
+      color: var(--text-main);
+    }
+    .crc-tab-btn.active {
+      background: var(--code-bg);
+      color: var(--accent-blue);
+      border-color: var(--border-color);
+      border-top: 2px solid var(--accent-blue);
+      font-weight: 700;
+    }
+    .crc-tab-panel {
+      display: none;
+    }
+    .crc-tab-panel.active {
+      display: block;
+      animation: fadeIn 0.15s ease-in;
+    }
+    .crc-calc-box {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin-top: 1.5rem;
+    }
+    .crc-calc-inputs {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .crc-calc-input {
+      flex: 1;
+      min-width: 260px;
+      padding: 0.6rem 0.8rem;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+    }
+    .crc-badge {
+      display: inline-block;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+
+    /* ====================================================================
+       ReadTheDocs (RTD) Python API Documentation Styles
+       ==================================================================== */
+    .rtd-api-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      margin-top: 1.5rem;
+    }
+
+    .rtd-class-card {
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      background: var(--bg-secondary);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .rtd-class-header {
+      background: var(--bg-tertiary);
+      padding: 0.9rem 1.25rem;
+      border-left: 4px solid #2980b9;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .rtd-sig {
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      flex-wrap: wrap;
+    }
+
+    .rtd-kw {
+      color: #e06c75;
+      font-weight: 600;
+    }
+
+    .rtd-class-name {
+      font-weight: 700;
+      color: #2980b9;
+      font-size: 1.05rem;
+    }
+
+    .rtd-method-name {
+      font-weight: 700;
+      color: #0284c7;
+    }
+
+    .rtd-param-name {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    .rtd-type {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .rtd-default {
+      color: var(--accent-amber);
+    }
+
+    .rtd-ret-arrow {
+      color: var(--text-muted);
+      margin: 0 0.15rem;
+    }
+
+    .rtd-class-body {
+      padding: 1.25rem;
+    }
+
+    .rtd-doc-p {
+      color: var(--text-main);
+      margin-bottom: 1rem;
+      font-size: 0.92rem;
+      line-height: 1.6;
+    }
+
+    .rtd-group-title {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin: 1.5rem 0 0.75rem 0;
+      padding-bottom: 0.3rem;
+      border-bottom: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .rtd-method-card {
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--bg-primary);
+      margin-bottom: 1rem;
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+
+    .rtd-method-card:hover {
+      border-color: rgba(2, 132, 199, 0.4);
+    }
+
+    .rtd-method-sig {
+      background: rgba(2, 132, 199, 0.05);
+      padding: 0.65rem 1rem;
+      border-left: 3px solid #0284c7;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .rtd-method-body {
+      padding: 0.9rem 1rem;
+      font-size: 0.88rem;
+    }
+
+    .rtd-param-list {
+      margin: 0.75rem 0 0.5rem 0;
+      padding-left: 0;
+      list-style: none;
+    }
+
+    .rtd-param-item {
+      margin-bottom: 0.4rem;
+      line-height: 1.5;
+    }
+
+    .rtd-param-item code {
+      font-weight: 600;
+      color: var(--accent-blue);
+      margin-right: 0.25rem;
+    }
+
+    .rtd-admonition {
+      margin: 1rem 0;
+      padding: 0.85rem 1.1rem;
+      border-radius: 6px;
+      font-size: 0.88rem;
+      line-height: 1.55;
+    }
+
+    .rtd-admonition.note {
+      border-left: 4px solid #10b981;
+      background: rgba(16, 185, 129, 0.08);
+    }
+
+    .rtd-admonition.warning {
+      border-left: 4px solid #f59e0b;
+      background: rgba(245, 158, 11, 0.08);
+    }
+
+    .rtd-admonition-title {
+      font-weight: 700;
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
     /* Bytecode Interactive Tool */
     .calculator-card {
       background: var(--bg-secondary);
@@ -1079,26 +1331,26 @@
       filter: drop-shadow(0 0 6px currentColor);
     }
 
-    /* Keypad Tactile Buttons */
+    /* Keypad Tactile Buttons (Authentic 6-Button Slimline Layout) */
     .thermostat-keypad {
       display: flex;
       justify-content: center;
-      gap: 0.65rem;
+      gap: 0.45rem;
       margin-top: 1.15rem;
     }
 
     .keypad-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
       background: linear-gradient(145deg, #334155, #1e293b);
       border: 1px solid #475569;
       color: var(--text-main);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 1.05rem;
-      font-weight: 800;
+      font-size: 0.95rem;
+      font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.15);
       transition: all 0.1s ease;
@@ -1120,6 +1372,167 @@
     .keypad-btn:active {
       transform: translateY(2px);
       box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Popout to Standalone Twin Screen */
+    .dock-popout-btn {
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #fff !important;
+      text-decoration: none;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+    }
+    .dock-popout-btn:hover {
+      background: linear-gradient(135deg, #0369a1, #1d4ed8);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 6px rgba(2, 132, 199, 0.35);
+    }
+
+    /* Multi-Button Chords & Gesture Panel (Single-Mouse Solution) */
+    .chord-shortcuts-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-top: 1rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .chord-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.4rem;
+    }
+
+    .chord-title {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .chord-badge {
+      font-size: 0.65rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: rgba(2, 132, 199, 0.15);
+      color: var(--accent-blue);
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+
+    .chord-desc {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+      margin-bottom: 0.75rem;
+    }
+
+    .chord-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+    }
+
+    .chord-action-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 0.5rem 0.7rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.15s ease;
+      color: var(--text-main);
+      font-family: inherit;
+      width: 100%;
+    }
+
+    .chord-action-btn:hover {
+      background: rgba(2, 132, 199, 0.08);
+      border-color: var(--accent-blue);
+      transform: translateY(-1px);
+    }
+
+    .chord-keys {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    .kbadge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 4px;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      font-size: 0.72rem;
+      color: var(--text-main);
+    }
+
+    .chord-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+      flex-grow: 1;
+    }
+
+    .chord-meta strong {
+      font-size: 0.78rem;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .chord-meta small {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      line-height: 1.2;
+    }
+
+    /* Toast Notification */
+    .tamper-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      background: #0f172a;
+      color: #fff;
+      border: 1px solid var(--accent-blue);
+      padding: 0.65rem 1.1rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.25s ease;
+      pointer-events: none;
+    }
+    .tamper-toast.show {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     /* ==========================================================================
@@ -1662,8 +2075,10 @@
         <li><a class="nav-link" href="#capability-audit">Protocol vs Library Audit</a></li>
         <li><a class="nav-link" href="#hardware-models">Supported Thermostats</a></li>
         <li><a class="nav-link" href="#how-it-works">How the Library Works</a></li>
+        <li><a class="nav-link" href="#crc16-section" style="padding-left: 1.5rem; font-size: 0.8rem;">↳ CRC-16 Algorithm</a></li>
         <li><a class="nav-link" href="#dcb-specifications">Thermostat DCB Register Tables</a></li>
         <li><a class="nav-link" href="#visual-harness">⚡ Visual Test Harness (Digital Twin)</a></li>
+        <li><a class="nav-link" href="twin.html" target="_blank" style="color: #38bdf8; font-weight: 700;">🖥️ Separate Screen: 5-Zone Twin &rarr;</a></li>
         <li><a class="nav-link" href="#bytecode-inspector">Bytecode Frame Inspector</a></li>
         <li><a class="nav-link" href="#clarifications">Pitfalls & Clarifications</a></li>
         <li><a class="nav-link" href="#api-examples">Python API Reference</a></li>
@@ -1697,7 +2112,7 @@
       <div class="header-badges">
         <span class="badge badge-blue">Python 3.10 – 3.14</span>
         <span class="badge badge-emerald">Protocol Spec v3.9</span>
-        <span class="badge badge-purple">122 Automated Tests</span>
+        <span class="badge badge-purple">204 Automated Tests</span>
         <span class="badge badge-amber">RS485 Half-Duplex CCITT-16</span>
       </div>
       <h1 class="doc-title">Heatmiser V3 Protocol & Library Documentation</h1>
@@ -1753,19 +2168,19 @@
               <td><strong>Sec 3.3</strong></td>
               <td>DT / DT-E / PRT / PRT-E DCB Configuration</td>
               <td><span class="tag tag-yes">Fully Covered</span></td>
-              <td>Registered in <code>config.yml</code> (keys 0..147). Setters for target temperature, frost protection, floor limit; DCB reading for temperature telemetry.</td>
+              <td>Full 0..147 DCB mapping in <code>config.yml</code>. High-level convenience helpers for target temp, floor max, sensor selection (modes 0–4), differential, temperature format, keypad lock, on/off state, holiday hours, temp hold, and RTC.</td>
             </tr>
             <tr>
               <td><strong>Sec 3.4</strong></td>
               <td>PRT-HW (Programmable Thermostat + Hot Water)</td>
-              <td><span class="tag tag-partial">Partially Covered</span></td>
-              <td>Full 0..292 DCB mapping registered in <code>config.yml</code>. Hot water state reading supported. Multi-period schedule writing methods are not yet wrapped in dedicated convenience helpers.</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td>Full 0..292 DCB mapping in <code>config.yml</code>. Dedicated <code>PRTHWThermostat</code> class providing hot water boost (addr 41), hot water state (index 36), heating state (index 35), and sensor selection enforcement (Mode 0 built-in only).</td>
             </tr>
             <tr>
               <td><strong>Sec 3.5</strong></td>
               <td>TM1 Timer & Countdown Mode Thermostat</td>
               <td><span class="tag tag-yes">Fully Covered</span></td>
-              <td>100% covered via <code>TM1Thermostat</code> and validated with 122 tests. Includes On/Off, Key lock, Holiday, Countdown (0–1800m), Override (0/1/2), RTC, and 5/2 & 7-day schedules.</td>
+              <td>100% covered via <code>TM1Thermostat</code> and validated with comprehensive automated test suite. Includes On/Off, Key lock, Holiday, Countdown (0–1800m), Override (0/1/2), RTC, and 5/2 & 7-day schedules.</td>
             </tr>
             <tr>
               <td><strong>Sec 3.6</strong></td>
@@ -1782,8 +2197,8 @@
             <tr>
               <td><strong>Sec 4</strong></td>
               <td>Hot Water & Timer Boost via RS485</td>
-              <td><span class="tag tag-partial">Partially Covered</span></td>
-              <td>Supported via TM1 timer countdown and direct payload writing; high-level <code>set_boost()</code> helper for PRTHW not yet exposed.</td>
+              <td><span class="tag tag-yes">Fully Covered</span></td>
+              <td>Fully supported via <code>PRTHWThermostat.set_hot_water_boost()</code> (addr 41), <code>TM1Thermostat.set_countdown_timer()</code> (addr 26), and <code>HeatmiserThermostat.set_temp_hold()</code> (addr 26).</td>
             </tr>
             <tr>
               <td><strong>Sec 5 & 6</strong></td>
@@ -1951,14 +2366,304 @@
         </table>
       </div>
 
-      <h3>4.2 Slave Response Verification</h3>
-      <p>
-        Upon receiving a command, the thermostat replies with:
-      </p>
-      <ul>
-        <li><strong>Write Reply (7 bytes)</strong>: <code>[0x81, 7, 0, slave_id, 1, crc_low, crc_high]</code>. Verified by <code>_hm_verify_message_crc_uk()</code>.</li>
-        <li><strong>Read Reply</strong>: 9-byte header + DCB payload + 2-byte CRC. The header contains <code>[0x81, frame_len_l, frame_len_h, slave_id, 0, start_l, start_h, read_len_l, read_len_h]</code>.</li>
-      </ul>
+      <!-- Section 4.3: CRC-16 Checksum Algorithm -->
+      <div id="crc16-section" style="margin-top: 2rem; border-top: 1px dashed var(--border-color); padding-top: 1.5rem;">
+        <h3>4.3 CRC-16 Checksum Algorithm (CCITT 0xFFFF)</h3>
+        <p>
+          The Heatmiser V3 protocol uses a 16-bit CRC algorithm (polynomial <code>0xA001</code>, initial register state <code>0xFFFF</code>) calculated across all frame bytes preceding the checksum. The calculated checksum is transmitted in <strong>Little-Endian</strong> format as two bytes: <code>[Low Byte, High Byte]</code>.
+        </p>
+
+        <div style="background: var(--bg-secondary); border-left: 4px solid var(--accent-blue); padding: 0.9rem 1.25rem; margin: 1rem 0 1.5rem 0; border-radius: 0 6px 6px 0;">
+          <div style="font-weight: 700; color: var(--text-main); margin-bottom: 0.25rem;">
+            Code Line Reference: Python Library Implementation
+          </div>
+          <p style="margin: 0; font-size: 0.88rem; color: var(--text-muted);">
+            In this repository, the CRC algorithm is implemented in <a href="https://github.com/andylockran/heatmiserv3/blob/master/heatmiserv3/heatmiser.py#L26-L96" target="_blank" style="color: var(--accent-blue); font-weight: 700; text-decoration: underline;"><code>heatmiserv3/heatmiser.py</code> (lines 26–96)</a> within the <code>CRC16</code> class.
+          </p>
+        </div>
+
+        <!-- Multi-Language Reference Tabs -->
+        <div style="margin-top: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0;">
+            <div style="font-weight: 700; font-size: 0.95rem; color: var(--text-main);">Reference Implementations Across Languages</div>
+            <span style="font-size: 0.78rem; color: var(--text-muted);">Click tab to view language implementation</span>
+          </div>
+
+          <div class="crc-tab-bar">
+            <button class="crc-tab-btn active" id="btn-crc-python" onclick="switchCrcTab('crc-lang-python')">🐍 Python (heatmiser.py:26)</button>
+            <button class="crc-tab-btn" id="btn-crc-c" onclick="switchCrcTab('crc-lang-c')">⚙️ C (Spec Appendix A)</button>
+            <button class="crc-tab-btn" id="btn-crc-ts" onclick="switchCrcTab('crc-lang-ts')">⚡ JavaScript / TypeScript</button>
+            <button class="crc-tab-btn" id="btn-crc-rust" onclick="switchCrcTab('crc-lang-rust')">🦀 Rust</button>
+            <button class="crc-tab-btn" id="btn-crc-go" onclick="switchCrcTab('crc-lang-go')">🔷 Go</button>
+          </div>
+
+          <!-- Python Tab -->
+          <div id="crc-lang-python" class="crc-tab-panel active">
+            <div class="code-header">
+              <span>heatmiserv3/heatmiser.py (Lines 26–96)</span>
+              <span>Python 3</span>
+            </div>
+            <pre><code># heatmiserv3/heatmiser.py lines 26-96
+class CRC16:
+    """This is the CRC hashing mechanism used by the V3 protocol."""
+
+    LookupHigh = [
+        0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+        0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+    ]
+    LookupLow = [
+        0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+        0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+    ]
+
+    def __init__(self):
+        self.high = 0xFF
+        self.low = 0xFF
+
+    def extract_bits(self, val):
+        """Extracts 4 bits, XORs message data, and does table lookups."""
+        thisval = (self.high >> 4) ^ val
+        self.high = ((self.high &lt;&lt; 4) | (self.low >> 4)) &amp; 0xFF
+        self.low = (self.low &lt;&lt; 4) &amp; 0xFF
+        self.high = (self.high ^ self.LookupHigh[thisval]) &amp; 0xFF
+        self.low = (self.low ^ self.LookupLow[thisval]) &amp; 0xFF
+
+    def update(self, val):
+        """Updates the CRC value using bitwise operations."""
+        self.extract_bits(val >> 4)    # High nibble first
+        self.extract_bits(val &amp; 0x0F)  # Low nibble
+
+    def run(self, message):
+        """Calculates a CRC-16 checksum, returning [low, high]."""
+        for value in message:
+            self.update(value)
+        return [self.low, self.high]</code></pre>
+          </div>
+
+          <!-- C Tab -->
+          <div id="crc-lang-c" class="crc-tab-panel">
+            <div class="code-header">
+              <span>Heatmiser V3 Protocol Spec (Appendix A)</span>
+              <span>ANSI C</span>
+            </div>
+            <pre><code>/* Heatmiser V3 Protocol Specification - Appendix A */
+static const unsigned char CRC16_LookupHigh[16] = {
+    0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+    0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1
+};
+static const unsigned char CRC16_LookupLow[16] = {
+    0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+    0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF
+};
+
+static unsigned char CRC16_High = 0xFF;
+static unsigned char CRC16_Low  = 0xFF;
+
+void CRC16_Init(void) {
+    CRC16_High = 0xFF;
+    CRC16_Low  = 0xFF;
+}
+
+void CRC16_Update4Bits(unsigned char val) {
+    unsigned char t = (CRC16_High >> 4) ^ val;
+    CRC16_High = (unsigned char)((CRC16_High &lt;&lt; 4) | (CRC16_Low >> 4));
+    CRC16_Low  = (unsigned char)(CRC16_Low &lt;&lt; 4);
+    CRC16_High ^= CRC16_LookupHigh[t];
+    CRC16_Low  ^= CRC16_LookupLow[t];
+}
+
+void CRC16_Update(unsigned char val) {
+    CRC16_Update4Bits(val >> 4);   /* High nibble first */
+    CRC16_Update4Bits(val &amp; 0x0F); /* Low nibble */
+}
+
+void CRC16_Calculate(const unsigned char *data, size_t len, unsigned char *out_low, unsigned char *out_high) {
+    CRC16_Init();
+    for (size_t i = 0; i &lt; len; ++i) {
+        CRC16_Update(data[i]);
+    }
+    *out_low  = CRC16_Low;
+    *out_high = CRC16_High;
+}</code></pre>
+          </div>
+
+          <!-- JavaScript / TypeScript Tab -->
+          <div id="crc-lang-ts" class="crc-tab-panel">
+            <div class="code-header">
+              <span>Digital Twin / Web Implementation</span>
+              <span>TypeScript / JavaScript</span>
+            </div>
+            <pre><code>const CRC16_LOOKUP_HIGH = [
+  0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+  0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1
+];
+const CRC16_LOOKUP_LOW = [
+  0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+  0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF
+];
+
+export function calculateCRC16(data: Uint8Array | number[]): [number, number] {
+  let high = 0xFF;
+  let low = 0xFF;
+
+  function update4Bits(val: number) {
+    const t = ((high >> 4) ^ val) &amp; 0x0F;
+    high = (((high &lt;&lt; 4) | (low >> 4)) ^ CRC16_LOOKUP_HIGH[t]) &amp; 0xFF;
+    low = ((low &lt;&lt; 4) ^ CRC16_LOOKUP_LOW[t]) &amp; 0xFF;
+  }
+
+  for (let i = 0; i &lt; data.length; i++) {
+    const byte = data[i];
+    update4Bits((byte >> 4) &amp; 0x0F); // High nibble first
+    update4Bits(byte &amp; 0x0F);        // Low nibble
+  }
+
+  return [low, high]; // Returns [Low Byte, High Byte]
+}</code></pre>
+          </div>
+
+          <!-- Rust Tab -->
+          <div id="crc-lang-rust" class="crc-tab-panel">
+            <div class="code-header">
+              <span>Idiomatic Rust Implementation</span>
+              <span>Rust</span>
+            </div>
+            <pre><code>const CRC16_LOOKUP_HIGH: [u8; 16] = [
+    0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+    0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+];
+const CRC16_LOOKUP_LOW: [u8; 16] = [
+    0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+    0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+];
+
+pub struct HeatmiserCrc16 {
+    high: u8,
+    low: u8,
+}
+
+impl HeatmiserCrc16 {
+    pub fn new() -> Self {
+        Self { high: 0xFF, low: 0xFF }
+    }
+
+    fn update_4bits(&amp;mut self, val: u8) {
+        let t = ((self.high >> 4) ^ val) as usize;
+        self.high = (self.high &lt;&lt; 4) | (self.low >> 4);
+        self.low &lt;&lt;= 4;
+        self.high ^= CRC16_LOOKUP_HIGH[t];
+        self.low ^= CRC16_LOOKUP_LOW[t];
+    }
+
+    pub fn update(&amp;mut self, val: u8) {
+        self.update_4bits(val >> 4);
+        self.update_4bits(val &amp; 0x0F);
+    }
+
+    pub fn calculate(data: &amp;[u8]) -> [u8; 2] {
+        let mut crc = Self::new();
+        for &amp;b in data {
+            crc.update(b);
+        }
+        [crc.low, crc.high] // [Low Byte, High Byte]
+    }
+}</code></pre>
+          </div>
+
+          <!-- Go Tab -->
+          <div id="crc-lang-go" class="crc-tab-panel">
+            <div class="code-header">
+              <span>Go Standard Implementation</span>
+              <span>Go</span>
+            </div>
+            <pre><code>package heatmiserv3
+
+var (
+    crcLookupHigh = [16]byte{
+        0x00, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70,
+        0x81, 0x91, 0xA1, 0xB1, 0xC1, 0xD1, 0xE1, 0xF1,
+    }
+    crcLookupLow = [16]byte{
+        0x00, 0x21, 0x42, 0x63, 0x84, 0xA5, 0xC6, 0xE7,
+        0x08, 0x29, 0x4A, 0x6B, 0x8C, 0xAD, 0xCE, 0xEF,
+    }
+)
+
+// CalculateCRC16 computes the Heatmiser V3 CRC-16 checksum returning (low, high).
+func CalculateCRC16(data []byte) (byte, byte) {
+    high := byte(0xFF)
+    low := byte(0xFF)
+
+    update4Bits := func(val byte) {
+        t := (high >> 4) ^ val
+        high = (high &lt;&lt; 4) | (low >> 4)
+        low = low &lt;&lt; 4
+        high ^= crcLookupHigh[t]
+        low ^= crcLookupLow[t]
+    }
+
+    for _, b := range data {
+        update4Bits(b >> 4)    // High nibble first
+        update4Bits(b &amp; 0x0F)  // Low nibble
+    }
+
+    return low, high
+}</code></pre>
+          </div>
+        </div>
+
+        <!-- Dynamic Live CRC-16 Calculator -->
+        <div class="crc-calc-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.75rem;">
+            <div style="font-weight: 700; color: var(--text-main); font-size: 1rem;">
+              ⚡ Dynamic Live CRC-16 Calculator &amp; Step Inspector
+            </div>
+            <span class="badge badge-emerald">Dynamic Browser Execution</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+            Enter arbitrary hex or decimal bytes (space-separated, comma-separated, or <code>0x</code>-prefixed) or choose a protocol preset. The algorithm executes live in your browser and verifies parity against the C Reference and Python implementations.
+          </p>
+
+          <!-- Presets -->
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 0.75rem;">
+            <span style="font-size: 0.8rem; color: var(--text-muted); align-self: center;">Test Presets:</span>
+            <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="loadCrcPreset(1)">Preset 1: Write ACK [81 07 00 01 01]</button>
+            <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="loadCrcPreset(2)">Preset 2: Read All [01 0A 81 00 00 00 FF FF]</button>
+            <button class="btn btn-secondary" style="padding: 0.3rem 0.65rem; font-size: 0.78rem;" onclick="loadCrcPreset(3)">Preset 3: Power On [01 0B 81 01 19 00 01 00 01]</button>
+          </div>
+
+          <div class="crc-calc-inputs">
+            <input type="text" id="crc-input-bytes" class="crc-calc-input" value="0x81, 0x07, 0x00, 0x01, 0x01" placeholder="e.g. 81 07 00 01 01 or 129, 7, 0, 1, 1" oninput="calcInteractiveCrc()">
+            <button class="btn btn-primary" onclick="calcInteractiveCrc()">Recalculate CRC</button>
+          </div>
+
+          <!-- CRC Result Display -->
+          <div style="display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: center; background: var(--bg-tertiary); padding: 1rem; border-radius: 6px; border: 1px solid var(--border-color); margin-top: 1rem;">
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">CRC Low Byte (Byte -2):</span>
+              <span id="crc-res-low" class="crc-badge" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid #38bdf8;">0xB0 (176)</span>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">CRC High Byte (Byte -1):</span>
+              <span id="crc-res-high" class="crc-badge" style="background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid #c084fc;">0xEB (235)</span>
+            </div>
+            <div>
+              <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">Combined 16-Bit Word:</span>
+              <span id="crc-res-word" class="crc-badge" style="background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid #34d399;">0xEBB0 (60336)</span>
+            </div>
+            <div style="margin-left: auto;">
+              <span id="crc-res-status" class="badge badge-emerald">✅ Exact Parity with Python &amp; C Spec</span>
+            </div>
+          </div>
+
+          <!-- Collapsible Step-by-Step Nibble Trace -->
+          <details style="margin-top: 1rem; font-size: 0.82rem; color: var(--text-muted);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent-blue);">🔍 View Detailed Step-by-Step Nibble Trace</summary>
+            <div id="crc-trace-output" style="margin-top: 0.5rem; max-height: 200px; overflow-y: auto; background: var(--code-bg); padding: 0.75rem; border-radius: 6px; font-family: var(--font-mono); font-size: 0.78rem; border: 1px solid var(--border-color);">
+            </div>
+          </details>
+        </div>
+      </div>
     </section>
 
     <!-- Section 5: Thermostat DCB Register Tables -->
@@ -2168,6 +2873,16 @@
       <p>
         Writing register values to a Heatmiser thermostat over RS485 does not merely alter memory bytes in the Device Control Block (DCB)—it orchestrates physical relays, drives safety interlocks, updates LCD annunciators, and modulates HVAC heating loops in the real world.
       </p>
+
+      <div class="rtd-admonition note" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin: 1.25rem 0;">
+        <div style="flex: 1; min-width: 280px;">
+          <div class="rtd-admonition-title" style="font-size: 1rem;">🖥️ Multi-Screen Digital Twin Demo (Whole-Home Simulation)</div>
+          <div style="font-size: 0.88rem; line-height: 1.5; color: var(--text-main);">
+            Run the dedicated whole-home digital twin on a separate screen or monitor: <strong>4x PRT-1 underfloor heating thermostats</strong> (Bedroom 1, Bedroom 2, Bathroom, Kitchen/Living), <strong>1x TM1 Hot Water controller</strong>, an <strong>interactive floorplan with heating loops</strong>, connected to a <strong>Heatmiser UH1 8-zone wiring centre</strong> and an <strong>RS485 Raspberry Pi running Home Assistant</strong>. Includes multi-button hardware chord shortcuts (simulating simultaneous 2-finger presses).
+          </div>
+        </div>
+        <a href="twin.html" target="_blank" class="dock-popout-btn" style="padding: 0.65rem 1.25rem; font-size: 0.88rem; flex-shrink: 0; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">🚀 Launch 5-Zone Twin (Separate Screen) &rarr;</a>
+      </div>
 
       <div class="callout callout-info">
         <div class="callout-title">Live Adjacent Digital Twin</div>
@@ -2407,33 +3122,466 @@
       </div>
     </section>
 
-    <!-- Section 9: Python API Reference -->
+    <!-- Section 9: Python API Specification & Reference -->
     <section id="api-examples">
-      <h2>9. Python API Quickstart & Examples</h2>
-      
-      <div class="code-header"><span>Example: TM1 Timer Thermostat Automation</span><span>Python</span></div>
+      <h2>9. Python API Specification & Developer Guide</h2>
+      <p>
+        The <code>heatmiserv3</code> package provides an object-oriented Python interface adhering strictly to the Heatmiser V3 RS485 Protocol 3.9 specification. All convenience methods generate validated CCITT-16 checksummed frames, enforce hardware boundaries, and handle bi-directional telemetry conversion.
+      </p>
+
+      <div class="rtd-api-container">
+
+        <!-- ==================== HeatmiserUH1 ==================== -->
+        <div class="rtd-class-card">
+          <div class="rtd-class-header">
+            <div class="rtd-sig">
+              <span class="rtd-kw">class</span>
+              <span class="rtd-class-name">heatmiserv3.connection.HeatmiserUH1</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">ipaddress</span><span class="rtd-type">=None</span>, <span class="rtd-param-name">port</span><span class="rtd-type">=None</span>, <span class="rtd-param-name">dev</span><span class="rtd-type">=None</span><span class="rtd-sig-parens">)</span>
+            </div>
+            <span class="tag tag-yes">Hardware Interface</span>
+          </div>
+          <div class="rtd-class-body">
+            <p class="rtd-doc-p">
+              Connection manager and serial transport bridge for Heatmiser UH1 wiring centres and RS485 bus nodes. Supports direct serial ports (e.g. <code>/dev/ttyUSB0</code>, <code>COM3</code>) or TCP-to-serial network bridges (e.g. Moxa, USR-TCP232). Manages connection retry and automatic socket re-opening on bus disruptions.
+            </p>
+
+            <ul class="rtd-param-list">
+              <li class="rtd-param-item"><code>ipaddress</code> (<em>str, optional</em>) &ndash; IP address of TCP-to-RS485 bridge.</li>
+              <li class="rtd-param-item"><code>port</code> (<em>str | int, optional</em>) &ndash; TCP port number of the bridge (e.g. <code>"102"</code> or <code>8000</code>).</li>
+              <li class="rtd-param-item"><code>dev</code> (<em>str, optional</em>) &ndash; Local POSIX serial device path or Windows COM port name.</li>
+            </ul>
+
+            <div class="rtd-group-title">Methods</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">registerThermostat</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">thermostat</span>: <span class="rtd-type">HeatmiserThermostat</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">serial.Serial</span>
+                </span>
+              </div>
+              <div class="rtd-method-body">
+                Registers a thermostat instance with the UH1 connection and links its serial handle. Returns the active serial interface.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">reopen</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">force</span>: <span class="rtd-type">bool</span> = <span class="rtd-default">False</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool | None</span>
+                </span>
+              </div>
+              <div class="rtd-method-body">
+                Closes the current socket or serial port and establishes a fresh connection, automatically updating the connection handle across all registered thermostat instances.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== HeatmiserThermostat ==================== -->
+        <div class="rtd-class-card">
+          <div class="rtd-class-header">
+            <div class="rtd-sig">
+              <span class="rtd-kw">class</span>
+              <span class="rtd-class-name">heatmiserv3.heatmiser.HeatmiserThermostat</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">address</span>, <span class="rtd-param-name">model</span>, <span class="rtd-param-name">uh1</span><span class="rtd-sig-parens">)</span>
+            </div>
+            <span class="tag tag-yes">Base Model</span>
+          </div>
+          <div class="rtd-class-body">
+            <p class="rtd-doc-p">
+              Primary model class representing Heatmiser digital heating thermostats: <strong>DT</strong>, <strong>DT-E</strong>, <strong>PRT</strong>, and <strong>PRT-E</strong>. Automatically retrieves and parses the initial DCB telemetry on initialization.
+            </p>
+
+            <div class="rtd-admonition note">
+              <div class="rtd-admonition-title">📘 Consistent Return Conventions</div>
+              All parameter setter helpers validate boundaries and return <code>True</code> upon successful write dispatch, or <code>False</code> if an argument is invalid or out of specification range.
+            </div>
+
+            <!-- Group 1: General Device & Operating Mode -->
+            <div class="rtd-group-title">1. Device State & Lock Controls</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_on_off</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">state</span>: <span class="rtd-type">int | bool</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 21</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets the master power run state. <code>0</code> or <code>False</code> puts unit in Off / Frost Setback state. <code>1</code> or <code>True</code> restores normal heating operation.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_on_off</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">int</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 21</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns the current run state: <code>0</code> (Off / Frost setback) or <code>1</code> (On / Normal).
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_key_lock</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">lock</span>: <span class="rtd-type">int | bool</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 22</span>
+              </div>
+              <div class="rtd-method-body">
+                Locks (<code>1</code> / <code>True</code>) or unlocks (<code>0</code> / <code>False</code>) front-panel physical buttons to prevent manual tampering.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_key_lock</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">int</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 22</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns keypad lock state: <code>0</code> (Unlocked) or <code>1</code> (Locked).
+              </div>
+            </div>
+
+            <!-- Group 2: Temperature & Regulation Settings -->
+            <div class="rtd-group-title">2. Temperature Regulation & Differential</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_target_temp</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">temperature</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 18</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets target room comfort setpoint. Allowed range: <strong>5&deg;C to 35&deg;C</strong>.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_target_temp</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">int</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 18</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns current programmed target comfort temperature in &deg;C.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_floormax_temp</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">floor_max</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 19</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets maximum floor safety cutout limit for underfloor heating. Allowed range: <strong>20&deg;C to 45&deg;C</strong>.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_frost_protect_temp</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">frost_temp</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 17</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets frost protection setback temperature active when unit is switched off. Allowed range: <strong>7&deg;C to 17&deg;C</strong>.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_temperature_format</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">temp_format</span>: <span class="rtd-type">int | str</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 5</span>
+              </div>
+              <div class="rtd-method-body">
+                Configures display unit. Accepts <code>0</code>, <code>"C"</code>, <code>"Celsius"</code> for &deg;C; or <code>1</code>, <code>"F"</code>, <code>"Fahrenheit"</code> for &deg;F.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_differential</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">diff</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 6</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets switching differential (hysteresis span) before relay fires. Allowed range: <strong>1&deg;C to 3&deg;C</strong>.
+              </div>
+            </div>
+
+            <!-- Group 3: Sensor Selection & Telemetry -->
+            <div class="rtd-group-title">3. Sensor Selection & Telemetry</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_sensor_selection</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">sensor_mode</span>: <span class="rtd-type">int | str</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 13</span>
+              </div>
+              <div class="rtd-method-body">
+                Configures active temperature sensing source. Accepts integer codes <code>0..4</code> or descriptive strings:
+                <ul class="rtd-param-list" style="margin-top:0.4rem;">
+                  <li><code>0</code> or <code>"built in"</code>: Built-in air sensor</li>
+                  <li><code>1</code> or <code>"remote air"</code>: Remote air sensor probe</li>
+                  <li><code>2</code> or <code>"floor"</code>: Floor sensor probe only</li>
+                  <li><code>3</code> or <code>"built-in+floor"</code>: Built-in air with floor overheat protection limit</li>
+                  <li><code>4</code> or <code>"remote+floor"</code>: Remote air with floor overheat protection limit</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_sensor_selection</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">str</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 13</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns human-readable sensor mode string (e.g. <code>"Built in air sensor"</code>, <code>"Remote + floor"</code>).
+              </div>
+            </div>
+
+            <!-- Group 4: Timing, Hold & Vacation -->
+            <div class="rtd-group-title">4. Hold, Vacation & Real-Time Clock</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_holiday_hours</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">hours</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 24</span>
+              </div>
+              <div class="rtd-method-body">
+                Configures holiday setback duration in hours (range: <code>0..65535</code>). Automatically formats as 2-byte little-endian payload on write. Writing <code>0</code> cancels holiday mode.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_temp_hold</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">minutes</span>: <span class="rtd-type">int</span>, <span class="rtd-param-name">temperature</span>: <span class="rtd-type">int = None</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 26</span>
+              </div>
+              <div class="rtd-method-body">
+                Places unit into temporary comfort hold for <code>1..1800</code> minutes. If <code>temperature</code> is specified (5&ndash;35&deg;C), simultaneously writes the temporary comfort setpoint. Writing <code>0</code> minutes cancels active hold.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_time</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">week</span>: <span class="rtd-type">int</span>, <span class="rtd-param-name">hour</span>: <span class="rtd-type">int</span>, <span class="rtd-param-name">minute</span>: <span class="rtd-type">int</span>, <span class="rtd-param-name">second</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 43</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets hardware Real-Time Clock (RTC). <code>week</code> is 1&ndash;7 (1=Monday .. 7=Sunday). Hours 0&ndash;23, Minutes 0&ndash;59, Seconds 0&ndash;59.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_time</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">dict</span>
+                </span>
+                <span class="tag tag-ro">DCB Indexes 36..39</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns RTC dictionary: <code>{"week": int, "hour": int, "min": int, "sec": int}</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== PRTHWThermostat ==================== -->
+        <div class="rtd-class-card">
+          <div class="rtd-class-header">
+            <div class="rtd-sig">
+              <span class="rtd-kw">class</span>
+              <span class="rtd-class-name">heatmiserv3.heatmiser.PRTHWThermostat</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">address</span>, <span class="rtd-param-name">uh1</span>, <span class="rtd-param-name">model</span><span class="rtd-type">="prt-hw"</span><span class="rtd-sig-parens">)</span>
+            </div>
+            <span class="tag tag-yes">Subclass of HeatmiserThermostat</span>
+          </div>
+          <div class="rtd-class-body">
+            <p class="rtd-doc-p">
+              Specialized class for the <strong>PRT-HW</strong> (Programmable Thermostat with Hot Water control, Model ID <code>0x04</code>). Adds dedicated hot water boost management and enforces hardware constraints.
+            </p>
+
+            <div class="rtd-admonition warning">
+              <div class="rtd-admonition-title">⚠️ Hardware Restriction: Sensor Selection</div>
+              On PRT-HW hardware, external terminal blocks are assigned to the secondary Hot Water relay. Consequently, PRT-HW only supports <strong>Sensor Mode 0 (Built-in Air)</strong>. Calling <code>set_sensor_selection()</code> with external or floor modes is safely refused and returns <code>False</code>.
+            </div>
+
+            <div class="rtd-group-title">Hot Water Methods</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_hot_water_boost</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">state</span>: <span class="rtd-type">int | bool</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">bool</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 41</span>
+              </div>
+              <div class="rtd-method-body">
+                Controls hot water boost channel. <code>1</code> or <code>True</code> engages Boost On immediately. <code>0</code> or <code>False</code> returns channel to programmed schedule (Auto).
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_hot_water_state</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">int</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 36</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns active hot water state: <code>0</code> (Off) or <code>1</code> (On).
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">get_heating_state</span><span class="rtd-sig-parens">()</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">int</span>
+                </span>
+                <span class="tag tag-ro">DCB Index 35</span>
+              </div>
+              <div class="rtd-method-body">
+                Returns active space heating state: <code>0</code> (Off) or <code>1</code> (Heating active).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ==================== TM1Thermostat ==================== -->
+        <div class="rtd-class-card">
+          <div class="rtd-class-header">
+            <div class="rtd-sig">
+              <span class="rtd-kw">class</span>
+              <span class="rtd-class-name">heatmiserv3.heatmiser.TM1Thermostat</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">address</span>, <span class="rtd-param-name">uh1</span>, <span class="rtd-param-name">model</span><span class="rtd-type">="tm1"</span><span class="rtd-sig-parens">)</span>
+            </div>
+            <span class="tag tag-yes">Subclass of HeatmiserThermostat</span>
+          </div>
+          <div class="rtd-class-body">
+            <p class="rtd-doc-p">
+              Model class for the <strong>TM1 Time Clock & Countdown Programmer</strong> (Model ID <code>0x05</code>). Provides timer channel overrides, countdown timing (0&ndash;1800m), and 5/2 & 7-day multi-period switching schedules.
+            </p>
+
+            <div class="rtd-group-title">Timer & Schedule Methods</div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_timer_state</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">state</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">list</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 42</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets manual timer override: <code>0</code> = Auto (follows schedule), <code>1</code> = Override ON, <code>2</code> = Override OFF.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_countdown_timer</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">minutes</span>: <span class="rtd-type">int</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">list</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 26</span>
+              </div>
+              <div class="rtd-method-body">
+                Sets countdown timer duration in minutes (0&ndash;1800). Automatically converts to 2-byte little-endian format.
+              </div>
+            </div>
+
+            <div class="rtd-method-card">
+              <div class="rtd-method-sig">
+                <span class="rtd-sig">
+                  <span class="rtd-kw">def</span> <span class="rtd-method-name">set_weekday_schedule</span><span class="rtd-sig-parens">(</span><span class="rtd-param-name">schedule</span>: <span class="rtd-type">list[int]</span><span class="rtd-sig-parens">)</span> <span class="rtd-ret-arrow">&rarr;</span> <span class="rtd-type">list</span>
+                </span>
+                <span class="tag tag-rw">Write Addr 71</span>
+              </div>
+              <div class="rtd-method-body">
+                Writes 16-byte weekday switching schedule representing 4 periods: <code>[T1_On_H, T1_On_M, T1_Off_H, T1_Off_M, ...]</code>. Cancelled periods are designated by setting Hour to <code>24</code>.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Quickstart Code Examples -->
+      <h3 style="margin-top: 2.5rem; margin-bottom: 0.75rem;">Python Automation Examples</h3>
+
+      <div class="code-header"><span>Example 1: PRT Room & Floor Temperature Automation</span><span>Python</span></div>
       <pre><code>from heatmiserv3 import heatmiser, connection
 
-# 1. Connect to UH1 wiring centre over TCP/Serial bridge or direct serial device
-uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")  # or dev="/dev/ttyACM0"
+# Connect via serial bridge or direct RS485 adapter
+uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")
 
-# 2. Instantiate TM1 thermostat (Address 1)
-tm1 = heatmiser.TM1Thermostat(address=1, uh1=uh1)
+# Instantiate PRT programmable thermostat at address 1
+prt = heatmiser.HeatmiserThermostat(address=1, model="prt", uh1=uh1)
 
-# 3. Read current status & telemetry
-print(f"Model ID: {tm1.get_model()}")               # 5
-print(f"Program Mode: {tm1.get_program_mode()}")     # '5/2 mode'
-print(f"Timer State: {tm1.get_timer_state()}")       # 0 (Auto), 1 (On), 2 (Off)
-print(f"Clock: {tm1.get_time()}")                    # {'week': 1, 'hour': 12, 'min': 30, 'sec': 0}
+# Configure device operating mode & regulation
+prt.set_on_off(1)                       # Turn heating system ON
+prt.set_temperature_format("C")         # Use Celsius
+prt.set_differential(1)                 # 1°C switching differential
+prt.set_target_temp(21)                 # Target comfort: 21°C
+prt.set_floormax_temp(28)               # Floor safety cutout: 28°C
 
-# 4. Configure parameters (generates valid bytecode frames with CRC)
-tm1.set_on_off(1)                       # Turn thermostat on
-tm1.set_key_lock(0)                     # Unlock keypad
-tm1.set_holiday_hours(168)              # 7-day holiday (168 hours)
-tm1.set_countdown_timer(120)            # 2-hour countdown timer
-tm1.set_timer_state(1)                  # Override timer to ON
+# Switch to Remote Air + Floor sensing mode (Mode 4)
+prt.set_sensor_selection(4)
 
-# 5. Configure 5/2 Weekday switching schedule (4 pairs: On H/M, Off H/M)
+# Set 3-hour temporary comfort boost to 23°C
+prt.set_temp_hold(minutes=180, temperature=23)
+</code></pre>
+
+      <div class="code-header"><span>Example 2: PRT-HW Dual Channel Heating & Hot Water Boost</span><span>Python</span></div>
+      <pre><code>from heatmiserv3 import heatmiser, connection
+
+uh1 = connection.HeatmiserUH1(dev="/dev/ttyUSB0")
+
+# Instantiate PRT-HW thermostat at address 2
+prt_hw = heatmiser.PRTHWThermostat(address=2, uh1=uh1)
+
+# Read dual channel state
+print("Heating Active:", prt_hw.get_heating_state())     # 1 or 0
+print("Hot Water Active:", prt_hw.get_hot_water_state()) # 1 or 0
+
+# Engage hot water boost
+prt_hw.set_hot_water_boost(1)
+
+# Reset boost back to scheduled auto mode
+prt_hw.set_hot_water_boost(0)
+</code></pre>
+
+      <div class="code-header"><span>Example 3: TM1 Time Clock & Countdown Automation</span><span>Python</span></div>
+      <pre><code>from heatmiserv3 import heatmiser, connection
+
+uh1 = connection.HeatmiserUH1(ipaddress="192.168.1.57", port="102")
+tm1 = heatmiser.TM1Thermostat(address=3, uh1=uh1)
+
+# 2-hour countdown timer
+tm1.set_countdown_timer(120)
+
+# Set 7-day vacation setback (168 hours)
+tm1.set_holiday_hours(168)
+
+# Configure 5/2 Weekday switching schedule (4 pairs: On H/M, Off H/M)
 weekday_schedule = [
     6, 30,  8, 30,   # Time 1: 06:30 On, 08:30 Off
     17, 0, 22, 30,   # Time 2: 17:00 On, 22:30 Off
@@ -2455,7 +3603,10 @@ tm1.set_weekday_schedule(weekday_schedule)
           <span class="dock-title">⚡ Virtual Thermostat Twin</span>
           <span class="dock-status-badge" id="dock-comm-badge">RS485: ADDR 01</span>
         </div>
-        <button class="dock-close-btn" onclick="toggleDockDrawer()" title="Close Dock">✕</button>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <a href="twin.html" target="_blank" class="dock-popout-btn" title="Open 5-Thermostat Whole-Home Digital Twin on Separate Screen">🖥️ Pop Out (5 Zones)</a>
+          <button class="dock-close-btn" onclick="toggleDockDrawer()" title="Close Dock">✕</button>
+        </div>
       </div>
 
       <div class="dock-body">
@@ -2530,13 +3681,62 @@ tm1.set_weekday_schedule(weekday_schedule)
             </div>
           </div>
 
-          <!-- Tactile Faceplate Buttons -->
+          <!-- Tactile Faceplate Buttons (6-Button Layout: Power, Clock, H, A, Down, Up) -->
           <div class="thermostat-keypad">
-            <button class="keypad-btn" onclick="onKeypadPress('power')" title="Power / Standby">⏻</button>
-            <button class="keypad-btn" onclick="onKeypadPress('down')" title="Decrease Setpoint">▼</button>
-            <button class="keypad-btn" onclick="onKeypadPress('up')" title="Increase Setpoint">▲</button>
-            <button class="keypad-btn" onclick="onKeypadPress('hold')" title="2-Hour Temp Hold">H</button>
-            <button class="keypad-btn" onclick="onKeypadPress('mode')" title="View Schedule / Program">🕒</button>
+            <button class="keypad-btn" onclick="onKeypadPress('power')" title="Power / Standby (Toggle On / Off / Frost Protect)">⏻</button>
+            <button class="keypad-btn" onclick="onKeypadPress('clock')" title="Clock / Time Programming (Press twice to set time)">🕒</button>
+            <button class="keypad-btn" onclick="onKeypadPress('h')" title="H: Temperature Hold / Holiday Mode">H</button>
+            <button class="keypad-btn" onclick="onKeypadPress('a')" title="A: Accept / Confirm / Auxiliary Boost">A</button>
+            <button class="keypad-btn" onclick="onKeypadPress('down')" title="Down Arrow: Decrease Setpoint / Value">▼</button>
+            <button class="keypad-btn" onclick="onKeypadPress('up')" title="Up Arrow: Increase Setpoint / Value">▲</button>
+          </div>
+        </div>
+
+        <!-- Multi-Button Chords & Physical Gesture Panel (Single-Mouse Solution) -->
+        <div class="chord-shortcuts-card">
+          <div class="chord-header">
+            <span class="chord-title">Multi-Button Chords</span>
+            <span class="chord-badge" title="Simulates hardware 2-finger chords impossible with a single mouse">Single-Mouse Helper</span>
+          </div>
+          <p class="chord-desc">
+            Certain Heatmiser functions require pressing multiple tactile buttons simultaneously or long-pressing switches. Since a single mouse cursor cannot click two buttons at once, use these dedicated shortcuts:
+          </p>
+          <div class="chord-list">
+            <button class="chord-action-btn" onclick="onComboPress('power_clock')" title="Simulates pressing Power and Clock simultaneously">
+              <div class="chord-keys"><span class="kbadge">⏻</span>+<span class="kbadge">🕒</span></div>
+              <div class="chord-meta">
+                <strong>Power + Clock: Setup Menu</strong>
+                <small>Cycles Sensor Mode (0..4), Diff, &deg;C/&deg;F</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('down_up')" title="Simulates pressing Down and Up simultaneously">
+              <div class="chord-keys"><span class="kbadge">▼</span>+<span class="kbadge">▲</span></div>
+              <div class="chord-meta">
+                <strong>Down + Up: Keypad Lock</strong>
+                <small>Toggles Tamper Lockout (Addr 22)</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('hold_power')" title="Simulates holding the Power button for 3 seconds">
+              <div class="chord-keys"><span class="kbadge">⏻</span> (3s)</div>
+              <div class="chord-meta">
+                <strong>Hold Power: Standby</strong>
+                <small>Switches On / Frost Protection (Addr 21)</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('h_a')" title="Simulates pressing H and A simultaneously">
+              <div class="chord-keys"><span class="kbadge">H</span>+<span class="kbadge">A</span></div>
+              <div class="chord-meta">
+                <strong>H + A: Comfort / Boost</strong>
+                <small>Engages 2-hr Hold / HW Boost</small>
+              </div>
+            </button>
+            <button class="chord-action-btn" onclick="onComboPress('hold_clock')" title="Simulates holding the Clock button for 3 seconds">
+              <div class="chord-keys"><span class="kbadge">🕒</span> (3s)</div>
+              <div class="chord-meta">
+                <strong>Hold Clock: Set RTC Time</strong>
+                <small>Syncs Clock to System RTC (Addr 43)</small>
+              </div>
+            </button>
           </div>
         </div>
 
@@ -2699,13 +3899,14 @@ tm1.set_weekday_schedule(weekday_schedule)
                 <option value="3">3°C Differential</option>
               </select>
             </div>
-            <div class="calc-field">
-              <label for="dcb-input-sensormode">Sensor Mode (Addr 28)</label>
+            <div class="calc-field" id="dcb-field-sensormode">
+              <label for="dcb-input-sensormode">Sensor Mode (Addr 13)</label>
               <select id="dcb-input-sensormode" onchange="applyDCBForm('sensormode')">
                 <option value="0">0: Internal Only</option>
                 <option value="1">1: Remote Air</option>
                 <option value="2">2: Floor Only</option>
                 <option value="3" selected>3: Internal + Floor</option>
+                <option value="4">4: Remote Air + Floor</option>
               </select>
             </div>
             <div class="calc-field">
@@ -2775,6 +3976,95 @@ tm1.set_weekday_schedule(weekday_schedule)
       
       const targetPanel = document.getElementById(tabId);
       if (targetPanel) targetPanel.classList.add('active');
+    }
+
+    // CRC-16 Language Tab Switching
+    function switchCrcTab(tabId) {
+      document.querySelectorAll('.crc-tab-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.crc-tab-panel').forEach(panel => panel.classList.remove('active'));
+      
+      const activeBtn = Array.from(document.querySelectorAll('.crc-tab-btn')).find(b => b.getAttribute('onclick')?.includes(tabId));
+      if (activeBtn) activeBtn.classList.add('active');
+      
+      const targetPanel = document.getElementById(tabId);
+      if (targetPanel) targetPanel.classList.add('active');
+    }
+
+    // CRC Interactive Live Calculator
+    function parseByteInput(str) {
+      if (!str) return [];
+      const tokens = str.replace(/[,\[\]]/g, ' ').trim().split(/\s+/);
+      const bytes = [];
+      for (const t of tokens) {
+        if (!t) continue;
+        let v;
+        if (t.toLowerCase().startsWith('0x')) {
+          v = parseInt(t, 16);
+        } else if (/^[0-9a-fA-F]{2}$/.test(t) && isNaN(Number(t))) {
+          v = parseInt(t, 16);
+        } else {
+          v = parseInt(t, 10);
+        }
+        if (!isNaN(v)) {
+          bytes.push(v & 0xFF);
+        }
+      }
+      return bytes;
+    }
+
+    function calcInteractiveCrc() {
+      const inputEl = document.getElementById('crc-input-bytes');
+      if (!inputEl) return;
+      const bytes = parseByteInput(inputEl.value);
+      
+      let high = 0xFF;
+      let low = 0xFF;
+      const trace = [];
+
+      function updateNibble(val, byteIdx, isHigh) {
+        let t = (high >> 4) ^ val;
+        high = ((high << 4) | (low >> 4)) & 0xFF;
+        low = (low << 4) & 0xFF;
+        high = (high ^ LookupHigh[t]) & 0xFF;
+        low = (low ^ LookupLow[t]) & 0xFF;
+        trace.push(`Byte[${byteIdx}] ${isHigh ? 'High' : 'Low '} nibble 0x${val.toString(16).toUpperCase()}: index t=${t} (0x${t.toString(16).toUpperCase()}) &rarr; Regs=[High:0x${high.toString(16).toUpperCase().padStart(2,'0')}, Low:0x${low.toString(16).toUpperCase().padStart(2,'0')}]`);
+      }
+
+      for (let i = 0; i < bytes.length; i++) {
+        const b = bytes[i];
+        updateNibble((b >> 4) & 0x0F, i, true);
+        updateNibble(b & 0x0F, i, false);
+      }
+
+      const resLowEl = document.getElementById('crc-res-low');
+      const resHighEl = document.getElementById('crc-res-high');
+      const resWordEl = document.getElementById('crc-res-word');
+      const resStatusEl = document.getElementById('crc-res-status');
+      const traceEl = document.getElementById('crc-trace-output');
+
+      if (resLowEl) resLowEl.textContent = `0x${low.toString(16).toUpperCase().padStart(2,'0')} (${low})`;
+      if (resHighEl) resHighEl.textContent = `0x${high.toString(16).toUpperCase().padStart(2,'0')} (${high})`;
+      const word = (high << 8) | low;
+      if (resWordEl) resWordEl.textContent = `0x${word.toString(16).toUpperCase().padStart(4,'0')} (${word})`;
+      if (resStatusEl) {
+        resStatusEl.textContent = bytes.length > 0 ? `✅ Exact Parity with Python & C Spec (${bytes.length} bytes)` : '⚠️ Enter bytes to calculate';
+      }
+      if (traceEl) {
+        traceEl.innerHTML = trace.length > 0 ? trace.join('<br>') : '<em>No bytes entered</em>';
+      }
+    }
+
+    function loadCrcPreset(presetNum) {
+      const inputEl = document.getElementById('crc-input-bytes');
+      if (!inputEl) return;
+      if (presetNum === 1) {
+        inputEl.value = '0x81, 0x07, 0x00, 0x01, 0x01';
+      } else if (presetNum === 2) {
+        inputEl.value = '0x01, 0x0A, 0x81, 0x00, 0x00, 0x00, 0xFF, 0xFF';
+      } else if (presetNum === 3) {
+        inputEl.value = '0x01, 0x0B, 0x81, 0x01, 0x19, 0x00, 0x01, 0x00, 0x01';
+      }
+      calcInteractiveCrc();
     }
 
     // Theme Toggle
@@ -3014,7 +4304,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       setTemp: 22.0,       // Addr 18: Target setpoint in °C
       frostTemp: 12.0,     // Addr 17: Frost protect setpoint
       differential: 1.0,   // Addr 27: 1, 2, 3 °C
-      sensorMode: 3,       // Addr 28: 0: Int, 1: Remote, 2: Floor, 3: Int+Floor
+      sensorMode: 3,       // Addr 13: 0: Int, 1: Remote, 2: Floor, 3: Int+Floor, 4: Remote+Floor
       floorMaxLimit: 32.0, // Addr 29: 20-45 °C
       holidayHours: 0,     // Addr 24-25: Remaining holiday hours
       tempHoldHours: 0,
@@ -3072,6 +4362,8 @@ tm1.set_weekday_schedule(weekday_schedule)
       const extraField = document.getElementById('dcb-field-model-specific');
       const extraLabel = document.getElementById('dcb-label-extra');
       const extraSelect = document.getElementById('dcb-input-extra');
+      const sensorField = document.getElementById('dcb-field-sensormode');
+      const sensorInput = document.getElementById('dcb-input-sensormode');
       const hwTitle = document.getElementById('relay-hw-title');
       const secLabel = document.getElementById('eq-secondary-label');
       const tag = document.getElementById('screen-model-tag');
@@ -3080,6 +4372,8 @@ tm1.set_weekday_schedule(weekday_schedule)
       if (model === 'prt') {
         tag.textContent = 'PRT-N (v3.9)';
         extraField.style.display = 'none';
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) sensorInput.disabled = false;
         hwTitle.textContent = 'Relay 2: Auxiliary (Unused)';
         secLabel.textContent = 'Auxiliary Relay';
         sizeLabel.textContent = '73 Bytes';
@@ -3089,6 +4383,13 @@ tm1.set_weekday_schedule(weekday_schedule)
         extraLabel.textContent = 'Hot Water State (Addr 41)';
         extraSelect.innerHTML = '<option value="0">0: Auto / Off</option><option value="1">1: Boost ON</option>';
         extraSelect.value = simState.hotWaterState;
+        // PRT-HW sensor selection is fixed to 0: Internal Only in spec
+        simState.sensorMode = 0;
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) {
+          sensorInput.value = '0';
+          sensorInput.disabled = true;
+        }
         hwTitle.textContent = 'Relay 2: Hot Water (Terminals 3 & 4)';
         secLabel.textContent = 'DHW Cylinder Valve';
         sizeLabel.textContent = '73 Bytes';
@@ -3098,12 +4399,17 @@ tm1.set_weekday_schedule(weekday_schedule)
         extraLabel.textContent = 'Timer Override (Addr 42)';
         extraSelect.innerHTML = '<option value="0">0: Auto (Program)</option><option value="1">1: Constant ON</option><option value="2">2: Constant OFF</option>';
         extraSelect.value = simState.timerState;
+        // TM1 has no temperature sensor
+        if (sensorField) sensorField.style.display = 'none';
+        if (sensorInput) sensorInput.disabled = true;
         hwTitle.textContent = 'Relay 2: Channel 2 (Aux)';
         secLabel.textContent = 'Timed Auxiliary Circuit';
         sizeLabel.textContent = '43 Bytes';
       } else if (model === 'hcen') {
         tag.textContent = 'HC-EN (Heat & Cool)';
         extraField.style.display = 'none';
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) sensorInput.disabled = false;
         hwTitle.textContent = 'Relay 2: Cooling (Terminals 5 & 6)';
         secLabel.textContent = 'Chiller / AC Unit';
         sizeLabel.textContent = '73 Bytes';
@@ -3138,10 +4444,10 @@ tm1.set_weekday_schedule(weekday_schedule)
     // Thermodynamic & Electrical Evaluation Logic
     function evaluateThermostat() {
       const s = simState;
-      s.sensorFault = (!s.floorConnected && (s.sensorMode === 2 || s.sensorMode === 3));
+      s.sensorFault = (!s.floorConnected && (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4));
 
       // 1. Underfloor Overheat Safety Interlock
-      if (!s.sensorFault && (s.sensorMode === 2 || s.sensorMode === 3)) {
+      if (!s.sensorFault && (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4)) {
         if (s.floorTemp >= s.floorMaxLimit) {
           s.floorOverheatCutout = true;
         } else if (s.floorTemp <= s.floorMaxLimit - 1.0) {
@@ -3276,7 +4582,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       if (s.floorOverheatCutout) {
         floorReadout.textContent = `FLR HI ${s.floorTemp.toFixed(0)}°C`;
         floorReadout.className = 'lcd-floor-readout warning-flash';
-      } else if (s.sensorMode === 2 || s.sensorMode === 3) {
+      } else if (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4) {
         floorReadout.textContent = `FLR ${s.floorTemp.toFixed(1)}°C`;
         floorReadout.className = 'lcd-floor-readout';
       } else {
@@ -3395,7 +4701,7 @@ tm1.set_weekday_schedule(weekday_schedule)
         buffer[17] = Math.round(s.frostTemp);
         buffer[18] = Math.round(s.setTemp);
         buffer[19] = Math.round(s.floorMaxLimit);
-        buffer[20] = (s.sensorMode === 2 || s.sensorMode === 3) ? 1 : 0;
+        buffer[20] = (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4) ? 1 : 0;
         buffer[21] = s.runMode;
         buffer[22] = s.keyLock;
         buffer[23] = s.heatingRelay ? 1 : 0;
@@ -3510,7 +4816,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       } else if (field === 'sensormode') {
         s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
         s.lastModifiedIndex = 13;
-        generateAndDisplayWriteFrame(28, [s.sensorMode], `thermostat.set_sensor_mode(${s.sensorMode})`);
+        generateAndDisplayWriteFrame(13, [s.sensorMode], `thermostat.set_sensor_mode(${s.sensorMode})`);
       } else if (field === 'floorlimit') {
         s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
         s.lastModifiedIndex = 19;
@@ -3559,15 +4865,55 @@ tm1.set_weekday_schedule(weekday_schedule)
 
       flashCommBlip();
 
-      if (btn === 'up') {
-        if (s.model === 'tm1') {
-          s.countdownMinutes = Math.min(1800, s.countdownMinutes + 15);
-          s.lastModifiedIndex = 12;
-          generateAndDisplayWriteFrame(26, [s.countdownMinutes & 0xff, (s.countdownMinutes >> 8) & 0xff], `tm1.set_countdown_timer(${s.countdownMinutes})`);
+      if (btn === 'power') {
+        s.runMode = (s.runMode === 1) ? 0 : 1;
+        s.lastModifiedIndex = 21;
+        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})  # Power / Frost Protect Toggle`);
+      } else if (btn === 'clock') {
+        // Clock / Time Setup button
+        const clockEl = document.getElementById('lcd-clock');
+        if (clockEl) {
+          clockEl.style.textDecoration = 'underline';
+          clockEl.style.fontWeight = '900';
+          setTimeout(() => {
+            if (clockEl) {
+              clockEl.style.textDecoration = 'none';
+              clockEl.style.fontWeight = '';
+            }
+          }, 800);
+        }
+      } else if (btn === 'h') {
+        // H: Hold / Holiday Mode toggle
+        if (s.tempHoldHours === 0 && s.holidayHours === 0) {
+          s.tempHoldHours = 2;
+          s.tempHoldSetTemp = s.setTemp;
+          s.lastModifiedIndex = 26;
+          generateAndDisplayWriteFrame(26, [2, 0], `thermostat.set_temp_hold(2, ${s.setTemp})  # 2-Hour Temperature Hold`);
+        } else if (s.tempHoldHours > 0) {
+          s.tempHoldHours = 0;
+          s.holidayHours = 168;
+          s.lastModifiedIndex = 24;
+          generateAndDisplayWriteFrame(24, [168 & 0xff, 0], `thermostat.set_holiday_hours(168)  # 7-Day Holiday Mode Setback`);
         } else {
-          s.setTemp = Math.min(35, s.setTemp + 0.5);
-          s.lastModifiedIndex = 18;
-          generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+          s.holidayHours = 0;
+          s.tempHoldHours = 0;
+          s.lastModifiedIndex = 24;
+          generateAndDisplayWriteFrame(24, [0, 0], `thermostat.set_holiday_hours(0)  # Cancel Hold / Holiday`);
+        }
+      } else if (btn === 'a') {
+        // A: Accept / Advance / Auxiliary Channel Override
+        if (s.model === 'prt-hw') {
+          s.hotWaterState = (s.hotWaterState === 1) ? 0 : 1;
+          s.lastModifiedIndex = 41;
+          generateAndDisplayWriteFrame(41, [s.hotWaterState], `prt_hw.set_hot_water_boost(${s.hotWaterState})  # Hot Water Manual Boost`);
+        } else if (s.model === 'tm1') {
+          s.timerState = (s.timerState + 1) % 3;
+          s.lastModifiedIndex = 14;
+          generateAndDisplayWriteFrame(42, [s.timerState], `tm1.set_timer_state(${s.timerState})  # Timer Override: 0=Auto, 1=On, 2=Off`);
+        } else {
+          // Confirm / Accept: Clear temporary overrides and flash comm indicator
+          s.tempHoldHours = 0;
+          flashCommBlip();
         }
       } else if (btn === 'down') {
         if (s.model === 'tm1') {
@@ -3579,20 +4925,116 @@ tm1.set_weekday_schedule(weekday_schedule)
           s.lastModifiedIndex = 18;
           generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
         }
-      } else if (btn === 'power') {
+      } else if (btn === 'up') {
+        if (s.model === 'tm1') {
+          s.countdownMinutes = Math.min(1800, s.countdownMinutes + 15);
+          s.lastModifiedIndex = 12;
+          generateAndDisplayWriteFrame(26, [s.countdownMinutes & 0xff, (s.countdownMinutes >> 8) & 0xff], `tm1.set_countdown_timer(${s.countdownMinutes})`);
+        } else {
+          s.setTemp = Math.min(35, s.setTemp + 0.5);
+          s.lastModifiedIndex = 18;
+          generateAndDisplayWriteFrame(18, [Math.round(s.setTemp)], `thermostat.set_temperature(${s.setTemp.toFixed(1)})`);
+        }
+      }
+
+      evaluateThermostat();
+    }
+
+    // Floating Toast Notification
+    function showTamperToast(msg) {
+      let toast = document.getElementById('tamper-toast-el');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'tamper-toast-el';
+        toast.className = 'tamper-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window._toastTimeout);
+      window._toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    // Multi-Button Chords & Physical Gesture Handlers (Single-Mouse Solution)
+    function onComboPress(combo) {
+      const s = simState;
+      flashCommBlip();
+
+      if (combo === 'power_clock') {
+        // Power + Clock: Feature Setup Menu (cycles sensor modes or differential)
+        if (s.model !== 'prt-hw' && s.model !== 'tm1') {
+          s.sensorMode = (s.sensorMode + 1) % 5;
+          const modes = [
+            'Built-in Air (Mode 0)',
+            'Remote Air (Mode 1)',
+            'Floor Only (Mode 2)',
+            'Built-in + Floor Limit (Mode 3)',
+            'Remote + Floor Limit (Mode 4)'
+          ];
+          const selEl = document.getElementById('dcb-input-sensormode') || document.getElementById('select-sensor-mode');
+          if (selEl) selEl.value = s.sensorMode;
+          s.lastModifiedIndex = 13;
+          generateAndDisplayWriteFrame(13, [s.sensorMode], `thermostat.set_sensor_selection(${s.sensorMode})  # Power+Clock Setup Menu`);
+          showTamperToast(`⚙️ Setup Menu: Sensor set to ${modes[s.sensorMode]}`);
+        } else {
+          s.differential = (s.differential === 1.0) ? 2.0 : (s.differential === 2.0) ? 3.0 : 1.0;
+          const diffEl = document.getElementById('dcb-input-diff') || document.getElementById('select-switching-diff');
+          if (diffEl) diffEl.value = s.differential;
+          s.lastModifiedIndex = 6;
+          generateAndDisplayWriteFrame(6, [Math.round(s.differential)], `thermostat.set_differential(${Math.round(s.differential)})  # Setup Menu`);
+          showTamperToast(`⚙️ Setup Menu: Switching Diff = ${s.differential}°C`);
+        }
+      } else if (combo === 'down_up') {
+        // Down + Up: Anti-Tamper Keypad Lock Toggle (Addr 22)
+        s.keyLock = (s.keyLock > 0) ? 0 : 1;
+        const lockEl = document.getElementById('dcb-input-keylock') || document.getElementById('select-key-lock');
+        if (lockEl) lockEl.value = s.keyLock;
+        s.lastModifiedIndex = 22;
+        generateAndDisplayWriteFrame(22, [s.keyLock], `thermostat.set_key_lock(${s.keyLock})  # Down+Up Keypad Lock Toggle`);
+        showTamperToast(s.keyLock > 0 ? "🔒 Keypad Locked (Down + Up Pressed)" : "🔓 Keypad Unlocked (Down + Up Pressed)");
+      } else if (combo === 'hold_power') {
+        // Hold Power 3s: Standby / Frost Protection Toggle (Addr 21)
         s.runMode = (s.runMode === 1) ? 0 : 1;
+        const runEl = document.getElementById('dcb-input-runmode');
+        if (runEl) runEl.value = s.runMode;
         s.lastModifiedIndex = 21;
-        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})`);
-      } else if (btn === 'hold') {
-        s.tempHoldHours = (s.tempHoldHours > 0) ? 0 : 2;
-        s.tempHoldSetTemp = s.setTemp;
-        s.lastModifiedIndex = 26;
-        generateAndDisplayWriteFrame(32, [s.tempHoldHours & 0xff, 0], `thermostat.set_temp_hold(${s.tempHoldHours}, ${s.setTemp})`);
-      } else if (btn === 'mode') {
-        const models = ['prt', 'prt-hw', 'tm1', 'hcen'];
-        const nextIdx = (models.indexOf(s.model) + 1) % models.length;
-        selectModel(models[nextIdx]);
-        return;
+        generateAndDisplayWriteFrame(21, [s.runMode], `thermostat.set_on_off(${s.runMode})  # Hold Power (3s Standby Toggle)`);
+        showTamperToast(s.runMode === 1 ? "⏻ Thermostat Switched ON (Hold Power)" : "❄️ Standby / Frost Protection Active (Hold Power)");
+      } else if (combo === 'h_a') {
+        // H + A: Comfort Hold / Hot Water Boost Toggle
+        if (s.model === 'prt-hw') {
+          s.hotWaterState = (s.hotWaterState === 1) ? 0 : 1;
+          const hwEl = document.getElementById('dcb-input-extra');
+          if (hwEl) hwEl.value = s.hotWaterState;
+          s.lastModifiedIndex = 41;
+          generateAndDisplayWriteFrame(41, [s.hotWaterState], `prt_hw.set_hot_water_boost(${s.hotWaterState})  # H+A HW Boost Toggle`);
+          showTamperToast(s.hotWaterState === 1 ? "🚿 Hot Water Boost ON (H + A Pressed)" : "🚿 Hot Water Boost OFF (H + A Pressed)");
+        } else if (s.model === 'tm1') {
+          s.timerState = (s.timerState === 1) ? 0 : 1;
+          const tmEl = document.getElementById('dcb-input-extra');
+          if (tmEl) tmEl.value = s.timerState;
+          s.lastModifiedIndex = 14;
+          generateAndDisplayWriteFrame(42, [s.timerState], `tm1.set_timer_state(${s.timerState})  # H+A Timer Override Toggle`);
+          showTamperToast(s.timerState === 1 ? "⏱️ TM1 Timer Overridden ON (H + A Pressed)" : "⏱️ TM1 Timer Auto Schedule (H + A Pressed)");
+        } else {
+          s.tempHoldHours = (s.tempHoldHours > 0) ? 0 : 2;
+          s.tempHoldSetTemp = (s.tempHoldHours > 0) ? Math.min(35, s.setTemp + 2) : s.setTemp;
+          s.lastModifiedIndex = 26;
+          generateAndDisplayWriteFrame(26, [s.tempHoldHours, 0], `thermostat.set_temp_hold(${s.tempHoldHours}, ${s.tempHoldSetTemp})  # H+A Quick Boost`);
+          showTamperToast(s.tempHoldHours > 0 ? `🏠 2-Hour Comfort Hold Active (${s.tempHoldSetTemp}°C)` : "🏠 Comfort Hold Cancelled");
+        }
+      } else if (combo === 'hold_clock') {
+        // Hold Clock 3s: Synchronize Real Time Clock (Addr 43)
+        const now = new Date();
+        const week = (now.getDay() === 0) ? 7 : now.getDay();
+        const hr = now.getHours();
+        const min = now.getMinutes();
+        const sec = now.getSeconds();
+        s.lastModifiedIndex = 43;
+        generateAndDisplayWriteFrame(43, [week, hr, min, sec], `thermostat.set_time(week=${week}, hr=${hr}, min=${min}, sec=${sec})  # Hold Clock Sync`);
+        showTamperToast(`🕒 Clock Synchronized to ${String(hr).padStart(2, '0')}:${String(min).padStart(2, '0')}`);
       }
 
       evaluateThermostat();
@@ -3818,6 +5260,7 @@ tm1.set_weekday_schedule(weekday_schedule)
 
       updateCalcFields();
       evaluateThermostat();
+      calcInteractiveCrc();
 
       // Real-time Clock simulation
       setInterval(() => {

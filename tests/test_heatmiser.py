@@ -1,6 +1,6 @@
 """Tests for HeatmiserThermostat and CRC Methods."""
 import unittest
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, call, patch
 import serial
 from heatmiserv3 import heatmiser, constants
 from tests.conftest import FakeUH1, build_prt_default_dcb
@@ -258,3 +258,227 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
         tm1 = heatmiser.TM1Thermostat(1, FakeUH1(model="tm1"))
         with self.assertRaises(ValueError):
             tm1.set_day_schedule("funday", [0] * 16)
+
+    def test_set_on_off_valid_and_bounds(self):
+        assert self.thermostat.set_on_off(1) is True
+        assert self.thermostat.set_on_off(0) is True
+        assert self.thermostat.set_on_off(True) is True
+        assert self.thermostat.set_on_off(False) is True
+        assert self.thermostat.set_on_off(2) is False
+        assert self.thermostat.set_on_off(-1) is False
+        assert self.thermostat.set_on_off("on") is False
+
+    def test_get_on_off(self):
+        self.thermostat.dcb[21] = {"value": 1, "label": "On/off"}
+        assert self.thermostat.get_on_off() == 1
+        self.thermostat.dcb[21] = {"value": 0, "label": "On/off"}
+        assert self.thermostat.get_on_off() == 0
+
+    def test_set_key_lock_valid_and_bounds(self):
+        assert self.thermostat.set_key_lock(1) is True
+        assert self.thermostat.set_key_lock(0) is True
+        assert self.thermostat.set_key_lock(True) is True
+        assert self.thermostat.set_key_lock(False) is True
+        assert self.thermostat.set_key_lock(2) is False
+        assert self.thermostat.set_key_lock(-1) is False
+        assert self.thermostat.set_key_lock("lock") is False
+
+    def test_get_key_lock(self):
+        self.thermostat.dcb[22] = {"value": 1, "label": "Key lock"}
+        assert self.thermostat.get_key_lock() == 1
+        self.thermostat.dcb[22] = {"value": 0, "label": "Key lock"}
+        assert self.thermostat.get_key_lock() == 0
+
+    def test_set_temperature_format_valid_and_bounds(self):
+        assert self.thermostat.set_temperature_format(0) is True
+        assert self.thermostat.set_temperature_format(1) is True
+        assert self.thermostat.set_temperature_format("C") is True
+        assert self.thermostat.set_temperature_format("c") is True
+        assert self.thermostat.set_temperature_format("Celsius") is True
+        assert self.thermostat.set_temperature_format("F") is True
+        assert self.thermostat.set_temperature_format("f") is True
+        assert self.thermostat.set_temperature_format("Fahrenheit") is True
+        assert self.thermostat.set_temperature_format(2) is False
+        assert self.thermostat.set_temperature_format(-1) is False
+        assert self.thermostat.set_temperature_format(True) is False
+        assert self.thermostat.set_temperature_format("Kelvin") is False
+
+    def test_set_differential_valid_and_bounds(self):
+        assert self.thermostat.set_differential(1) is True
+        assert self.thermostat.set_differential(2) is True
+        assert self.thermostat.set_differential(3) is True
+        assert self.thermostat.set_differential(0) is False
+        assert self.thermostat.set_differential(4) is False
+        assert self.thermostat.set_differential(-1) is False
+        assert self.thermostat.set_differential(True) is False
+
+    def test_get_differential(self):
+        self.thermostat.dcb[6] = {"value": 2, "label": "Switch Differential"}
+        assert self.thermostat.get_differential() == 2
+
+    def test_set_sensor_selection_valid_and_bounds(self):
+        for mode in (0, 1, 2, 3, 4):
+            assert self.thermostat.set_sensor_selection(mode) is True
+        assert self.thermostat.set_sensor_selection("built in") is True
+        assert self.thermostat.set_sensor_selection("built-in") is True
+        assert self.thermostat.set_sensor_selection("remote air") is True
+        assert self.thermostat.set_sensor_selection("floor") is True
+        assert self.thermostat.set_sensor_selection("built-in+floor") is True
+        assert self.thermostat.set_sensor_selection("remote+floor") is True
+        assert self.thermostat.set_sensor_selection(5) is False
+        assert self.thermostat.set_sensor_selection(-1) is False
+        assert self.thermostat.set_sensor_selection(True) is False
+        assert self.thermostat.set_sensor_selection("invalid_mode") is False
+
+    def test_set_holiday_hours_valid_and_bounds(self):
+        assert self.thermostat.set_holiday_hours(0) is True
+        assert self.thermostat.set_holiday_hours(168) is True
+        assert self.thermostat.set_holiday_hours(65535) is True
+        assert self.thermostat.set_holiday_hours(-1) is False
+        assert self.thermostat.set_holiday_hours(65536) is False
+        assert self.thermostat.set_holiday_hours(True) is False
+
+    def test_get_holiday_hours(self):
+        self.thermostat.dcb[24] = {"value": 1, "label": "Holiday hours"}
+        self.thermostat.dcb[25] = {"value": 44, "label": "Holiday hours"}
+        # (1 << 8) | 44 = 300
+        assert self.thermostat.get_holiday_hours() == 300
+
+    def test_set_temp_hold_valid_and_bounds(self):
+        assert self.thermostat.set_temp_hold(0) is True
+        assert self.thermostat.set_temp_hold(60) is True
+        assert self.thermostat.set_temp_hold(1800) is True
+        assert self.thermostat.set_temp_hold(120, temperature=22) is True
+        assert self.thermostat.set_temp_hold(-1) is False
+        assert self.thermostat.set_temp_hold(1801) is False
+        assert self.thermostat.set_temp_hold(True) is False
+        assert self.thermostat.set_temp_hold(60, temperature=4) is False
+        assert self.thermostat.set_temp_hold(60, temperature=36) is False
+        assert self.thermostat.set_temp_hold(60, temperature=True) is False
+
+    def test_get_temp_hold_minutes(self):
+        self.thermostat.dcb[26] = {"value": 0, "label": "Temp hold mins"}
+        self.thermostat.dcb[27] = {"value": 90, "label": "Temp hold mins"}
+        assert self.thermostat.get_temp_hold_minutes() == 90
+
+    def test_set_time_valid_and_bounds(self):
+        assert self.thermostat.set_time(1, 14, 30, 0) is True
+        assert self.thermostat.set_time(7, 23, 59, 59) is True
+        assert self.thermostat.set_time(0, 14, 30, 0) is False
+        assert self.thermostat.set_time(8, 14, 30, 0) is False
+        assert self.thermostat.set_time(1, 24, 30, 0) is False
+        assert self.thermostat.set_time(1, -1, 30, 0) is False
+        assert self.thermostat.set_time(1, 14, 60, 0) is False
+        assert self.thermostat.set_time(1, 14, 30, 60) is False
+        assert self.thermostat.set_time(True, 14, 30, 0) is False
+
+    def test_get_time(self):
+        self.thermostat.dcb[36] = {"value": 3, "label": "Week 1~7"}
+        self.thermostat.dcb[37] = {"value": 15, "label": "Hour"}
+        self.thermostat.dcb[38] = {"value": 45, "label": "Min"}
+        self.thermostat.dcb[39] = {"value": 30, "label": "Sec"}
+        rtc = self.thermostat.get_time()
+        assert rtc == {"week": 3, "hour": 15, "min": 45, "sec": 30}
+
+
+class TestPRTHWThermostatMethods(unittest.TestCase):
+    """Tests for PRTHWThermostat methods and restrictions."""
+
+    def setUp(self):
+        dcb_data = build_prt_default_dcb()
+        # Ensure DCB is large enough for PRTHW (e.g. index 36 is hot water state)
+        while len(dcb_data) <= 36:
+            dcb_data.append(0)
+        dcb_data[4] = constants.MODEL_PRTHW
+        dcb_data[35] = 1  # heating on
+        dcb_data[36] = 1  # hot water on
+        self.fake_uh1 = FakeUH1(payload=dcb_data, model="prt-hw")
+        self.thermostat = heatmiser.PRTHWThermostat(1, self.fake_uh1)
+
+    def test_init_prthw(self):
+        assert self.thermostat.address == 1
+        assert self.thermostat.model == "prt-hw"
+
+    def test_prthw_sensor_selection_restriction(self):
+        # PRT-HW hardware only supports built-in sensor (mode 0)
+        assert self.thermostat.set_sensor_selection(0) is True
+        assert self.thermostat.set_sensor_selection("built in") is True
+        assert self.thermostat.set_sensor_selection(1) is False
+        assert self.thermostat.set_sensor_selection(2) is False
+        assert self.thermostat.set_sensor_selection(3) is False
+        assert self.thermostat.set_sensor_selection(4) is False
+        assert self.thermostat.set_sensor_selection("remote air") is False
+
+    def test_prthw_hot_water_boost(self):
+        assert self.thermostat.set_hot_water_boost(1) is True
+        assert self.thermostat.set_hot_water_boost(0) is True
+        assert self.thermostat.set_hot_water_boost(True) is True
+        assert self.thermostat.set_hot_water_boost(False) is True
+        assert self.thermostat.set_hot_water_boost(2) is False
+        assert self.thermostat.set_hot_water_boost(-1) is False
+        assert self.thermostat.set_hot_water_boost("boost") is False
+
+    def test_prthw_get_states(self):
+        self.thermostat.dcb[35] = {"value": 1, "label": "Current heating state"}
+        self.thermostat.dcb[36] = {"value": 0, "label": "Current Hot water state"}
+        assert self.thermostat.get_heating_state() == 1
+        assert self.thermostat.get_hot_water_state() == 0
+
+
+class TestHeatmiserThermostatCachingAndDelegation(unittest.TestCase):
+    """Tests for DCB caching, TTL, invalidation, and UH1 bus delegation."""
+
+    def setUp(self):
+        self.dcb_data = build_prt_default_dcb()
+        self.fake_uh1 = FakeUH1(payload=self.dcb_data, model="prt")
+        self.thermostat = heatmiser.HeatmiserThermostat(1, "prt", self.fake_uh1, cache_ttl=2.0)
+
+    def test_dcb_cache_hit(self):
+        with patch.object(self.thermostat, "_hm_send_address") as mock_send:
+            dcb1 = self.thermostat.read_dcb()
+            dcb2 = self.thermostat.read_dcb()
+            assert dcb1 is dcb2
+            mock_send.assert_not_called()
+
+    def test_dcb_cache_force_refresh(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb(force=True)
+            mock_send.assert_called_once()
+
+    def test_dcb_cache_invalidation(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb()
+            mock_send.reset_mock()
+            self.thermostat.invalidate_cache()
+            self.thermostat.read_dcb()
+            mock_send.assert_called_once()
+
+    def test_write_operation_invalidates_cache(self):
+        with patch.object(self.thermostat, "_hm_send_address", wraps=self.thermostat._hm_send_address) as mock_send:
+            self.thermostat.read_dcb()
+            mock_send.reset_mock()
+            self.thermostat.set_target_temp(21)
+            self.thermostat.read_dcb()
+            assert mock_send.call_count == 2
+
+    def test_set_cache_ttl(self):
+        self.thermostat.set_cache_ttl(10.5)
+        assert self.thermostat.cache_ttl == 10.5
+        import pytest
+        with pytest.raises(ValueError):
+            self.thermostat.set_cache_ttl(-1.0)
+
+    def test_delegation_to_uh1_transact(self):
+        mock_uh1 = MagicMock()
+        mock_uh1.transact.return_value = [0x81, 7, 0, 1, 1, 0xb0, 0xeb]
+        stat = heatmiser.HeatmiserThermostat(1, "prt", mock_uh1)
+        res = stat._hm_send_msg(b"test")
+        assert res == [0x81, 7, 0, 1, 1, 0xb0, 0xeb]
+        assert mock_uh1.transact.call_args_list[-1] == call(b"test", 159)
+
+    def test_delegation_to_uh1_transact_exception_handled(self):
+        mock_uh1 = MagicMock()
+        mock_uh1.transact.side_effect = serial.serialutil.SerialException("Port disconnected")
+        stat = heatmiser.HeatmiserThermostat(1, "prt", mock_uh1)
+        res = stat._hm_send_msg(b"test")
+        assert res == []
