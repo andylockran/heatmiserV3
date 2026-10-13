@@ -2699,13 +2699,14 @@ tm1.set_weekday_schedule(weekday_schedule)
                 <option value="3">3°C Differential</option>
               </select>
             </div>
-            <div class="calc-field">
-              <label for="dcb-input-sensormode">Sensor Mode (Addr 28)</label>
+            <div class="calc-field" id="dcb-field-sensormode">
+              <label for="dcb-input-sensormode">Sensor Mode (Addr 13)</label>
               <select id="dcb-input-sensormode" onchange="applyDCBForm('sensormode')">
                 <option value="0">0: Internal Only</option>
                 <option value="1">1: Remote Air</option>
                 <option value="2">2: Floor Only</option>
                 <option value="3" selected>3: Internal + Floor</option>
+                <option value="4">4: Remote Air + Floor</option>
               </select>
             </div>
             <div class="calc-field">
@@ -3014,7 +3015,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       setTemp: 22.0,       // Addr 18: Target setpoint in °C
       frostTemp: 12.0,     // Addr 17: Frost protect setpoint
       differential: 1.0,   // Addr 27: 1, 2, 3 °C
-      sensorMode: 3,       // Addr 28: 0: Int, 1: Remote, 2: Floor, 3: Int+Floor
+      sensorMode: 3,       // Addr 13: 0: Int, 1: Remote, 2: Floor, 3: Int+Floor, 4: Remote+Floor
       floorMaxLimit: 32.0, // Addr 29: 20-45 °C
       holidayHours: 0,     // Addr 24-25: Remaining holiday hours
       tempHoldHours: 0,
@@ -3072,6 +3073,8 @@ tm1.set_weekday_schedule(weekday_schedule)
       const extraField = document.getElementById('dcb-field-model-specific');
       const extraLabel = document.getElementById('dcb-label-extra');
       const extraSelect = document.getElementById('dcb-input-extra');
+      const sensorField = document.getElementById('dcb-field-sensormode');
+      const sensorInput = document.getElementById('dcb-input-sensormode');
       const hwTitle = document.getElementById('relay-hw-title');
       const secLabel = document.getElementById('eq-secondary-label');
       const tag = document.getElementById('screen-model-tag');
@@ -3080,6 +3083,8 @@ tm1.set_weekday_schedule(weekday_schedule)
       if (model === 'prt') {
         tag.textContent = 'PRT-N (v3.9)';
         extraField.style.display = 'none';
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) sensorInput.disabled = false;
         hwTitle.textContent = 'Relay 2: Auxiliary (Unused)';
         secLabel.textContent = 'Auxiliary Relay';
         sizeLabel.textContent = '73 Bytes';
@@ -3089,6 +3094,13 @@ tm1.set_weekday_schedule(weekday_schedule)
         extraLabel.textContent = 'Hot Water State (Addr 41)';
         extraSelect.innerHTML = '<option value="0">0: Auto / Off</option><option value="1">1: Boost ON</option>';
         extraSelect.value = simState.hotWaterState;
+        // PRT-HW sensor selection is fixed to 0: Internal Only in spec
+        simState.sensorMode = 0;
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) {
+          sensorInput.value = '0';
+          sensorInput.disabled = true;
+        }
         hwTitle.textContent = 'Relay 2: Hot Water (Terminals 3 & 4)';
         secLabel.textContent = 'DHW Cylinder Valve';
         sizeLabel.textContent = '73 Bytes';
@@ -3098,12 +3110,17 @@ tm1.set_weekday_schedule(weekday_schedule)
         extraLabel.textContent = 'Timer Override (Addr 42)';
         extraSelect.innerHTML = '<option value="0">0: Auto (Program)</option><option value="1">1: Constant ON</option><option value="2">2: Constant OFF</option>';
         extraSelect.value = simState.timerState;
+        // TM1 has no temperature sensor
+        if (sensorField) sensorField.style.display = 'none';
+        if (sensorInput) sensorInput.disabled = true;
         hwTitle.textContent = 'Relay 2: Channel 2 (Aux)';
         secLabel.textContent = 'Timed Auxiliary Circuit';
         sizeLabel.textContent = '43 Bytes';
       } else if (model === 'hcen') {
         tag.textContent = 'HC-EN (Heat & Cool)';
         extraField.style.display = 'none';
+        if (sensorField) sensorField.style.display = 'block';
+        if (sensorInput) sensorInput.disabled = false;
         hwTitle.textContent = 'Relay 2: Cooling (Terminals 5 & 6)';
         secLabel.textContent = 'Chiller / AC Unit';
         sizeLabel.textContent = '73 Bytes';
@@ -3138,10 +3155,10 @@ tm1.set_weekday_schedule(weekday_schedule)
     // Thermodynamic & Electrical Evaluation Logic
     function evaluateThermostat() {
       const s = simState;
-      s.sensorFault = (!s.floorConnected && (s.sensorMode === 2 || s.sensorMode === 3));
+      s.sensorFault = (!s.floorConnected && (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4));
 
       // 1. Underfloor Overheat Safety Interlock
-      if (!s.sensorFault && (s.sensorMode === 2 || s.sensorMode === 3)) {
+      if (!s.sensorFault && (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4)) {
         if (s.floorTemp >= s.floorMaxLimit) {
           s.floorOverheatCutout = true;
         } else if (s.floorTemp <= s.floorMaxLimit - 1.0) {
@@ -3276,7 +3293,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       if (s.floorOverheatCutout) {
         floorReadout.textContent = `FLR HI ${s.floorTemp.toFixed(0)}°C`;
         floorReadout.className = 'lcd-floor-readout warning-flash';
-      } else if (s.sensorMode === 2 || s.sensorMode === 3) {
+      } else if (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4) {
         floorReadout.textContent = `FLR ${s.floorTemp.toFixed(1)}°C`;
         floorReadout.className = 'lcd-floor-readout';
       } else {
@@ -3395,7 +3412,7 @@ tm1.set_weekday_schedule(weekday_schedule)
         buffer[17] = Math.round(s.frostTemp);
         buffer[18] = Math.round(s.setTemp);
         buffer[19] = Math.round(s.floorMaxLimit);
-        buffer[20] = (s.sensorMode === 2 || s.sensorMode === 3) ? 1 : 0;
+        buffer[20] = (s.sensorMode === 2 || s.sensorMode === 3 || s.sensorMode === 4) ? 1 : 0;
         buffer[21] = s.runMode;
         buffer[22] = s.keyLock;
         buffer[23] = s.heatingRelay ? 1 : 0;
@@ -3510,7 +3527,7 @@ tm1.set_weekday_schedule(weekday_schedule)
       } else if (field === 'sensormode') {
         s.sensorMode = parseInt(document.getElementById('dcb-input-sensormode').value);
         s.lastModifiedIndex = 13;
-        generateAndDisplayWriteFrame(28, [s.sensorMode], `thermostat.set_sensor_mode(${s.sensorMode})`);
+        generateAndDisplayWriteFrame(13, [s.sensorMode], `thermostat.set_sensor_mode(${s.sensorMode})`);
       } else if (field === 'floorlimit') {
         s.floorMaxLimit = parseFloat(document.getElementById('dcb-input-floorlimit').value) || 32;
         s.lastModifiedIndex = 19;
