@@ -1,7 +1,7 @@
 # heatmiserv3
 
 [![Build Status](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml/badge.svg)](https://github.com/andylockran/heatmiserv3/actions/workflows/python-package.yml)
-[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://andylockran.github.io/heatmiserv3/)
+[![Documentation](https://img.shields.io/badge/docs-GitHub%20Pages-blue.svg)](https://andylockran.github.io/heatmiserV3/)
 [![Python Version](https://img.shields.io/badge/python-3.10%20%7C%203.11%20%7C%203.12%20%7C%203.13%20%7C%203.14-blue.svg)](https://github.com/andylockran/heatmiserv3)
 [![Packaging](https://img.shields.io/badge/packaging-uv%20%2B%20hatchling-purple.svg)](https://docs.astral.sh/uv/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE.TXT)
@@ -14,7 +14,7 @@
 
 ---
 
-📖 **[View the Complete Protocol & Library Documentation Website](https://andylockran.github.io/heatmiserv3/)**
+📖 **[View the Complete Protocol & Library Documentation Website](https://andylockran.github.io/heatmiserV3/)**
 
 The documentation includes an interactive **Visual Test Harness (Digital Twin)** simulating backlit LCDs, relay contact states, underfloor overheat cutouts, environment sliders, and live RS485 bytecode packet inspection.
 

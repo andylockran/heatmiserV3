@@ -6,7 +6,7 @@ Welcome to Heatmiser V3's Documentation!
 **heatmiserv3** is a Python library for interacting with Heatmiser Version 3 network thermostats over RS485 serial and UH1 wiring centres.
 
 .. note::
-   For the interactive browser-based portal, live frame inspector, and 5-zone multi-thermostat digital twin, visit the `GitHub Pages Live Portal <https://andylockran.github.io/heatmiserv3/>`_ and `Interactive Digital Twin <https://andylockran.github.io/heatmiserv3/twin.html>`_.
+   For the interactive browser-based portal, live frame inspector, and 5-zone multi-thermostat digital twin, visit the `GitHub Pages Live Portal <https://andylockran.github.io/heatmiserV3/>`_ and `Interactive Digital Twin <https://andylockran.github.io/heatmiserV3/twin.html>`_.
 
 Features
 --------
@@ -72,5 +72,5 @@ Table of Contents
    :maxdepth: 1
    :caption: Interactive Tools
 
-   GitHub Pages Live Portal <https://andylockran.github.io/heatmiserv3/>
-   Interactive Digital Twin <https://andylockran.github.io/heatmiserv3/twin.html>
+   GitHub Pages Live Portal <https://andylockran.github.io/heatmiserV3/>
+   Interactive Digital Twin <https://andylockran.github.io/heatmiserV3/twin.html>
