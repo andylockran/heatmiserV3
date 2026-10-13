@@ -5,7 +5,7 @@ Thank you for considering contributing to `heatmiserv3`! This library provides a
 ## Maintainer Note & Hardware Access
 
 As noted in [ADR 0002](docs/adrs/0002-logic-led-development.md), active maintainers currently lack access to physical thermostats. Development is guided by:
-1. Strict adherence to the official [Heatmiser V3 Protocol specification](heatmiser_v3_protocol_3.9.pdf).
+1. Strict adherence to the official [Heatmiser V3 Protocol specification](docs/heatmiser-v3-protocol-spec.md).
 2. Deterministic unit tests and test doubles (`FakeSerial`, `FakeUH1`).
 3. Feedback and test results from community members with active physical hardware installations.
 

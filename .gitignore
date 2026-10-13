@@ -30,3 +30,6 @@ htmlcov/
 *.swp
 *.swo
 .DS_Store
+
+# Documents / Binaries
+*.pdf
