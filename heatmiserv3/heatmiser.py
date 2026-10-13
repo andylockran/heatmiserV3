@@ -164,6 +164,9 @@ class HeatmiserThermostat:
         assert expectedLength == expectedLength
         badresponse = 0
         if protocol == constants.HMV3_ID:
+            if len(datal) < 7:
+                logger.error("Response is too short to contain a valid frame")
+                return False
             checksum = datal[len(datal) - 2:]
             rxmsg = datal[: len(datal) - 2]
             crc = CRC16()  # Initialises the CRC
@@ -231,10 +234,7 @@ class HeatmiserThermostat:
                 sys.stderr.write(serror)
                 badresponse += 1
 
-            if badresponse == 0:
-                return True
-            else:
-                return False
+            return badresponse == 0
 
         else:
             assert 0, "Un-supported protocol found %s" % protocol

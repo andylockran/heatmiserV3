@@ -83,6 +83,21 @@ class TestHeatmiserUH1(unittest.TestCase):
         reopened_port.open.assert_called()
 
     @patch("heatmiserv3.connection.serial.serial_for_url")
+    def test_reopen_updates_registered_thermostat_connection(self, mock_serial_for_url):
+        initial_port = MagicMock()
+        reopened_port = MagicMock()
+        mock_serial_for_url.side_effect = [initial_port, reopened_port]
+
+        uh1 = connection.HeatmiserUH1("192.168.1.100", "8068")
+        thermostat = MagicMock(spec=heatmiser.HeatmiserThermostat)
+        thermostat.address = 1
+        thermostat.conn = initial_port
+        uh1.registerThermostat(thermostat)
+
+        assert uh1.reopen(force=True) is True
+        assert thermostat.conn is reopened_port
+
+    @patch("heatmiserv3.connection.serial.serial_for_url")
     def test_reopen_without_force_when_open_returns_none(self, mock_serial_for_url):
         mock_port = MagicMock()
         mock_serial_for_url.return_value = mock_port

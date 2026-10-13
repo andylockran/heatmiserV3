@@ -80,6 +80,8 @@ class HeatmiserUH1:
             self._serport = self._new_serial_port()
             self._serport.open()
             self.status = True
+            for thermostat in self.thermostats.values():
+                thermostat.conn = self._serport
             return self.status
         else:
             logger.error("Cannot open serial port")

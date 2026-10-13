@@ -169,6 +169,18 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
         )
         assert valid is False
 
+    def test_verify_short_response_fails_cleanly(self):
+        for response in ([], [0x81, 7, 0, 1, constants.FUNC_WRITE]):
+            with self.subTest(response=response):
+                assert self.thermostat._hm_verify_message_crc_uk(
+                    0x81,
+                    constants.HMV3_ID,
+                    1,
+                    constants.FUNC_WRITE,
+                    1,
+                    response,
+                ) is False
+
     def test_serial_exception_triggers_reconnect(self):
         """Simulate serial exception in read and verify reconnect attempt."""
         mock_conn = MagicMock()
@@ -178,6 +190,14 @@ class TestHeatmiserThermostatMethods(unittest.TestCase):
         # Call _hm_send_msg - should not crash, should attempt reopen on self.uh1
         data = self.thermostat._hm_send_msg(b"test")
         assert data == []
+        assert self.fake_uh1.reopened is True
+
+    def test_serial_exception_does_not_crash_response_verification(self):
+        mock_conn = MagicMock()
+        mock_conn.read.side_effect = serial.serialutil.SerialException("Connection reset")
+        self.thermostat.conn = mock_conn
+
+        assert self.thermostat._hm_send_address(1, 0, 0, 0) == []
         assert self.fake_uh1.reopened is True
 
     def test_verify_message_dest_addr_illegal(self):
