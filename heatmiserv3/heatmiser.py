@@ -420,6 +420,194 @@ class HeatmiserThermostat:
             self._hm_send_address(self.address, 19, floor_max, 1)
             return True
 
+    #
+    # General Device & Operating Mode
+    #
+    def set_on_off(self, state):
+        """
+        Sets On/Off run state (Address 21).
+        0 = Off (Frost protection active)
+        1 = On (Normal operation)
+        """
+        if state not in (0, 1) and not isinstance(state, bool):
+            logger.info("Invalid on/off state %s; must be 0 (off) or 1 (on)", state)
+            return False
+        val = 1 if state else 0
+        self._hm_send_address(self.address, constants.ON_OFF_ADDR, val, constants.FUNC_WRITE)
+        return True
+
+    def get_on_off(self):
+        """Returns on/off state (0 = Off, 1 = On)."""
+        return self.dcb[21]["value"]
+
+    def set_key_lock(self, lock):
+        """
+        Sets Keypad Lock state (Address 22).
+        0 = Unlocked, 1 = Locked
+        """
+        if lock not in (0, 1) and not isinstance(lock, bool):
+            logger.info("Invalid key lock state %s; must be 0 (unlocked) or 1 (locked)", lock)
+            return False
+        val = 1 if lock else 0
+        self._hm_send_address(self.address, constants.KEY_LOCK_ADDR, val, constants.FUNC_WRITE)
+        return True
+
+    def get_key_lock(self):
+        """Returns keypad lock state (0 = Unlocked, 1 = Locked)."""
+        return self.dcb[22]["value"]
+
+    #
+    # Temperature & Regulation Settings
+    #
+    def set_temperature_format(self, temp_format):
+        """
+        Sets temperature format (Address 5).
+        0 or "C" = Celsius
+        1 or "F" = Fahrenheit
+        """
+        if isinstance(temp_format, str):
+            tf_upper = temp_format.strip().upper()
+            if tf_upper in ("C", "CELSIUS"):
+                val = constants.TEMP_FORMAT_CELSIUS
+            elif tf_upper in ("F", "FAHRENHEIT"):
+                val = constants.TEMP_FORMAT_FAHRENHEIT
+            else:
+                logger.info("Invalid temperature format: %s", temp_format)
+                return False
+        elif temp_format in (0, 1) and not isinstance(temp_format, bool):
+            val = temp_format
+        else:
+            logger.info("Invalid temperature format: %s", temp_format)
+            return False
+        self._hm_send_address(self.address, constants.TEMP_FORMAT_ADDR, val, constants.FUNC_WRITE)
+        return True
+
+    def set_differential(self, diff):
+        """
+        Sets switching differential (Address 6).
+        Allowed range: 1 to 3 °C.
+        """
+        if isinstance(diff, bool) or not (1 <= diff <= 3):
+            logger.info("Switching differential %s out of allowed range [1, 3]", diff)
+            return False
+        self._hm_send_address(self.address, constants.SWITCH_DIFF_ADDR, int(diff), constants.FUNC_WRITE)
+        return True
+
+    def get_differential(self):
+        """Returns switching differential in °C (1..3)."""
+        return self.dcb[6]["value"]
+
+    #
+    # Sensor Selection
+    #
+    def set_sensor_selection(self, sensor_mode):
+        """
+        Sets temperature sensor selection mode (Address 13).
+        0 = Built-in air sensor
+        1 = Remote air sensor
+        2 = Floor sensor only
+        3 = Built-in air + Floor sensor
+        4 = Remote air + Floor sensor
+        """
+        mode_map = {
+            "built in": 0,
+            "built-in": 0,
+            "built in air": 0,
+            "built-in air": 0,
+            "built in air sensor": 0,
+            "remote air": 1,
+            "remote": 1,
+            "remote air sensor": 1,
+            "floor": 2,
+            "floor only": 2,
+            "floor sensor": 2,
+            "built-in+floor": 3,
+            "built in + floor": 3,
+            "remote+floor": 4,
+            "remote + floor": 4,
+        }
+        if isinstance(sensor_mode, str):
+            cleaned = sensor_mode.strip().lower()
+            if cleaned not in mode_map:
+                logger.info("Invalid sensor mode string: %s", sensor_mode)
+                return False
+            mode_val = mode_map[cleaned]
+        elif isinstance(sensor_mode, int) and not isinstance(sensor_mode, bool) and 0 <= sensor_mode <= 4:
+            mode_val = sensor_mode
+        else:
+            logger.info("Invalid sensor mode: %s", sensor_mode)
+            return False
+        self._hm_send_address(self.address, constants.SENSOR_SELECTION_ADDR, mode_val, constants.FUNC_WRITE)
+        return True
+
+    #
+    # Timing, Hold & Vacation / Holiday
+    #
+    def set_holiday_hours(self, hours):
+        """
+        Sets holiday hours (Address 24).
+        Range: 0 to 65535 hours (0 to cancel).
+        Transmitted 2 bytes, low byte first on write.
+        """
+        if isinstance(hours, bool) or not (0 <= hours <= 65535):
+            logger.info("Holiday hours %s out of allowed range [0, 65535]", hours)
+            return False
+        payload = [hours & constants.BYTEMASK, (hours >> 8) & constants.BYTEMASK]
+        self._hm_send_address(self.address, constants.HOLIDAY_ADDR, payload, constants.FUNC_WRITE)
+        return True
+
+    def get_holiday_hours(self):
+        """Returns remaining holiday hours from DCB."""
+        return (self.dcb[24]["value"] << 8) | self.dcb[25]["value"]
+
+    def set_temp_hold(self, minutes, temperature=None):
+        """
+        Sets temperature hold duration in minutes (Address 26) and optional setpoint.
+        Range: 0 to 1800 minutes (0 to cancel).
+        Transmitted 2 bytes, low byte first on write.
+        If temperature is provided, also sets target temperature.
+        """
+        if isinstance(minutes, bool) or not (0 <= minutes <= 1800):
+            logger.info("Hold minutes %s out of allowed range [0, 1800]", minutes)
+            return False
+        if temperature is not None:
+            if isinstance(temperature, bool) or not (5 <= temperature <= 35):
+                logger.info("Refusing to set hold temp outside of allowed range [5, 35]")
+                return False
+            self.set_target_temp(temperature)
+        payload = [minutes & constants.BYTEMASK, (minutes >> 8) & constants.BYTEMASK]
+        self._hm_send_address(self.address, constants.TEMP_HOLD_ADDR, payload, constants.FUNC_WRITE)
+        return True
+
+    def get_temp_hold_minutes(self):
+        """Returns remaining temperature hold minutes from DCB."""
+        return (self.dcb[26]["value"] << 8) | self.dcb[27]["value"]
+
+    def set_time(self, week, hour, minute, second):
+        """
+        Sets real-time clock (RTC) (Address 43).
+        week: 1..7 (1=Monday .. 7=Sunday)
+        hour: 0..23, minute: 0..59, second: 0..59
+        """
+        for v in (week, hour, minute, second):
+            if isinstance(v, bool):
+                return False
+        if not (1 <= week <= 7 and 0 <= hour <= 23 and 0 <= minute <= 59 and 0 <= second <= 59):
+            logger.info("Invalid time/date values: week=%s, hr=%s, min=%s, sec=%s", week, hour, minute, second)
+            return False
+        payload = [week, hour, minute, second]
+        self._hm_send_address(self.address, constants.CUR_TIME_ADDR, payload, constants.FUNC_WRITE)
+        return True
+
+    def get_time(self):
+        """Returns real-time clock dictionary from DCB."""
+        return {
+            "week": self.dcb[36]["value"],
+            "hour": self.dcb[37]["value"],
+            "min": self.dcb[38]["value"],
+            "sec": self.dcb[39]["value"],
+        }
+
 
 class TM1Thermostat(HeatmiserThermostat):
     """
@@ -645,3 +833,52 @@ class TM1Thermostat(HeatmiserThermostat):
             2: "Countdown timer mode",
         }
         return modes.get(mode, "Unknown mode")
+
+
+class PRTHWThermostat(HeatmiserThermostat):
+    """
+    Representation of a Heatmiser PRT-HW thermostat.
+    Programmable Room Thermostat with independent Hot Water control channel.
+    Based on Section 3.4 of Heatmiser V3 System Protocol 3.9.
+    """
+
+    def __init__(self, address, uh1, model="prt-hw"):
+        super(PRTHWThermostat, self).__init__(address, model, uh1)
+
+    def set_sensor_selection(self, sensor_mode):
+        """
+        PRT-HW only supports built-in air sensor (mode 0).
+        External and floor sensors are unsupported because terminals are used for hot water.
+        """
+        allowed = (0, "built in", "built-in", "built in air", "built-in air", "built in air sensor")
+        if sensor_mode not in allowed and not (isinstance(sensor_mode, str) and sensor_mode.strip().lower() in allowed):
+            logger.info("PRT-HW hardware only supports built-in air sensor (mode 0)")
+            return False
+        return super(PRTHWThermostat, self).set_sensor_selection(0)
+
+    def set_hot_water_boost(self, state):
+        """
+        Sets Hot Water boost state (Address 41).
+        0 = Auto / Follow schedule
+        1 = Boost On
+        """
+        if state not in (0, 1) and not isinstance(state, bool):
+            logger.info("Invalid hot water boost state %s; must be 0 (auto) or 1 (boost)", state)
+            return False
+        val = 1 if state else 0
+        self._hm_send_address(self.address, constants.PRTHW_BOOST_ADDR, val, constants.FUNC_WRITE)
+        return True
+
+    def get_hot_water_state(self):
+        """
+        Returns current hot water state from DCB (index 36).
+        0 = Hot water off, 1 = Hot water on.
+        """
+        return self.dcb[36]["value"]
+
+    def get_heating_state(self):
+        """
+        Returns current heating state from DCB (index 35).
+        0 = Heating off, 1 = Heating on.
+        """
+        return self.dcb[35]["value"]
