@@ -1,6 +1,6 @@
 [project]
 name = "heatmiserv3"
-version = "3.0.0"
+version = "3.0.1"
 description = "A library to interact with Heatmiser Thermostats using V3 protocol."
 authors = [{ name = "Andy Loughran", email = "andy@lockran.com" }]
 requires-python = ">=3.10,<4"
