@@ -23,3 +23,8 @@ updates:
       actions:
         patterns:
           - "*"
+
+  - package-ecosystem: pip
+    directory: /docs
+    schedule:
+      interval: daily
